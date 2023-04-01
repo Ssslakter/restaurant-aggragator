@@ -12,6 +12,6 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Data\NewFolder\" />
+    <ProjectReference Include="..\RestaurantAggregator.Core\RestaurantAggregator.Core.csproj" />
   </ItemGroup>
 </Project>

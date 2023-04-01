@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33516.290
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestaurantAggregator.Api", "RestaurantAggregator.Api\RestaurantAggregator.Api.csproj", "{D57A47EB-474E-4CDE-8B9D-69A960285501}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RestaurantAggregator.Api", "RestaurantAggregator.Api\RestaurantAggregator.Api.csproj", "{D57A47EB-474E-4CDE-8B9D-69A960285501}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestaurantAggregator.Core", "RestaurantAggregator.Core\RestaurantAggregator.Core.csproj", "{807742C9-58F8-46A1-A8B1-1205BD58E80D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RestaurantAggregator.Core", "RestaurantAggregator.Core\RestaurantAggregator.Core.csproj", "{807742C9-58F8-46A1-A8B1-1205BD58E80D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestaurantAggregator.Auth", "RestaurantAggregator.Auth\RestaurantAggregator.Auth.csproj", "{E445B211-DD0A-4038-83B5-21462A2B0746}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RestaurantAggregator.Auth", "RestaurantAggregator.Auth\RestaurantAggregator.Auth.csproj", "{E445B211-DD0A-4038-83B5-21462A2B0746}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

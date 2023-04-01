@@ -1,10 +1,10 @@
-namespace RestaurantAggregator.Api.Data.Db;
+namespace RestaurantAggregator.Core.Data.Enums;
 
 public enum Category
 {
     WOK,
     Pizza,
     Soup,
-    Desert,
+    Dessert,
     Drink
 }
