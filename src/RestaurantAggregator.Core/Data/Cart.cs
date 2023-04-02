@@ -1,6 +1,6 @@
-namespace RestaurantAggregator.Core.Data.DTO;
+namespace RestaurantAggregator.Core.Data;
 #nullable disable
-public class CartDTO
+public class Cart
 {
     public ICollection<DishInCart> Dishes { get; set; }
 }

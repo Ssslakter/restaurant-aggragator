@@ -9,5 +9,5 @@ public interface IDishService
     Task CreateDishAsync(DishCreation dish);
     Task UpdateDishAsync(DishCreation dish, Guid id);
     Task DeleteDishAsync(Guid id);
-    Task AddReviewToDishAsync(Guid dishId, Guid userId, ReviewDTO reviewModel);
+    Task AddReviewToDishAsync(Guid dishId, Guid clientId, ReviewDTO reviewModel);
 }

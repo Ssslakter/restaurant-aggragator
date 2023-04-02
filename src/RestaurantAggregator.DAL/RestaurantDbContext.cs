@@ -10,6 +10,6 @@ namespace RestaurantAggregator.DAL
         public DbSet<Menu> Menus { get; set; }
         public DbSet<Dish> Dishes { get; set; }
         public DbSet<Order> Orders { get; set; }
-
+        public DbSet<Client> Clients { get; set; }
     }
 }
