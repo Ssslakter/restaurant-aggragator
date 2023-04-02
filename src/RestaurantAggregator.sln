@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RestaurantAggregator.Auth",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestaurantAggregator.DAL", "RestaurantAggregator.DAL\RestaurantAggregator.DAL.csproj", "{C915B56A-CE68-4AB3-BBB8-67021CEE3472}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestaurantAggregator.BL", "RestaurantAggregator.BL\RestaurantAggregator.BL.csproj", "{83808234-FE95-4994-A40C-A7E041C8E955}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{C915B56A-CE68-4AB3-BBB8-67021CEE3472}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C915B56A-CE68-4AB3-BBB8-67021CEE3472}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C915B56A-CE68-4AB3-BBB8-67021CEE3472}.Release|Any CPU.Build.0 = Release|Any CPU
+		{83808234-FE95-4994-A40C-A7E041C8E955}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83808234-FE95-4994-A40C-A7E041C8E955}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83808234-FE95-4994-A40C-A7E041C8E955}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83808234-FE95-4994-A40C-A7E041C8E955}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -6,5 +6,5 @@ public class MenuDetails
     public Guid Id { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
-    public ICollection<Dish> Dishes { get; set; }
+    public ICollection<DishDTO> Dishes { get; set; }
 }

@@ -6,6 +6,7 @@ namespace RestaurantAggregator.Api.Data.DTO;
 public class OrderDTO
 {
     public Guid Id { get; set; }
+    public uint OrderNumber { get; set; }
     public OrderStatus Status { get; set; }
     public DateTime OrderTime { get; set; }
     public DateTime? DeliveryTime { get; set; }

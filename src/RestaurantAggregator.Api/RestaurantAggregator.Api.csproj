@@ -13,5 +13,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\RestaurantAggregator.Core\RestaurantAggregator.Core.csproj" />
+    <ProjectReference Include="..\RestaurantAggregator.BL\RestaurantAggregator.BL.csproj" />
   </ItemGroup>
 </Project>

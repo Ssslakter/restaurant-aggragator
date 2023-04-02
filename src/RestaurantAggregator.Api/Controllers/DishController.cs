@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using RestaurantAggregator.Core.Data;
 using RestaurantAggregator.Core.Data.DTO;
 
 namespace RestaurantAggregator.Api.Controllers;
@@ -9,7 +8,7 @@ namespace RestaurantAggregator.Api.Controllers;
 public class DishController : ControllerBase
 {
     [HttpGet("{dishId}")]
-    public Task<ActionResult<Dish>> GetDishInfo(Guid dishId)
+    public Task<ActionResult<DishDTO>> GetDishInfo(Guid dishId)
     {
         throw new NotImplementedException();
     }

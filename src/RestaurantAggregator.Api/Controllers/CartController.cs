@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using RestaurantAggregator.Core.Data;
+using RestaurantAggregator.Core.Data.DTO;
 
 namespace RestaurantAggregator.Api.Controllers;
 
@@ -9,7 +9,7 @@ namespace RestaurantAggregator.Api.Controllers;
 public class CartController : ControllerBase
 {
     [HttpGet]
-    public Task<ActionResult<Cart>> GetCart()
+    public Task<ActionResult<CartDTO>> GetCart()
     {
         throw new NotImplementedException();
     }

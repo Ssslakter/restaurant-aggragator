@@ -1,3 +1,5 @@
+using RestaurantAggregator.BL;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,6 +8,8 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+var cfg = builder.Configuration;
+builder.Services.RegisterServices(cfg);
 
 var app = builder.Build();
 

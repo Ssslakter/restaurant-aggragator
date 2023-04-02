@@ -1,4 +1,4 @@
-namespace RestaurantAggregator.Core.Data;
+namespace RestaurantAggregator.DAL.Data;
 #nullable disable
 public class Client
 {

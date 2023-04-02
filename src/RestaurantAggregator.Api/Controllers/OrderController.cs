@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using RestaurantAggregator.Api.Data.DTO;
-using RestaurantAggregator.Core.Data;
 using RestaurantAggregator.Core.Data.Enums;
 
 namespace RestaurantAggregator.Api.Controllers;
@@ -11,7 +10,7 @@ public class OrderController : ControllerBase
 {
     //Auth user
     [HttpPost("create")]
-    public Task<IActionResult> CreateOrderFromCart(Cart cart)
+    public Task<IActionResult> CreateOrderFromCart()
     {
         throw new NotImplementedException();
     }
