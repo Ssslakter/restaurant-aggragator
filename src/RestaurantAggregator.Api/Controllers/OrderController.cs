@@ -43,7 +43,7 @@ public class OrderController : ControllerBase
         throw new NotImplementedException();
     }
 
-    [HttpGet("/current/{restaurantId}")]
+    [HttpGet("current/{restaurantId}")]
     public Task<ActionResult<ICollection<OrderDTO>>> GetRestaurantCurrentOrders(Guid restaurantId, [FromQuery] uint page)
     {
         throw new NotImplementedException();
