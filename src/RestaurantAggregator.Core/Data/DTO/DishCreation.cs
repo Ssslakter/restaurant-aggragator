@@ -1,10 +1,10 @@
 using RestaurantAggregator.Core.Data.Enums;
 
-namespace RestaurantAggregator.Core.Data;
+namespace RestaurantAggregator.Core.Data.DTO;
 #nullable disable
-public class Dish
+
+public class DishCreation
 {
-    public Guid Id { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
     public double Price { get; set; }

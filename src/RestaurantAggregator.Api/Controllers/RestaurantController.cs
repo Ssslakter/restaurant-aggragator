@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using RestaurantAggregator.Core.Data.DTO;
 
 namespace RestaurantAggregator.Api.Controllers;
 
@@ -7,7 +8,7 @@ namespace RestaurantAggregator.Api.Controllers;
 public class RestaurantController : ControllerBase
 {
     [HttpGet("all")]
-    public Task<IActionResult> GetAllRestaurants()
+    public Task<ActionResult<ICollection<RestaurantDTO>>> GetAllRestaurants()
     {
         throw new NotImplementedException();
     }

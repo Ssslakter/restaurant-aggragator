@@ -12,4 +12,6 @@ public class Order
     public string Address { get; set; }
     public double Price { get; set; }
     public List<Dish> Dishes { get; set; }
+    //Client Id
+    public Guid UserId { get; set; }
 }

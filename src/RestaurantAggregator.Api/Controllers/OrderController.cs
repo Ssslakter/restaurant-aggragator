@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using RestaurantAggregator.Api.Data.DTO;
+using RestaurantAggregator.Core.Data.DTO;
 using RestaurantAggregator.Core.Data.Enums;
 
 namespace RestaurantAggregator.Api.Controllers;
@@ -11,7 +12,7 @@ public class OrderController : ControllerBase
 {
     //Auth user
     [HttpPost("create")]
-    public Task<ActionResult<OrderDTO>> CreateOrderFromCart(string orderModel)
+    public Task<IActionResult> CreateOrderFromCart(CartDTO cart)
     {
         throw new NotImplementedException();
     }
@@ -25,7 +26,27 @@ public class OrderController : ControllerBase
 
     //Auth user
     [HttpGet("history")]
-    public Task<ActionResult<ICollection<OrderDTO>>> GetOrderHistory([FromQuery] uint page)
+    public Task<ActionResult<ICollection<OrderDTO>>> GetPersonalOrderHistory([FromQuery] uint page)
+    {
+        throw new NotImplementedException();
+    }
+
+    //Auth user
+    [HttpGet("current")]
+    public Task<ActionResult<ICollection<OrderDTO>>> GetPersonalCurrentOrders([FromQuery] uint page)
+    {
+        throw new NotImplementedException();
+    }
+
+    [HttpGet("history/{restaurantId}")]
+    public Task<ActionResult<ICollection<OrderDTO>>> GetRestaurantOrderHistory(Guid restaurantId,
+        [FromQuery] uint page)
+    {
+        throw new NotImplementedException();
+    }
+
+    [HttpGet("/current/{restaurantId}")]
+    public Task<ActionResult<ICollection<OrderDTO>>> GetRestaurantCurrentOrders(Guid restaurantId, [FromQuery] uint page)
     {
         throw new NotImplementedException();
     }
@@ -47,14 +68,6 @@ public class OrderController : ControllerBase
     //Auth user
     [HttpGet("{orderId}/status")]
     public Task<ActionResult<OrderStatus>> GetOrderStatus(Guid orderId)
-    {
-        throw new NotImplementedException();
-    }
-
-    [HttpGet]
-    public Task<IActionResult> GetOrders([FromQuery, EnumDataType(typeof(Category))] ICollection<string> filters,
-        [FromQuery] string sorting,
-        [FromQuery] uint page)
     {
         throw new NotImplementedException();
     }

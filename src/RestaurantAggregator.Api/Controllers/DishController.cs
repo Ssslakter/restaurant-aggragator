@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using RestaurantAggregator.Core.Data;
+using RestaurantAggregator.Core.Data.DTO;
 
 namespace RestaurantAggregator.Api.Controllers;
 
@@ -7,31 +9,31 @@ namespace RestaurantAggregator.Api.Controllers;
 public class DishController : ControllerBase
 {
     [HttpGet("{dishId}")]
-    public Task<IActionResult> GetDishInfo(string dishId)
+    public Task<ActionResult<Dish>> GetDishInfo(Guid dishId)
     {
         throw new NotImplementedException();
     }
 
     [HttpPost("create")]
-    public Task<IActionResult> CreateDish(string dishModel)
+    public Task<IActionResult> CreateDish(DishCreation dish)
     {
         throw new NotImplementedException();
     }
 
     [HttpPut("{dishId}/edit")]
-    public Task<IActionResult> EditDish(string dishId, string dishModel)
+    public Task<IActionResult> EditDish(Guid dishId, DishCreation dish)
     {
         throw new NotImplementedException();
     }
 
     [HttpDelete("{dishId}/delete")]
-    public Task<IActionResult> DeleteDish(string dishId)
+    public Task<IActionResult> DeleteDish(Guid dishId)
     {
         throw new NotImplementedException();
     }
-
+    //TODO: add auth
     [HttpPost("{dishId}/review")]
-    public Task<IActionResult> AddDishReview(string dishId, string reviewModel)
+    public Task<IActionResult> AddDishReview(Guid dishId, ReviewDTO reviewModel)
     {
         throw new NotImplementedException();
     }
