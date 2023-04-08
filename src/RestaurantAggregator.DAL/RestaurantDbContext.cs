@@ -11,7 +11,6 @@ namespace RestaurantAggregator.DAL
         public DbSet<Menu> Menus { get; set; }
         public DbSet<Dish> Dishes { get; set; }
         public DbSet<Order> Orders { get; set; }
-        public DbSet<Client> Clients { get; set; }
 
         public RestaurantDbContext(DbContextOptions<RestaurantDbContext> options) : base(options)
         {
@@ -21,14 +20,14 @@ namespace RestaurantAggregator.DAL
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Review>()
-                .HasAlternateKey(r => new { r.DishId, r.UserId });
+                .HasAlternateKey(r => new { r.DishId, r.ClientId });
 
             modelBuilder.Entity<Order>()
                 .Property(r => r.OrderNumber)
                 .ValueGeneratedOnAdd();
 
             modelBuilder.Entity<Order>()
-                .HasAlternateKey(o => new { o.UserId, o.OrderTime });
+                .HasAlternateKey(o => new { o.ClientId, o.OrderTime });
         }
     }
 }
