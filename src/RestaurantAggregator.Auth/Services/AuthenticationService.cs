@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using RestaurantAggregator.Auth.Data.Entities;
 using RestaurantAggregator.Core.Exceptions;
+using RestaurantAggregator.Auth.Data;
 
 namespace RestaurantAggregator.Auth.Services;
 

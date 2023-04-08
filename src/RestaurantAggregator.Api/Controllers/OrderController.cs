@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using RestaurantAggregator.Api.Data.DTO;
 using RestaurantAggregator.Core.Data.Enums;
+using RestaurantAggregator.Core.Data.DTO;
 
 namespace RestaurantAggregator.Api.Controllers;
 

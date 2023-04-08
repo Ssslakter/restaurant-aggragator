@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using RestaurantAggregator.Auth.Data.Entities;
+using RestaurantAggregator.Auth.Data;
+using RestaurantAggregator.Auth;
 #nullable disable
-namespace RestaurantAggregator.Auth;
+namespace RestaurantAggregator.Auth.Data;
 
 public class AuthDbContext : DbContext
 {
