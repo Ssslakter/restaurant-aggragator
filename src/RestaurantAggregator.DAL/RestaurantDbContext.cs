@@ -4,7 +4,7 @@ using RestaurantAggregator.DAL.Data;
 #nullable disable
 namespace RestaurantAggregator.DAL
 {
-    internal class RestaurantDbContext : DbContext
+    public class RestaurantDbContext : DbContext
     {
         public DbSet<Restaurant> Restaurants { get; set; }
         public DbSet<Review> Reviews { get; set; }
