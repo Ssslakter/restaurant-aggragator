@@ -14,6 +14,7 @@ public class Order
     public string Address { get; set; }
     public double Price { get; set; }
     public List<DishDTO> Dishes { get; set; }
-    //Client Id
-    public Guid UserId { get; set; }
+    public Guid ClientId { get; set; }
+    public Guid CourierId { get; set; }
+    public Guid CookId { get; set; }
 }
