@@ -4,6 +4,7 @@ namespace RestaurantAggregator.DAL.Data;
 public class Cart
 {
     public Guid Id { get; set; }
+    public Guid ClientId { get; set; }
     public ICollection<DishInCart> Dishes { get; set; }
 }
 

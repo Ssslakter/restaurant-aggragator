@@ -4,6 +4,7 @@ namespace RestaurantAggregator.Core.Data.DTO;
 public class MenuDTO : MenuCreation
 {
     public Guid Id { get; set; }
+    public Guid RestaurantId { get; set; }
 }
 
 public class MenuCreation

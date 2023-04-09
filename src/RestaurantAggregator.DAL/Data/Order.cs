@@ -12,7 +12,7 @@ public class Order
     public DateTime OrderTime { get; set; }
     public DateTime? DeliveryTime { get; set; }
     public string Address { get; set; }
-    public double Price { get; set; }
+    public decimal Price { get; set; }
     public List<DishDTO> Dishes { get; set; }
     public Guid ClientId { get; set; }
     public Guid CourierId { get; set; }
