@@ -5,8 +5,8 @@ namespace RestaurantAggregator.Core.Services;
 
 public interface ICartService
 {
-    Task AddDishToCartAsync(Guid dishId, Guid clientId);
-    Task RemoveDishFromCartAsync(Guid dishId, Guid clientId);
+    Task AddDishToCartAsync(Guid dishId, Guid clientId, int quantity);
+    Task RemoveDishFromCartAsync(Guid dishId, Guid clientId, int quantity);
     Task<CartDTO> GetCartAsync(Guid clientId);
     Task ClearCartAsync(Guid clientId);
 }
