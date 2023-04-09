@@ -1,6 +1,6 @@
-using RestaurantAggregator.Api.Data.DTO;
 using RestaurantAggregator.Core.Data;
 using RestaurantAggregator.Core.Data.Enums;
+using RestaurantAggregator.Core.Data.DTO;
 
 namespace RestaurantAggregator.Core.Services;
 
