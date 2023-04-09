@@ -7,8 +7,9 @@ public record ErrorResponse(string Message);
 
 public static class ExceptionHandlingMiddleware
 {
-    public static void UseExceptionLogging(this IApplicationBuilder app, ILogger logger)
+    public static void UseExceptionLogging(this IApplicationBuilder app, ILoggerFactory loggerFactory)
     {
+        var logger = loggerFactory.CreateLogger("ExceptionHandlingMiddleware");
         app.Use(async (context, next) =>
         {
             try
@@ -23,7 +24,7 @@ public static class ExceptionHandlingMiddleware
             }
             catch (NotFoundInDbException ex)
             {
-                logger.LogWarning(ex, "NotFoundInDb");
+                logger.LogInformation(ex, "NotFoundInDb");
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;
                 await context.Response.WriteAsJsonAsync(new ErrorResponse(ex.Message));
             }
@@ -31,6 +32,7 @@ public static class ExceptionHandlingMiddleware
             {
                 logger.LogError(ex, "ServerError");
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                await context.Response.WriteAsJsonAsync(new ErrorResponse("Internal server error"));
             }
         });
     }

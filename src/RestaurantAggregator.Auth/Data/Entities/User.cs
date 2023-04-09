@@ -11,5 +11,5 @@ public class User
     public string Phone { get; set; }
     public string Address { get; set; }
     public string PasswordHash { get; set; }
-    public ICollection<Role> Roles { get; set; }
+    public ICollection<UserRole> Roles { get; set; }
 }
