@@ -1,6 +1,6 @@
 using RestaurantAggregator.Core.Data.DTO;
 
-namespace RestaurantAggregator.Api.Data.DTO;
+namespace RestaurantAggregator.Core.Data.DTO;
 #nullable disable
 public class OrderDetails : OrderDTO
 {
