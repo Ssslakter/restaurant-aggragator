@@ -22,14 +22,14 @@ public class CartService : ICartService
         {
             throw new NotFoundInDbException($"Dish with id {dishId} not found");
         }
-        var dishInCart = await _context.Carts.FirstOrDefaultAsync(c => c.ClientId == clientId && c.DishId == dishId);
+        var dishInCart = await _context.DishesInCarts.FirstOrDefaultAsync(c => c.ClientId == clientId && c.DishId == dishId && !c.InOrder);
         if (dishInCart != null)
         {
             dishInCart.Count += quantity;
             await _context.SaveChangesAsync();
             return;
         }
-        await _context.Carts.AddAsync(new DishInCart
+        await _context.DishesInCarts.AddAsync(new DishInCart
         {
             ClientId = clientId,
             Dish = dish,
@@ -41,28 +41,25 @@ public class CartService : ICartService
 
     public async Task ClearCartAsync(Guid clientId)
     {
-        await _context.Carts.Where(c => c.ClientId == clientId).ExecuteDeleteAsync();
+        await _context.DishesInCarts.Where(c => c.ClientId == clientId && !c.InOrder).ExecuteDeleteAsync();
     }
 
     public async Task<CartDTO> GetCartAsync(Guid clientId)
     {
-        var dishes = _context.Carts.Include(c => c.Dish).Where(c => c.ClientId == clientId).Select(x => new { x.Dish, x.Count }).ToListAsync();
+        var dishes = _context.DishesInCarts.Include(c => c.Dish).Where(c => c.ClientId == clientId && !c.InOrder).Select(x => new { x.Dish, x.Count }).ToListAsync();
         return new CartDTO
         {
             ClientId = clientId,
             Dishes = (await dishes).ConvertAll(x => new DishInCartDTO
             {
-                Dish = new DishDTO
-                {
-                    Id = x.Dish.Id,
-                    Name = x.Dish.Name,
-                    Description = x.Dish.Description,
-                    Price = x.Dish.Price,
-                    MenuId = x.Dish.MenuId,
-                    Photo = x.Dish.Photo,
-                    IsVegeterian = x.Dish.IsVegeterian,
-                    Category = x.Dish.Category,
-                },
+                Id = x.Dish.Id,
+                Name = x.Dish.Name,
+                Description = x.Dish.Description,
+                Price = x.Dish.Price,
+                MenuId = x.Dish.MenuId,
+                Photo = x.Dish.Photo,
+                IsVegeterian = x.Dish.IsVegeterian,
+                Category = x.Dish.Category,
                 Count = x.Count,
             }),
         };
@@ -75,14 +72,14 @@ public class CartService : ICartService
         {
             throw new NotFoundInDbException($"Dish with id {dishId} not found");
         }
-        var dishInCart = await _context.Carts.FirstOrDefaultAsync(c => c.ClientId == clientId && c.DishId == dishId);
+        var dishInCart = await _context.DishesInCarts.FirstOrDefaultAsync(c => c.ClientId == clientId && c.DishId == dishId && !c.InOrder);
         if (dishInCart == null)
         {
             throw new NotFoundInDbException($"Dish with id {dishId} not found in cart");
         }
         if (dishInCart.Count <= quantity)
         {
-            _context.Carts.Remove(dishInCart);
+            _context.DishesInCarts.Remove(dishInCart);
         }
         else
         {
