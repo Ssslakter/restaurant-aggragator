@@ -1,42 +1,82 @@
 using Microsoft.EntityFrameworkCore;
 using RestaurantAggregator.Auth.Data.Entities;
-using RestaurantAggregator.Auth.Data;
-using RestaurantAggregator.Auth;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using RestaurantAggregator.Auth.Data.Enums;
+
 #nullable disable
 namespace RestaurantAggregator.Auth.Data;
 
-public class AuthDbContext : DbContext
+public class AuthDbContext : IdentityDbContext<User, Role, Guid>
 {
-    public DbSet<User> Users { get; set; }
+    public DbSet<Client> Clients { get; set; }
     public DbSet<Manager> Managers { get; set; }
-    public DbSet<UserRole> UserRoles { get; set; }
-    public DbSet<Role> Roles { get; set; }
+    public DbSet<Courier> Couriers { get; set; }
+    public DbSet<Cook> Cooks { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
     public AuthDbContext(DbContextOptions<AuthDbContext> options) : base(options)
     {
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<User>()
-            .HasMany(u => u.Roles)
-            .WithMany(r => r.Users)
-            .UsingEntity(j => j.ToTable("UsersWithRoles"));
+        base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<User>()
-        .HasAlternateKey(u => u.Email);
+        modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasOne(u => u.Client)
+                .WithOne(c => c.User)
+                .HasForeignKey<Client>().IsRequired();
 
-        modelBuilder.Entity<Manager>()
-            .HasOne(m => m.User);
+                entity.HasOne(u => u.Manager)
+                .WithOne(c => c.User)
+                .HasForeignKey<Manager>().IsRequired();
 
-        modelBuilder.Entity<UserRole>()
-        .HasAlternateKey(r => r.Role);
+                entity.HasOne(u => u.Cook)
+                .WithOne(c => c.User)
+                .HasForeignKey<Cook>().IsRequired();
 
-        modelBuilder.Entity<UserRole>()
-        .HasAlternateKey(r => r.Name);
+                entity.HasOne(u => u.Courier)
+                .WithOne(c => c.User)
+                .HasForeignKey<Courier>().IsRequired();
+            });
 
-        modelBuilder.Entity<UserRole>().HasData(
-            new UserRole { Name = "Client", Role = Role.Client, Id = 1 }
-        );
+        modelBuilder.Entity<Role>()
+        .HasAlternateKey(r => r.RoleType);
+
+        modelBuilder.Entity<Role>().HasData(new Role
+        {
+            Id = Guid.NewGuid(),
+            Name = nameof(RoleType.Manager),
+            NormalizedName = nameof(RoleType.Manager).ToUpper(),
+            RoleType = RoleType.Manager
+        });
+        modelBuilder.Entity<Role>().HasData(new Role
+        {
+            Id = Guid.NewGuid(),
+            Name = nameof(RoleType.Cook),
+            NormalizedName = nameof(RoleType.Cook).ToUpper(),
+            RoleType = RoleType.Cook
+        });
+        modelBuilder.Entity<Role>().HasData(new Role
+        {
+            Id = Guid.NewGuid(),
+            Name = nameof(RoleType.Courier),
+            NormalizedName = nameof(RoleType.Courier).ToUpper(),
+            RoleType = RoleType.Courier
+        });
+        modelBuilder.Entity<Role>().HasData(new Role
+        {
+            Id = Guid.NewGuid(),
+            Name = nameof(RoleType.Client),
+            NormalizedName = nameof(RoleType.Client).ToUpper(),
+            RoleType = RoleType.Client
+        });
+        modelBuilder.Entity<Role>().HasData(new Role
+        {
+            Id = Guid.NewGuid(),
+            Name = nameof(RoleType.Admin),
+            NormalizedName = nameof(RoleType.Admin).ToUpper(),
+            RoleType = RoleType.Admin
+        });
     }
 }

@@ -2,21 +2,18 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
-using RestaurantAggregator.Auth.Utils;
 
 namespace RestaurantAggregator.Auth.Middlewares;
 
 public class TokenValidationMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly ITokenStorage _tokenStorage;
 
     private readonly ILogger<TokenValidationMiddleware> _logger;
 
-    public TokenValidationMiddleware(RequestDelegate next, ITokenStorage tokenStorage, ILogger<TokenValidationMiddleware> logger)
+    public TokenValidationMiddleware(RequestDelegate next, ILogger<TokenValidationMiddleware> logger)
     {
         _next = next;
-        _tokenStorage = tokenStorage;
         _logger = logger;
     }
 
@@ -28,7 +25,7 @@ public class TokenValidationMiddleware
             return;
         }
         var accessToken = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-        if (!string.IsNullOrEmpty(accessToken) && !await _tokenStorage.IsTokenActiveAsync(accessToken))
+        if (!string.IsNullOrEmpty(accessToken))
         {
             _logger.LogInformation("Token is not valid", accessToken);
             context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;

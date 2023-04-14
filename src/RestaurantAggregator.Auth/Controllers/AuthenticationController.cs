@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using RestaurantAggregator.Auth.Data.DTO;
 using RestaurantAggregator.Auth.Data.Enums;
 using RestaurantAggregator.Auth.Services;
-using RestaurantAggregator.Auth.Utils;
 using RestaurantAggregator.Core.Exceptions;
 
 namespace RestaurantAggregator.Auth.Controllers;
@@ -14,39 +13,26 @@ namespace RestaurantAggregator.Auth.Controllers;
 public class AuthenticationController : ControllerBase
 {
     private readonly IUserAuthentication _authentificationService;
-    private readonly IRolesHandler _rolesHandler;
     private readonly ILogger<AuthenticationController> _logger;
 
-    public AuthenticationController(IUserAuthentication authentificationService, IRolesHandler rolesHandler, ILogger<AuthenticationController> logger)
+    public AuthenticationController(IUserAuthentication authentificationService, ILogger<AuthenticationController> logger)
     {
         _authentificationService = authentificationService;
-        _rolesHandler = rolesHandler;
         _logger = logger;
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<object>> Login(LoginModel loginModel)
+    public async Task<ActionResult<TokenModel>> Login(LoginModel loginModel)
     {
         var user = await _authentificationService.Login(loginModel.Email, loginModel.Password);
-        var token = _authentificationService.GenerateJwtToken(user);
-        return Ok(new { token });
+        return Ok(await _authentificationService.GenerateTokenPairAsync(user));
     }
 
     [HttpPost("register")]
-    public async Task<ActionResult<object>> RegisterClient(RegistrationModel registrationModel)
+    public async Task<ActionResult<TokenModel>> Register(RegistrationModel registrationModel)
     {
         var user = await _authentificationService.Register(registrationModel);
-        try
-        {
-            await _rolesHandler.AddRoleToUserAsync(user, Role.Client);
-        }
-        catch (NotFoundInDbException e)
-        {
-            _logger.LogError(e, "Role Client was not found, which is not expected");
-            throw new Exception();
-        }
-        var token = _authentificationService.GenerateJwtToken(user);
-        return Ok(new { token });
+        return Ok(await _authentificationService.GenerateTokenPairAsync(user));
     }
     [HttpPost("logout")]
     [Authorize]
@@ -54,7 +40,14 @@ public class AuthenticationController : ControllerBase
     {
         var token = Request.Headers["Authorization"].ToString().Split(" ").Last();
         var userId = Guid.Parse(User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value);
-        await _authentificationService.Logout(token, userId);
+        await _authentificationService.Logout(userId);
         return Ok();
+    }
+
+    [HttpPost("refresh")]
+    public async Task<ActionResult<TokenModel>> RefreshToken([FromBody] string refreshToken)
+    {
+        var user = await _authentificationService.FindByRefreshToken(refreshToken);
+        return Ok(await _authentificationService.GenerateTokenPairAsync(user));
     }
 }

@@ -1,8 +1,8 @@
 namespace RestaurantAggregator.Auth.Data.Entities;
 #nullable disable
-public class UserRole
+public class Courier
 {
-    public int Id { get; set; }
-    public Role Role { get; set; }
+    public Guid Id { get; set; }
     public User User { get; set; }
+    public Guid UserId { get; set; }
 }

@@ -1,13 +1,11 @@
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using RestaurantAggregator.Auth.Data;
 using RestaurantAggregator.Auth.Data.Entities;
 using RestaurantAggregator.Auth.Services;
-using RestaurantAggregator.Auth.Utils;
 using StackExchange.Redis;
+using Role = RestaurantAggregator.Auth.Data.Entities.Role;
 
 namespace RestaurantAggregator.Auth.Extensions;
 
@@ -24,7 +22,6 @@ public static class ServicesExtension
 
         services.AddAuthorization();
         services.AddScoped<IUserAuthentication, UserAuthentication>();
-        services.AddScoped<IRolesHandler, RolesHandler>();
         return services;
     }
 
@@ -50,7 +47,6 @@ public static class ServicesExtension
         services.AddDbContext<AuthDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("Auth")));
 
-        services.AddSingleton<ITokenStorage, TokenStorage>();
         services.AddSingleton<IConnectionMultiplexer>(_ =>
         {
 #nullable disable
@@ -59,6 +55,10 @@ public static class ServicesExtension
             return ConnectionMultiplexer.Connect(configurationOptions);
         });
 
+        services.AddIdentity<User, Role>(o => o.Password.RequireNonAlphanumeric = false)
+            .AddEntityFrameworkStores<AuthDbContext>();
+        services.AddScoped<RoleManager<Role>>();
+        services.AddScoped<UserManager<User>>();
         return services;
     }
 }
