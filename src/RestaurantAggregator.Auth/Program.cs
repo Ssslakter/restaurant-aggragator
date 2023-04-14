@@ -23,7 +23,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.ExceptionHandlingMiddleware();
 // Configure the HTTP request pipeline.
 app.UseExceptionLogging(LoggerFactory.Create(builder => builder.AddConsole()));
 app.UseHttpsRedirection();

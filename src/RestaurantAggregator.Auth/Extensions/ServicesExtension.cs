@@ -22,13 +22,7 @@ public static class ServicesExtension
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options => options.TokenValidationParameters = jwtAuthentication.GenerateTokenValidationParameters());
 
-        services.AddAuthorization(options =>
-        {
-            options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
-            options.AddPolicy("Manager", policy => policy.RequireRole("Manager"));
-            options.AddPolicy("Cook", policy => policy.RequireRole("Cook"));
-            options.AddPolicy("Courier", policy => policy.RequireRole("Courier"));
-        });
+        services.AddAuthorization();
         services.AddScoped<IUserAuthentication, UserAuthentication>();
         services.AddScoped<IRolesHandler, RolesHandler>();
         return services;

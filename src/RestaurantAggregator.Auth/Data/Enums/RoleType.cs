@@ -1,6 +1,6 @@
 namespace RestaurantAggregator.Auth.Data.Enums;
 
-public enum Role
+public enum RoleType
 {
     Client,
     Manager,

@@ -11,6 +11,7 @@ public class AuthDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<Manager> Managers { get; set; }
     public DbSet<UserRole> UserRoles { get; set; }
+    public DbSet<Role> Roles { get; set; }
     public AuthDbContext(DbContextOptions<AuthDbContext> options) : base(options)
     {
     }
@@ -33,5 +34,9 @@ public class AuthDbContext : DbContext
 
         modelBuilder.Entity<UserRole>()
         .HasAlternateKey(r => r.Name);
+
+        modelBuilder.Entity<UserRole>().HasData(
+            new UserRole { Name = "Client", Role = Role.Client, Id = 1 }
+        );
     }
 }

@@ -46,6 +46,10 @@ public class OrderService : IOrderService
         {
             throw new NotFoundInDbException($"Order with id {orderId} not found");
         }
+        if (status - order.Status != 1 && status != OrderStatus.Canceled)
+        {
+            throw new DbViolationException("Order status cannot be skipped");
+        }
         order.Status = status;
         await _context.SaveChangesAsync();
     }
@@ -109,22 +113,22 @@ public class OrderService : IOrderService
         };
     }
 
-    public async Task<ICollection<OrderDTO>> GetOrdersByClientIdAsync(Guid clientId, OrderStatus? status)
+    public async Task<ICollection<OrderDTO>> GetOrdersByClientIdAsync(Guid clientId, OrderStatus? status, uint page)
     {
         return await GetOrdersByFieldIdAsync(clientId, "client", status);
     }
 
-    public async Task<ICollection<OrderDTO>> GetOrdersByCookIdAsync(Guid cookId, OrderStatus? status)
+    public async Task<ICollection<OrderDTO>> GetOrdersByCookIdAsync(Guid cookId, OrderStatus? status, uint page)
     {
         return await GetOrdersByFieldIdAsync(cookId, "cook", status);
     }
 
-    public async Task<ICollection<OrderDTO>> GetOrdersByCourierIdAsync(Guid courierId, OrderStatus? status)
+    public async Task<ICollection<OrderDTO>> GetOrdersByCourierIdAsync(Guid courierId, OrderStatus? status, uint page)
     {
         return await GetOrdersByFieldIdAsync(courierId, "courier", status);
     }
 
-    public async Task<ICollection<OrderDTO>> GetOrdersByRestaurantIdAsync(Guid restaurantId, OrderStatus? status)
+    public async Task<ICollection<OrderDTO>> GetOrdersByRestaurantIdAsync(Guid restaurantId, OrderStatus? status, uint page)
     {
         return await GetOrdersByFieldIdAsync(restaurantId, "restaurant", status);
     }
