@@ -11,6 +11,7 @@ namespace RestaurantAggregator.DAL
         public DbSet<Menu> Menus { get; set; }
         public DbSet<Dish> Dishes { get; set; }
         public DbSet<Order> Orders { get; set; }
+        public DbSet<DishInCart> DishesInCarts { get; set; }
 
         public RestaurantDbContext(DbContextOptions<RestaurantDbContext> options) : base(options)
         {
@@ -28,6 +29,12 @@ namespace RestaurantAggregator.DAL
 
             modelBuilder.Entity<Order>()
                 .HasAlternateKey(o => new { o.ClientId, o.OrderTime });
+
+            modelBuilder.Entity<DishInCart>()
+                .HasIndex(c => c.OrderId);
+
+            modelBuilder.Entity<DishInCart>()
+                .HasAlternateKey(c => new { c.ClientId, c.DishId, c.OrderId });
         }
     }
 }

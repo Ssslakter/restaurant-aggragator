@@ -24,27 +24,14 @@ public class OrderController : ControllerBase
 
     //Auth user
     [HttpGet("history")]
-    public Task<ActionResult<ICollection<OrderDTO>>> GetPersonalOrderHistory([FromQuery] uint page)
-    {
-        throw new NotImplementedException();
-    }
-
-    //Auth user
-    [HttpGet("current")]
-    public Task<ActionResult<ICollection<OrderDTO>>> GetPersonalCurrentOrders([FromQuery] uint page)
+    public Task<ActionResult<ICollection<OrderDTO>>> GetPersonalOrderHistory([FromQuery] uint page, bool currentOnly)
     {
         throw new NotImplementedException();
     }
 
     [HttpGet("history/{restaurantId}")]
     public Task<ActionResult<ICollection<OrderDTO>>> GetRestaurantOrderHistory(Guid restaurantId,
-        [FromQuery] uint page)
-    {
-        throw new NotImplementedException();
-    }
-
-    [HttpGet("current/{restaurantId}")]
-    public Task<ActionResult<ICollection<OrderDTO>>> GetRestaurantCurrentOrders(Guid restaurantId, [FromQuery] uint page)
+        [FromQuery] uint page, bool currentOnly)
     {
         throw new NotImplementedException();
     }

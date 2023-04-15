@@ -1,69 +1,50 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using RestaurantAggregator.Auth.Data.Entities;
 using RestaurantAggregator.Core.Exceptions;
-using RestaurantAggregator.Auth.Data;
 using RestaurantAggregator.Auth.Data.DTO;
-using RestaurantAggregator.Auth.Utils;
+using RestaurantAggregator.Auth.Data;
+using Microsoft.EntityFrameworkCore;
+using RestaurantAggregator.Auth.Data.Enums;
 
 namespace RestaurantAggregator.Auth.Services;
 
 public interface IUserAuthentication
 {
     Task<User> Login(string email, string password);
-
     Task<User> Register(RegistrationModel registrationModel);
-    string GenerateJwtToken(User user);
-    Task Logout(string token, Guid userId);
+    Task<User> FindByRefreshToken(string token);
+    Task<TokenModel> GenerateTokenPairAsync(User user);
+    Task Logout(Guid userId);
 }
 
 public class UserAuthentication : IUserAuthentication
 {
-    private readonly AuthDbContext _context;
-    private readonly IPasswordHasher<User> _passwordHasher;
+    private readonly UserManager<User> _userManager;
     private readonly IJwtAuthentication _jwtAuthentication;
-    private readonly ITokenStorage _tokenStorage;
-    private readonly ILogger<UserAuthentication> _logger;
+    private readonly AuthDbContext _context;
+    //private readonly ILogger<UserAuthentication> _logger;
 
-    public UserAuthentication(AuthDbContext context, IPasswordHasher<User> passwordHasher,
-        IJwtAuthentication jwtAuthentication, ILogger<UserAuthentication> logger, ITokenStorage tokenStorage)
+    public UserAuthentication(UserManager<User> userManager, AuthDbContext context,
+     IJwtAuthentication jwtAuthentication)
     {
-        _context = context;
-        _passwordHasher = passwordHasher;
+        _userManager = userManager;
         _jwtAuthentication = jwtAuthentication;
-        _logger = logger;
-        _tokenStorage = tokenStorage;
+        _context = context;
+        //_logger = logger;
     }
 
     public async Task<User> Login(string email, string password)
     {
-        var user = await _context.Users.Include(x => x.Roles).SingleOrDefaultAsync(x => x.Email == email);
+        var user = await _userManager.FindByEmailAsync(email);
 
         if (user == null)
             throw new NotFoundInDbException("User not found");
-
-        if (_passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password) != PasswordVerificationResult.Success)
+#nullable disable
+        if (!await _userManager.CheckPasswordAsync(user, password))
             throw new AuthException("Password is incorrect");
-
+#nullable enable
         return user;
-    }
-
-    public string GenerateJwtToken(User user)
-    {
-        var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.Name, user.Name),
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-        };
-
-        foreach (var role in user.Roles)
-        {
-            claims.Add(new Claim(ClaimTypes.Role, role.Name));
-        }
-
-        return _jwtAuthentication.GenerateToken(claims);
     }
 
     public async Task<User> Register(RegistrationModel registrationModel)
@@ -74,25 +55,71 @@ public class UserAuthentication : IUserAuthentication
             Name = registrationModel.Name,
             FullName = $"{registrationModel.Surname} {registrationModel.Name} {registrationModel.MiddleName}",
             Phone = registrationModel.Phone,
-            Address = registrationModel.Address,
-            Roles = new List<UserRole>()
+            UserName = registrationModel.Email
         };
-        user.PasswordHash = _passwordHasher.HashPassword(user, registrationModel.Password);
-        try
+        user.Client = new Client { User = user };
+        user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, registrationModel.Password);
+        var result = await _userManager.CreateAsync(user);
+        if (result.Errors.Any())
         {
-            await _context.Users.AddAsync(user);
-            await _context.SaveChangesAsync();
+            throw new AuthException(result.Errors.First().Description);
         }
-        catch (DbUpdateException)
-        {
-            throw new AuthException("User with this email already exists");
-        }
-
+        await _userManager.AddToRoleAsync(user, nameof(RoleType.Client));
         return user;
     }
 
-    public async Task Logout(string token, Guid userId)
+    public async Task Logout(Guid userId)
     {
-        await _tokenStorage.AddTokenAsync(token, userId.ToString());
+        await _context.RefreshTokens.Where(t => t.UserId == userId).ExecuteDeleteAsync();
+    }
+
+    public async Task<User> FindByRefreshToken(string token)
+    {
+        var userId = await _jwtAuthentication.GetUserIdFromTokenAsync(token);
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+            throw new NotFoundInDbException("User not found");
+        return user;
+    }
+
+    public async Task<TokenModel> GenerateTokenPairAsync(User user)
+    {
+        return new TokenModel
+        {
+            AccessToken = await GenerateAccessTokenAsync(user),
+            RefreshToken = await GenerateRefreshTokenAsync(user)
+        };
+    }
+
+    private async Task<string> GenerateAccessTokenAsync(User user)
+    {
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Name, user.Name),
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+        };
+        foreach (var role in await _userManager.GetRolesAsync(user))
+        {
+#nullable disable
+            claims.Add(new Claim(ClaimTypes.Role, role));
+#nullable enable
+        }
+
+        return _jwtAuthentication.GenerateToken(claims);
+    }
+
+    private async Task<string> GenerateRefreshTokenAsync(User user)
+    {
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+        };
+        _context.RefreshTokens.Add(new RefreshToken
+        {
+            Token = _jwtAuthentication.GenerateToken(claims, isRefreshToken: true),
+            UserId = user.Id
+        });
+        await _context.SaveChangesAsync();
+        return _jwtAuthentication.GenerateToken(claims, isRefreshToken: true);
     }
 }

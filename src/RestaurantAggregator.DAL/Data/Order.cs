@@ -1,4 +1,3 @@
-using RestaurantAggregator.Core.Data.DTO;
 using RestaurantAggregator.Core.Data.Enums;
 
 namespace RestaurantAggregator.DAL.Data;
@@ -12,9 +11,10 @@ public class Order
     public DateTime OrderTime { get; set; }
     public DateTime? DeliveryTime { get; set; }
     public string Address { get; set; }
-    public double Price { get; set; }
-    public List<DishDTO> Dishes { get; set; }
+    public decimal TotalPrice { get; set; }
+    public List<DishInCart> Dishes { get; set; }
     public Guid ClientId { get; set; }
-    public Guid CourierId { get; set; }
-    public Guid CookId { get; set; }
+    public Guid? CourierId { get; set; }
+    public Guid? CookId { get; set; }
+    public Guid RestaurantId { get; set; }
 }

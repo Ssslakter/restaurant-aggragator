@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RestaurantAggregator.DAL;
@@ -11,9 +12,11 @@ using RestaurantAggregator.DAL;
 namespace RestaurantAggregator.DAL.Migrations
 {
     [DbContext(typeof(RestaurantDbContext))]
-    partial class RestaurantDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230409144024_DataTypeFixes")]
+    partial class DataTypeFixes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,43 @@ namespace RestaurantAggregator.DAL.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("RestaurantAggregator.Core.Data.DTO.DishDTO", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Category")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsVegeterian")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("MenuId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("OrderId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Photo")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("DishDTO");
+                });
 
             modelBuilder.Entity("RestaurantAggregator.DAL.Data.Dish", b =>
                 {
@@ -54,42 +94,6 @@ namespace RestaurantAggregator.DAL.Migrations
                     b.HasIndex("MenuId");
 
                     b.ToTable("Dishes");
-                });
-
-            modelBuilder.Entity("RestaurantAggregator.DAL.Data.DishInCart", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ClientId")
-                        .HasColumnType("uuid");
-
-                    b.Property<long>("Count")
-                        .HasColumnType("bigint");
-
-                    b.Property<Guid>("DishId")
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("InOrder")
-                        .HasColumnType("boolean");
-
-                    b.Property<Guid?>("OrderId")
-                        .IsRequired()
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("numeric");
-
-                    b.HasKey("Id");
-
-                    b.HasAlternateKey("ClientId", "DishId", "OrderId");
-
-                    b.HasIndex("DishId");
-
-                    b.HasIndex("OrderId");
-
-                    b.ToTable("DishesInCarts");
                 });
 
             modelBuilder.Entity("RestaurantAggregator.DAL.Data.Menu", b =>
@@ -126,10 +130,10 @@ namespace RestaurantAggregator.DAL.Migrations
                     b.Property<Guid>("ClientId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("CookId")
+                    b.Property<Guid>("CookId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("CourierId")
+                    b.Property<Guid>("CourierId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime?>("DeliveryTime")
@@ -144,14 +148,11 @@ namespace RestaurantAggregator.DAL.Migrations
                     b.Property<DateTime>("OrderTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("RestaurantId")
-                        .HasColumnType("uuid");
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
-
-                    b.Property<decimal>("TotalPrice")
-                        .HasColumnType("numeric");
 
                     b.HasKey("Id");
 
@@ -196,6 +197,13 @@ namespace RestaurantAggregator.DAL.Migrations
                     b.ToTable("Reviews");
                 });
 
+            modelBuilder.Entity("RestaurantAggregator.Core.Data.DTO.DishDTO", b =>
+                {
+                    b.HasOne("RestaurantAggregator.DAL.Data.Order", null)
+                        .WithMany("Dishes")
+                        .HasForeignKey("OrderId");
+                });
+
             modelBuilder.Entity("RestaurantAggregator.DAL.Data.Dish", b =>
                 {
                     b.HasOne("RestaurantAggregator.DAL.Data.Menu", "Menu")
@@ -205,25 +213,6 @@ namespace RestaurantAggregator.DAL.Migrations
                         .IsRequired();
 
                     b.Navigation("Menu");
-                });
-
-            modelBuilder.Entity("RestaurantAggregator.DAL.Data.DishInCart", b =>
-                {
-                    b.HasOne("RestaurantAggregator.DAL.Data.Dish", "Dish")
-                        .WithMany()
-                        .HasForeignKey("DishId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("RestaurantAggregator.DAL.Data.Order", "Order")
-                        .WithMany("Dishes")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Dish");
-
-                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("RestaurantAggregator.DAL.Data.Menu", b =>

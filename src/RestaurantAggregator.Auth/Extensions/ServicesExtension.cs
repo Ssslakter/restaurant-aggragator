@@ -1,40 +1,61 @@
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using RestaurantAggregator.Auth.Data;
 using RestaurantAggregator.Auth.Data.Entities;
 using RestaurantAggregator.Auth.Services;
-using RestaurantAggregator.Auth.Utils;
 using StackExchange.Redis;
+using Role = RestaurantAggregator.Auth.Data.Entities.Role;
 
 namespace RestaurantAggregator.Auth.Extensions;
 
 public static class ServicesExtension
 {
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddUserServices(this IServiceCollection services)
     {
         services.AddTransient<IPasswordHasher<User>, PasswordHasher<User>>();
-        services.AddTransient<IJwtAuthentication, JwtAuthentication>();
-        services.AddDatabases(configuration);
-        var jwtAuthentication = services.BuildServiceProvider().GetRequiredService<IJwtAuthentication>();
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddJwtBearer(options => options.TokenValidationParameters = jwtAuthentication.GenerateTokenValidationParameters());
-
-        services.AddAuthorization(options =>
-        {
-            options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
-            options.AddPolicy("Manager", policy => policy.RequireRole("Manager"));
-            options.AddPolicy("Cook", policy => policy.RequireRole("Cook"));
-            options.AddPolicy("Courier", policy => policy.RequireRole("Courier"));
-        });
+        services.AddScoped<IJwtAuthentication, JwtAuthentication>();
+        services.AddScoped<IProfileService, ProfileService>();
         services.AddScoped<IUserAuthentication, UserAuthentication>();
-        services.AddScoped<IRolesHandler, RolesHandler>();
+
         return services;
     }
 
-    public static IServiceCollection MigrateDatabase(this IServiceCollection services)
+    public static IServiceCollection AddDatabases(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddDbContext<AuthDbContext>(options =>
+            options.UseNpgsql(configuration.GetConnectionString("Auth")));
+
+        services.AddSingleton<IConnectionMultiplexer>(_ =>
+        {
+#nullable disable
+            var configurationOptions = ConfigurationOptions.Parse(configuration.GetConnectionString("Redis"));
+#nullable enable
+            return ConnectionMultiplexer.Connect(configurationOptions);
+        });
+
+        services.AddIdentity<User, Role>(o => o.Password.RequireNonAlphanumeric = false)
+            .AddEntityFrameworkStores<AuthDbContext>();
+        services.AddScoped<RoleManager<Role>>();
+        services.AddScoped<UserManager<User>>();
+
+        services.MigrateDatabase();
+        return services;
+    }
+
+    public static void AddJwtAuthentification(this IServiceCollection services)
+    {
+        var jwtAuthentication = services.BuildServiceProvider().GetRequiredService<IJwtAuthentication>();
+        services.AddAuthentication(option =>
+        {
+            option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options => options.TokenValidationParameters = jwtAuthentication.GenerateTokenValidationParameters());
+    }
+
+    private static IServiceCollection MigrateDatabase(this IServiceCollection services)
     {
         using var scope = services.BuildServiceProvider().CreateScope();
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
@@ -48,23 +69,6 @@ public static class ServicesExtension
         {
             logger.LogCritical(ex, "An error occurred while migrating the database.");
         }
-        return services;
-    }
-
-    private static IServiceCollection AddDatabases(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddDbContext<AuthDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("Auth")));
-
-        services.AddSingleton<ITokenStorage, TokenStorage>();
-        services.AddSingleton<IConnectionMultiplexer>(_ =>
-        {
-#nullable disable
-            var configurationOptions = ConfigurationOptions.Parse(configuration.GetConnectionString("Redis"));
-#nullable enable
-            return ConnectionMultiplexer.Connect(configurationOptions);
-        });
-
         return services;
     }
 }
