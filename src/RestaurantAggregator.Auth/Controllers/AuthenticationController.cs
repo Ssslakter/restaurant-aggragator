@@ -34,7 +34,7 @@ public class AuthenticationController : ControllerBase
     }
     [HttpPost("logout")]
     [Authorize]
-    public async Task<IActionResult> Logout()
+    public async Task<ActionResult> Logout()
     {
         var userId = Guid.Parse(User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value);
         await _authentificationService.Logout(userId);
@@ -42,9 +42,18 @@ public class AuthenticationController : ControllerBase
     }
 
     [HttpPost("refresh")]
-    public async Task<ActionResult<TokenModel>> RefreshToken([FromBody] RefreshDTO refreshToken)
+    public async Task<ActionResult<TokenModel>> RefreshToken(RefreshDTO refreshToken)
     {
         var user = await _authentificationService.FindByRefreshToken(refreshToken.RefreshToken);
         return Ok(await _authentificationService.GenerateTokenPairAsync(user));
+    }
+
+    [HttpPost("change-password")]
+    [Authorize]
+    public async Task<ActionResult> ChangePassword(ChangePasswordDTO changePasswordDTO)
+    {
+        var userId = Guid.Parse(User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value);
+        await _authentificationService.ChangePassword(userId, changePasswordDTO.OldPassword, changePasswordDTO.NewPassword);
+        return Ok();
     }
 }

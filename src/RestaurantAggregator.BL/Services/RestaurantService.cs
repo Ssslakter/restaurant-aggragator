@@ -29,4 +29,20 @@ public class RestaurantService : IRestaurantService
         });
         return await restaurants.ToListAsync();
     }
+
+    public async Task<ICollection<RestaurantDTO>> GetRestaurantsByNameAsync(string name)
+    {
+        return await _context.Restaurants.Include(r => r.Menus).Where(r => r.Name.Contains(name)).Select(r => new RestaurantDTO
+        {
+            Id = r.Id,
+            Name = r.Name,
+            Menus = r.Menus.Select(m => new MenuDTO
+            {
+                Id = m.Id,
+                Name = m.Name,
+                Description = m.Description,
+                RestaurantId = m.RestaurantId,
+            }).ToList()
+        }).ToListAsync();
+    }
 }

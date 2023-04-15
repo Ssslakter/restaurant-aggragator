@@ -12,4 +12,10 @@ public class RestaurantController : ControllerBase
     {
         throw new NotImplementedException();
     }
+
+    [HttpGet("{name}")]
+    public Task<ActionResult<ICollection<RestaurantDTO>>> GetRestaurantsByName(string name)
+    {
+        throw new NotImplementedException();
+    }
 }

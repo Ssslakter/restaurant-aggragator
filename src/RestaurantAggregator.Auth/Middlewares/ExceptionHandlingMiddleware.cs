@@ -28,6 +28,12 @@ public static class ExceptionHandlingMiddleware
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;
                 await context.Response.WriteAsJsonAsync(new ErrorResponse(ex.Message));
             }
+            catch (DbViolationException ex)
+            {
+                logger.LogInformation(ex, "DbViolation");
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                await context.Response.WriteAsJsonAsync(new ErrorResponse(ex.Message));
+            }
             catch (Exception ex)
             {
                 logger.LogError(ex, "ServerError");

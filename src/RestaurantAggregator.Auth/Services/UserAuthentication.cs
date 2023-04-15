@@ -15,6 +15,7 @@ public interface IUserAuthentication
     Task<User> Register(RegistrationModel registrationModel);
     Task<User> FindByRefreshToken(string token);
     Task<TokenModel> GenerateTokenPairAsync(User user);
+    Task ChangePassword(Guid userId, string oldPassword, string newPassword);
     Task Logout(Guid userId);
 }
 
@@ -121,5 +122,19 @@ public class UserAuthentication : IUserAuthentication
         });
         await _context.SaveChangesAsync();
         return _jwtAuthentication.GenerateToken(claims, isRefreshToken: true);
+    }
+
+    public async Task ChangePassword(Guid userId, string oldPassword, string newPassword)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+        {
+            throw new NotFoundInDbException("User not found");
+        }
+        var result = await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
+        if (!result.Succeeded)
+        {
+            throw new AuthException(result.Errors.First().Description);
+        }
     }
 }
