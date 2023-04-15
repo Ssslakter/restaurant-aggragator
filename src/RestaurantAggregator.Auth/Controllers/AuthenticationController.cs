@@ -2,9 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RestaurantAggregator.Auth.Data.DTO;
-using RestaurantAggregator.Auth.Data.Enums;
 using RestaurantAggregator.Auth.Services;
-using RestaurantAggregator.Core.Exceptions;
 
 namespace RestaurantAggregator.Auth.Controllers;
 
@@ -38,7 +36,6 @@ public class AuthenticationController : ControllerBase
     [Authorize]
     public async Task<IActionResult> Logout()
     {
-        var token = Request.Headers["Authorization"].ToString().Split(" ").Last();
         var userId = Guid.Parse(User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value);
         await _authentificationService.Logout(userId);
         return Ok();

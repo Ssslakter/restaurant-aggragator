@@ -5,12 +5,13 @@ using System.Text;
 using RestaurantAggregator.Core.Exceptions;
 using RestaurantAggregator.Auth.Data;
 using Microsoft.EntityFrameworkCore;
+using RestaurantAggregator.Core.Config;
 
 namespace RestaurantAggregator.Auth.Services;
 
 public interface IJwtAuthentication
 {
-    string GenerateToken(IEnumerable<Claim> claims, TimeSpan expireTime);
+    string GenerateToken(IEnumerable<Claim> claims, bool isRefreshToken = false);
     TokenValidationParameters GenerateTokenValidationParameters();
     Task<Guid> GetUserIdFromTokenAsync(string token);
 }
@@ -18,27 +19,28 @@ public interface IJwtAuthentication
 public class JwtAuthentication : IJwtAuthentication
 {
     private readonly JwtSecurityTokenHandler _tokenHandler;
-    private readonly SymmetricSecurityKey _key;
     private readonly AuthDbContext _context;
     private readonly ILogger<JwtAuthentication> _logger;
+    private readonly IJwtConfiguration _jwtConfiguration;
+    private readonly SymmetricSecurityKey _key;
 
-    public JwtAuthentication(IConfiguration configuration, AuthDbContext context, ILogger<JwtAuthentication> logger)
+    public JwtAuthentication(AuthDbContext context, ILogger<JwtAuthentication> logger, IJwtConfiguration jwtConfiguration)
     {
         _context = context;
         _tokenHandler = new JwtSecurityTokenHandler();
-#nullable disable
-        _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Secret"]));
-#nullable enable
+        _jwtConfiguration = jwtConfiguration;
         _logger = logger;
+        _key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_jwtConfiguration.Secret));
     }
 
-    public string GenerateToken(IEnumerable<Claim> claims, TimeSpan expireTime)
+    public string GenerateToken(IEnumerable<Claim> claims, bool isRefreshToken = false)
     {
+        var expireTime = isRefreshToken ? _jwtConfiguration.RefreshTokenLifetime : _jwtConfiguration.AccessTokenLifetime;
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Issuer = "RestaurantAggregator",
-            Audience = "RestaurantAggregator",
+            Issuer = _jwtConfiguration.Issuer,
+            Audience = _jwtConfiguration.Audience,
             Expires = DateTime.UtcNow.Add(expireTime),
             IssuedAt = DateTime.UtcNow,
             NotBefore = DateTime.UtcNow,
@@ -57,8 +59,8 @@ public class JwtAuthentication : IJwtAuthentication
             IssuerSigningKey = _key,
             ValidateIssuer = true,
             ValidateAudience = true,
-            ValidIssuer = "RestaurantAggregator",
-            ValidAudience = "RestaurantAggregator",
+            ValidIssuer = _jwtConfiguration.Issuer,
+            ValidAudience = _jwtConfiguration.Audience,
             ClockSkew = TimeSpan.Zero,
             ValidAlgorithms = new[] { SecurityAlgorithms.HmacSha256 }
         };

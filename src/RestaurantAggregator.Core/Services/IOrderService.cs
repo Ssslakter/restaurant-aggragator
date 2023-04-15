@@ -1,4 +1,3 @@
-using RestaurantAggregator.Core.Data;
 using RestaurantAggregator.Core.Data.Enums;
 using RestaurantAggregator.Core.Data.DTO;
 

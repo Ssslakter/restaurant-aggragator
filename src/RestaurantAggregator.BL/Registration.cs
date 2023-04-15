@@ -8,11 +8,13 @@ namespace RestaurantAggregator.BL;
 
 public static class Registration
 {
-    public static void RegisterServices(this IServiceCollection services, IConfiguration configuration)
+    public static void RegisterBLServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IDishService, DishService>();
         services.AddScoped<IMenuService, MenuService>();
         services.AddScoped<IRestaurantService, RestaurantService>();
+        services.AddScoped<ICartService, CartService>();
+        services.AddScoped<IOrderService, OrderService>();
         services.RegisterDbContext(configuration);
     }
 }

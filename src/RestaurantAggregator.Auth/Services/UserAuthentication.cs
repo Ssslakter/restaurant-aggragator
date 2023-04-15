@@ -105,7 +105,7 @@ public class UserAuthentication : IUserAuthentication
 #nullable enable
         }
 
-        return _jwtAuthentication.GenerateToken(claims, TimeSpan.FromMinutes(20));
+        return _jwtAuthentication.GenerateToken(claims);
     }
 
     private async Task<string> GenerateRefreshTokenAsync(User user)
@@ -116,10 +116,10 @@ public class UserAuthentication : IUserAuthentication
         };
         _context.RefreshTokens.Add(new RefreshToken
         {
-            Token = _jwtAuthentication.GenerateToken(claims, TimeSpan.FromDays(7)),
+            Token = _jwtAuthentication.GenerateToken(claims, isRefreshToken: true),
             UserId = user.Id
         });
         await _context.SaveChangesAsync();
-        return _jwtAuthentication.GenerateToken(claims, TimeSpan.FromDays(7));
+        return _jwtAuthentication.GenerateToken(claims, isRefreshToken: true);
     }
 }
