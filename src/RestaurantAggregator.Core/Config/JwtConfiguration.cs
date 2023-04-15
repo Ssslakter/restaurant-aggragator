@@ -12,9 +12,9 @@ public interface IJwtConfiguration
 
 public class JwtConfiguration : IJwtConfiguration
 {
-    public string Secret { get; set; } = "RestaurantAggregator";
+    public string Audience { get; set; } = "RestaurantAggregator";
     public string Issuer { get; set; } = "RestaurantAggregator";
-    public string Audience { get; set; } = "MySecretVeryVeryLongKey123!!";
+    public string Secret { get; set; } = "MySecretVeryVeryLongKey123!!";
     public TimeSpan AccessTokenLifetime { get; set; } = TimeSpan.FromMinutes(20);
     public TimeSpan RefreshTokenLifetime { get; set; } = TimeSpan.FromDays(7);
 }

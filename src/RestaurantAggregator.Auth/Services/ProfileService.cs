@@ -31,7 +31,8 @@ public class ProfileService : IProfileService
         {
             Email = user.Email,
             Name = user.Name,
-            FullName = user.FullName,
+            Surname = user.FullName.Split(' ')[0],
+            MiddleName = user.FullName.Split(' ')[2],
             Phone = user.Phone,
             Gender = user.Gender,
             BirthDate = user.BirthDate
@@ -57,7 +58,7 @@ public class ProfileService : IProfileService
         if (user == null)
             throw new NotFoundInDbException("User not found");
 
-        user.FullName = profileDTO.FullName;
+        user.FullName = $"{profileDTO.Surname} {profileDTO.Name} {profileDTO.MiddleName}";
         user.BirthDate = profileDTO.BirthDate;
         user.Phone = profileDTO.Phone;
         user.Name = profileDTO.Name;

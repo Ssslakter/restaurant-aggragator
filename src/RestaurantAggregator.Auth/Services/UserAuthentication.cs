@@ -93,18 +93,18 @@ public class UserAuthentication : IUserAuthentication
 
     private async Task<string> GenerateAccessTokenAsync(User user)
     {
+#nullable disable
         var claims = new List<Claim>
         {
+            new Claim(ClaimTypes.Email, user.Email),
             new Claim(ClaimTypes.Name, user.Name),
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
         };
         foreach (var role in await _userManager.GetRolesAsync(user))
         {
-#nullable disable
             claims.Add(new Claim(ClaimTypes.Role, role));
-#nullable enable
         }
-
+#nullable enable
         return _jwtAuthentication.GenerateToken(claims);
     }
 

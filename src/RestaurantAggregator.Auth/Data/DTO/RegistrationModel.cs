@@ -15,7 +15,7 @@ public class RegistrationModel
     [Required]
     public string Surname { get; set; }
     public string MiddleName { get; set; }
-    [DataType(DataType.PhoneNumber)]
+    [Phone]
     [Required]
     public string Phone { get; set; }
 }

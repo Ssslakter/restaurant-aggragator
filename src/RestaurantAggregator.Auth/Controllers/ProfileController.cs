@@ -34,10 +34,10 @@ public class ProfileController : ControllerBase
 
     [HttpPatch("email")]
     [Authorize]
-    public async Task<ActionResult> UpdateEmail([FromBody] string newEmail)
+    public async Task<ActionResult> UpdateEmail(EmailDTO newEmail)
     {
         var userEmail = User.Claims.First(x => x.Type == ClaimTypes.Email).Value;
-        await _profileService.UpdateEmailAsync(userEmail, newEmail);
+        await _profileService.UpdateEmailAsync(userEmail, newEmail.Email);
         return Ok();
     }
 }

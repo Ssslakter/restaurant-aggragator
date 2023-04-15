@@ -42,9 +42,9 @@ public class AuthenticationController : ControllerBase
     }
 
     [HttpPost("refresh")]
-    public async Task<ActionResult<TokenModel>> RefreshToken([FromBody] string refreshToken)
+    public async Task<ActionResult<TokenModel>> RefreshToken([FromBody] RefreshDTO refreshToken)
     {
-        var user = await _authentificationService.FindByRefreshToken(refreshToken);
+        var user = await _authentificationService.FindByRefreshToken(refreshToken.RefreshToken);
         return Ok(await _authentificationService.GenerateTokenPairAsync(user));
     }
 }

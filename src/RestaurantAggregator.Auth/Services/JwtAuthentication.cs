@@ -70,7 +70,10 @@ public class JwtAuthentication : IJwtAuthentication
     {
         if (await ValidateRefreshTokenAsync(token))
         {
-            return Guid.Parse(_tokenHandler.ReadJwtToken(token).Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
+#nullable disable
+            var claim = _tokenHandler.ReadJwtToken(token).Claims.FirstOrDefault();
+            return Guid.Parse(claim.Value);
+#nullable enable
         }
         else
         {
