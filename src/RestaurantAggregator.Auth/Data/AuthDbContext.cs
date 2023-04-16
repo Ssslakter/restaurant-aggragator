@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using RestaurantAggregator.Auth.Data.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using RestaurantAggregator.Auth.Data.Enums;
+using RestaurantAggregator.Core.Data.Enums;
 
 #nullable disable
 namespace RestaurantAggregator.Auth.Data;

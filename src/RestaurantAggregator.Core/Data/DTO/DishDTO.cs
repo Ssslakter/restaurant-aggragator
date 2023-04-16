@@ -12,6 +12,7 @@ public class DishDTO
     public string Photo { get; set; }
     public Category Category { get; set; }
     public Guid MenuId { get; set; }
+    public double Rating { get; set; }
 }
 
 public class DishInCartDTO : DishDTO

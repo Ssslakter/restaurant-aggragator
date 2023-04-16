@@ -70,13 +70,14 @@ public class MenuService : IMenuService
     {
         var menu = await _context.Menus
             .Include(m => m.Dishes)
+            .ThenInclude(d => d.Reviews)
             .FirstOrDefaultAsync(m => m.Id == id);
         if (menu == null)
             throw new NotFoundInDbException($"Menu with id {id} not found");
         var filteredDishes = menu.Dishes
             .FilterDishes(filters)
             .SortDishes(sorting)
-            .Skip((int)page * _pageSize)
+            .Skip(((int)page - 1) * _pageSize)
             .Take(_pageSize);
 
         return new MenuDetails
@@ -84,6 +85,7 @@ public class MenuService : IMenuService
             Id = menu.Id,
             Name = menu.Name,
             Description = menu.Description,
+            RestaurantId = menu.RestaurantId,
             Dishes = filteredDishes.Select(d => new DishDTO
             {
                 Id = d.Id,
@@ -93,14 +95,15 @@ public class MenuService : IMenuService
                 IsVegeterian = d.IsVegeterian,
                 Photo = d.Photo,
                 Category = d.Category,
-                MenuId = d.MenuId
+                MenuId = d.MenuId,
+                Rating = d.Reviews.Any() ? d.Reviews.Average(r => r.Value) : 0
             }).ToList()
         };
     }
 
     public async Task<ICollection<MenuDTO>> GetMenusByRestaurantIdAsync(Guid restaurantId)
     {
-        var menus = _context.Menus
+        var menus = await _context.Menus
             .Where(m => m.RestaurantId == restaurantId)
             .Select(m => new MenuDTO
             {
@@ -109,7 +112,10 @@ public class MenuService : IMenuService
                 Description = m.Description,
                 RestaurantId = m.RestaurantId
             }).ToListAsync();
-        return await menus;
+        if (!menus.Any())
+            throw new NotFoundInDbException($"Menus for restaurant with id {restaurantId} not found");
+
+        return menus;
     }
 
     public async Task UpdateMenuAsync(MenuCreation menu, Guid id)
@@ -131,10 +137,10 @@ internal static class QueryableExtensions
         {
             Sorting.AlphabetAsc => dishes.OrderBy(d => d.Name),
             Sorting.PriceAsc => dishes.OrderBy(d => d.Price),
-            Sorting.ScoreAsc => dishes.OrderBy(d => d.Reviews.Average(r => r.Value)),
+            Sorting.ScoreAsc => dishes.OrderBy(d => d.Reviews.Any() ? d.Reviews.Average(r => r.Value) : 0),
             Sorting.AlphabetDesc => dishes.OrderByDescending(d => d.Name),
             Sorting.PriceDesc => dishes.OrderByDescending(d => d.Price),
-            Sorting.ScoreDesc => dishes.OrderByDescending(d => d.Reviews.Average(r => r.Value)),
+            Sorting.ScoreDesc => dishes.OrderByDescending(d => d.Reviews.Any() ? d.Reviews.Average(r => r.Value) : 0),
             _ => dishes.OrderBy(d => d.Name)
         };
     }

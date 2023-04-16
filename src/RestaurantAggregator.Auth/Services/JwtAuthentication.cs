@@ -2,46 +2,73 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using RestaurantAggregator.Core.Exceptions;
 using RestaurantAggregator.Auth.Data;
 using Microsoft.EntityFrameworkCore;
-using RestaurantAggregator.Core.Config;
+using RestaurantAggregator.Infra.Config;
+using Microsoft.Extensions.Options;
+using System.Security.Cryptography;
+using RestaurantAggregator.Auth.Data.Entities;
 
 namespace RestaurantAggregator.Auth.Services;
 
 public interface IJwtAuthentication
 {
-    string GenerateToken(IEnumerable<Claim> claims, bool isRefreshToken = false);
-    TokenValidationParameters GenerateTokenValidationParameters();
-    Task<Guid> GetUserIdFromTokenAsync(string token);
+    Task<string> GenerateRefreshTokenAsync(Guid userId);
+    string GenerateAccessToken(IEnumerable<Claim> claims);
+    Task<bool> ValidateRefreshTokenAsync(string token);
+    Task RevokeAllUserRefreshTokensAsync(Guid userId);
 }
 
 public class JwtAuthentication : IJwtAuthentication
 {
     private readonly JwtSecurityTokenHandler _tokenHandler;
     private readonly AuthDbContext _context;
-    private readonly ILogger<JwtAuthentication> _logger;
-    private readonly IJwtConfiguration _jwtConfiguration;
+    private readonly JwtConfiguration _jwtConfiguration;
     private readonly SymmetricSecurityKey _key;
 
-    public JwtAuthentication(AuthDbContext context, ILogger<JwtAuthentication> logger, IJwtConfiguration jwtConfiguration)
+    public JwtAuthentication(AuthDbContext context, IOptions<JwtConfiguration> jwtConfiguration)
     {
         _context = context;
         _tokenHandler = new JwtSecurityTokenHandler();
-        _jwtConfiguration = jwtConfiguration;
-        _logger = logger;
+        _jwtConfiguration = jwtConfiguration.Value;
         _key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_jwtConfiguration.Secret));
     }
-
-    public string GenerateToken(IEnumerable<Claim> claims, bool isRefreshToken = false)
+    public async Task<bool> ValidateRefreshTokenAsync(string refreshToken)
     {
-        var expireTime = isRefreshToken ? _jwtConfiguration.RefreshTokenLifetime : _jwtConfiguration.AccessTokenLifetime;
+        return await _context.RefreshTokens
+        .AnyAsync(t => t.Token == refreshToken && t.Expires > DateTime.UtcNow);
+    }
+
+    public async Task RevokeAllUserRefreshTokensAsync(Guid userId)
+    {
+        await _context.RefreshTokens
+            .Where(t => t.UserId == userId)
+            .ExecuteDeleteAsync();
+    }
+
+    public async Task<string> GenerateRefreshTokenAsync(Guid userId)
+    {
+        var randomNumber = new byte[32];
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(randomNumber);
+        var token = Convert.ToBase64String(randomNumber);
+        await _context.RefreshTokens.AddAsync(new RefreshToken
+        {
+            UserId = userId,
+            Token = token,
+            Expires = DateTime.UtcNow.Add(_jwtConfiguration.RefreshTokenLifetime)
+        });
+        return Convert.ToBase64String(randomNumber);
+    }
+
+    public string GenerateAccessToken(IEnumerable<Claim> claims)
+    {
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
             Issuer = _jwtConfiguration.Issuer,
             Audience = _jwtConfiguration.Audience,
-            Expires = DateTime.UtcNow.Add(expireTime),
+            Expires = DateTime.UtcNow.Add(_jwtConfiguration.AccessTokenLifetime),
             IssuedAt = DateTime.UtcNow,
             NotBefore = DateTime.UtcNow,
             SigningCredentials = new SigningCredentials(_key, SecurityAlgorithms.HmacSha256Signature)
@@ -49,59 +76,5 @@ public class JwtAuthentication : IJwtAuthentication
 
         var token = _tokenHandler.CreateToken(tokenDescriptor);
         return _tokenHandler.WriteToken(token);
-    }
-
-    public TokenValidationParameters GenerateTokenValidationParameters()
-    {
-        return new TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = _key,
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidIssuer = _jwtConfiguration.Issuer,
-            ValidAudience = _jwtConfiguration.Audience,
-            ClockSkew = TimeSpan.Zero,
-            ValidAlgorithms = new[] { SecurityAlgorithms.HmacSha256 }
-        };
-    }
-
-    public async Task<Guid> GetUserIdFromTokenAsync(string token)
-    {
-        if (await ValidateRefreshTokenAsync(token))
-        {
-#nullable disable
-            var claim = _tokenHandler.ReadJwtToken(token).Claims.FirstOrDefault();
-            return Guid.Parse(claim.Value);
-#nullable enable
-        }
-        else
-        {
-            throw new AuthException("Refresh token is invalid");
-        }
-    }
-
-    private async Task<bool> ValidateRefreshTokenAsync(string refreshToken)
-    {
-        try
-        {
-            var principal = _tokenHandler.ValidateToken(refreshToken,
-            GenerateTokenValidationParameters(), out SecurityToken securityToken);
-            if (securityToken is not JwtSecurityToken jwtSecurityToken ||
-            !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
-            {
-                return false;
-            }
-            if (!await _context.RefreshTokens.AnyAsync(t => t.Token == refreshToken))
-            {
-                return false;
-            }
-            return true;
-        }
-        catch (Exception e)
-        {
-            _logger.LogInformation(e, "Refresh token validation failed");
-            return false;
-        }
     }
 }

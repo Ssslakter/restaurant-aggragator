@@ -1,13 +1,17 @@
+using System.Text.Json.Serialization;
 using RestaurantAggregator.BL;
+using RestaurantAggregator.Infra.Config;
+using RestaurantAggregator.Infra.Middlewares;
+using RestaurantAggregator.Infra.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddControllers().AddJsonOptions(options =>
+ options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddAuthorization();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.ConfigureSwagger();
 builder.Services.RegisterBLServices(builder.Configuration);
 
 var app = builder.Build();
@@ -18,7 +22,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseExceptionLogging(LoggerFactory.Create(builder => builder.AddConsole()));
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

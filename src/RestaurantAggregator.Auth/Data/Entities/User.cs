@@ -10,7 +10,6 @@ public class User : IdentityUser<Guid>
     public DateOnly BirthDate { get; set; }
     public Gender Gender { get; set; }
     public string Phone { get; set; }
-
     public Courier? Courier { get; set; }
     public Client? Client { get; set; }
     public Manager? Manager { get; set; }

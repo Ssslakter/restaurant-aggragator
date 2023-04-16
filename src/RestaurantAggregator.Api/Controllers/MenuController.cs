@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using RestaurantAggregator.Core.Data.DTO;
 using RestaurantAggregator.Core.Data.Enums;
+using RestaurantAggregator.Core.Services;
 
 namespace RestaurantAggregator.Api.Controllers;
 
@@ -8,50 +9,26 @@ namespace RestaurantAggregator.Api.Controllers;
 [Route("menu")]
 public class MenuController : ControllerBase
 {
-    [HttpGet("{restaurantId}/all")]
-    public Task<ActionResult<ICollection<MenuDTO>>> GetRestaurantMenus(Guid restaurantId)
+    private readonly IMenuService _menuService;
+
+    public MenuController(IMenuService menuService)
     {
-        throw new NotImplementedException();
+        _menuService = menuService;
+    }
+
+    [HttpGet("{restaurantId}/all")]
+    public async Task<ActionResult<ICollection<MenuDTO>>> GetRestaurantMenus(Guid restaurantId)
+    {
+        return Ok(await _menuService.GetMenusByRestaurantIdAsync(restaurantId));
     }
 
     [HttpGet("{menuId}")]
-    public Task<ActionResult<MenuDetails>> GetMenu(Guid menuId,
+    public async Task<ActionResult<MenuDetails>> GetMenu(Guid menuId,
     [FromQuery] ICollection<Category> filters,
     [FromQuery] Sorting sorting,
-    [FromQuery] uint page)
+    [FromQuery] uint page = 1)
     {
-        throw new NotImplementedException();
-    }
-    //все эндпоинты ниже выполняются для меню ресторана для конкретного менеджера
-    [HttpPost("create")]
-    public Task<IActionResult> CreateMenu(MenuCreation menu)
-    {
-        throw new NotImplementedException();
-    }
-
-    [HttpDelete("{menuId}/delete")]
-    public Task<IActionResult> DeleteMenu(Guid menuId)
-    {
-        throw new NotImplementedException();
-    }
-
-    [HttpPut("{menuId}/edit")]
-    public Task<IActionResult> EditMenu(Guid menuId, MenuCreation menu)
-    {
-        throw new NotImplementedException();
-    }
-
-    [HttpPost("{menuId}/dish/add")]
-    public Task<IActionResult> AddDishToMenu(Guid menuId,
-     [FromQuery] Guid dishId)
-    {
-        throw new NotImplementedException();
-    }
-
-    [HttpPost("{menuId}/dish/remove")]
-    public Task<IActionResult> RemoveDishFromMenu(Guid menuId,
-     [FromQuery] Guid dishId)
-    {
-        throw new NotImplementedException();
+        var menu = await _menuService.GetMenuByIdAsync(menuId, filters, sorting, page);
+        return Ok(menu);
     }
 }

@@ -3,12 +3,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RestaurantAggregator.Auth.Data.DTO;
 using RestaurantAggregator.Auth.Services;
+using RestaurantAggregator.Infra.Utils;
 
 namespace RestaurantAggregator.Auth.Controllers;
 
 [ApiController]
 [Route("api/profile")]
-public class ProfileController : ControllerBase
+public class ProfileController : AuthControllerBase
 {
     private readonly IProfileService _profileService;
 

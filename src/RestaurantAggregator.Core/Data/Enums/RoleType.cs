@@ -1,4 +1,4 @@
-namespace RestaurantAggregator.Auth.Data.Enums;
+namespace RestaurantAggregator.Core.Data.Enums;
 
 public enum RoleType
 {

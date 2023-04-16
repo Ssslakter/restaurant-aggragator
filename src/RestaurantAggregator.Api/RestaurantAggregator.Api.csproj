@@ -7,7 +7,6 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.5">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -18,5 +17,6 @@
   <ItemGroup>
     <ProjectReference Include="..\RestaurantAggregator.Core\RestaurantAggregator.Core.csproj" />
     <ProjectReference Include="..\RestaurantAggregator.BL\RestaurantAggregator.BL.csproj" />
+    <ProjectReference Include="..\RestaurantAggregator.Infra\RestaurantAggregator.Infra.csproj" />
   </ItemGroup>
 </Project>

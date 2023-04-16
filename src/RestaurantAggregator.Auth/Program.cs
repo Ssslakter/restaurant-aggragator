@@ -1,16 +1,17 @@
 using RestaurantAggregator.Auth.Extensions;
-using RestaurantAggregator.Auth.Middlewares;
-using RestaurantAggregator.Auth.Swagger;
-using RestaurantAggregator.Core.Config;
+using RestaurantAggregator.Infra.Middlewares;
+using RestaurantAggregator.Infra.Swagger;
+using RestaurantAggregator.Infra.Config;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDatabases(builder.Configuration);
+builder.Services.RegisterDbContext(builder.Configuration);
 builder.Services.AddUserServices();
-builder.Services.AddConfiguration();
 
-builder.Services.AddControllers();
-builder.Services.AddJwtAuthentification();
+builder.Services.AddControllers().AddJsonOptions(options =>
+ options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddAuthorization();
 
 builder.Services.AddEndpointsApiExplorer();

@@ -1,10 +1,8 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using RestaurantAggregator.Auth.Data;
 using RestaurantAggregator.Auth.Data.Entities;
 using RestaurantAggregator.Auth.Services;
-using StackExchange.Redis;
 using Role = RestaurantAggregator.Auth.Data.Entities.Role;
 
 namespace RestaurantAggregator.Auth.Extensions;
@@ -21,18 +19,10 @@ public static class ServicesExtension
         return services;
     }
 
-    public static IServiceCollection AddDatabases(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection RegisterDbContext(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<AuthDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("Auth")));
-
-        services.AddSingleton<IConnectionMultiplexer>(_ =>
-        {
-#nullable disable
-            var configurationOptions = ConfigurationOptions.Parse(configuration.GetConnectionString("Redis"));
-#nullable enable
-            return ConnectionMultiplexer.Connect(configurationOptions);
-        });
 
         services.AddIdentity<User, Role>(o => o.Password.RequireNonAlphanumeric = false)
             .AddEntityFrameworkStores<AuthDbContext>();
@@ -41,18 +31,6 @@ public static class ServicesExtension
 
         services.MigrateDatabase();
         return services;
-    }
-
-    public static void AddJwtAuthentification(this IServiceCollection services)
-    {
-        var jwtAuthentication = services.BuildServiceProvider().GetRequiredService<IJwtAuthentication>();
-        services.AddAuthentication(option =>
-        {
-            option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-        })
-        .AddJwtBearer(options => options.TokenValidationParameters = jwtAuthentication.GenerateTokenValidationParameters());
     }
 
     private static IServiceCollection MigrateDatabase(this IServiceCollection services)

@@ -23,6 +23,10 @@ public class DishService : IDishService
         {
             throw new NotFoundInDbException($"Dish with id {dishId} not found");
         }
+        if (!_context.DishesInCarts.Any(d => d.DishId == dishId && d.ClientId == clientId && d.InOrder))
+        {
+            throw new BusinessException($"Client with id {clientId} can't review dish with id {dishId}");
+        }
         try
         {
             dish.Reviews.Add(new Review
@@ -74,7 +78,7 @@ public class DishService : IDishService
 
     public async Task<DishDTO> GetDishInfoByIdAsync(Guid id)
     {
-        var dish = await _context.Dishes.FirstOrDefaultAsync(d => d.Id == id);
+        var dish = await _context.Dishes.Include(d => d.Reviews).FirstOrDefaultAsync(d => d.Id == id);
         if (dish == null)
         {
             throw new NotFoundInDbException($"Dish with id {id} not found");
@@ -88,23 +92,9 @@ public class DishService : IDishService
             IsVegeterian = dish.IsVegeterian,
             Photo = dish.Photo,
             Category = dish.Category,
-            MenuId = dish.MenuId
+            MenuId = dish.MenuId,
+            Rating = dish.Reviews.Any() ? dish.Reviews.Average(r => r.Value) : 0
         };
-    }
-
-    public async Task<double> GetDishRatingAsync(Guid dishId)
-    {
-        var dish = await _context.Dishes.FirstOrDefaultAsync(d => d.Id == dishId);
-        if (dish == null)
-        {
-            throw new NotFoundInDbException($"Dish with id {dishId} not found");
-        }
-        var ratings = await _context.Reviews.Where(r => r.DishId == dishId).Select(r => r.Value).ToListAsync();
-        if (ratings.Any())
-        {
-            return ratings.Average(r => r);
-        }
-        return 0;
     }
 
     public async Task UpdateDishAsync(DishCreation dish, Guid id)

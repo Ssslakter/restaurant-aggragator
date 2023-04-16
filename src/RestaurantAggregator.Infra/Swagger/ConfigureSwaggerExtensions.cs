@@ -1,6 +1,7 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
-namespace RestaurantAggregator.Auth.Swagger;
+namespace RestaurantAggregator.Infra.Swagger;
 
 public static class ConfigureSwaggerExtensions
 {
@@ -16,21 +17,6 @@ public static class ConfigureSwaggerExtensions
                 In = ParameterLocation.Header,
                 Description = "JWT authorization header using the Bearer scheme",
             });
-
-            // options.AddSecurityRequirement(new OpenApiSecurityRequirement
-            // {
-            // {
-            //     new OpenApiSecurityScheme
-            //     {
-            //         Reference = new OpenApiReference
-            //         {
-            //             Type = ReferenceType.SecurityScheme,
-            //             Id = "jwt_auth"
-            //         }
-            //     },
-            //     new List<string>()
-            // }
-            // });
 
             options.OperationFilter<AddAuthHeaderOperationFilter>();
         });

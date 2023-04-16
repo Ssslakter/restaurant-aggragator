@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Identity;
-using RestaurantAggregator.Auth.Data.Enums;
+using RestaurantAggregator.Core.Data.Enums;
 
 namespace RestaurantAggregator.Auth.Data.Entities;
 #nullable disable

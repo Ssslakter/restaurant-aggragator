@@ -1,22 +1,20 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RestaurantAggregator.Auth.Data.DTO;
 using RestaurantAggregator.Auth.Services;
+using RestaurantAggregator.Infra.Utils;
 
 namespace RestaurantAggregator.Auth.Controllers;
 
 [ApiController]
 [Route("api/auth")]
-public class AuthenticationController : ControllerBase
+public class AuthenticationController : AuthControllerBase
 {
     private readonly IUserAuthentication _authentificationService;
-    private readonly ILogger<AuthenticationController> _logger;
 
-    public AuthenticationController(IUserAuthentication authentificationService, ILogger<AuthenticationController> logger)
+    public AuthenticationController(IUserAuthentication authentificationService)
     {
         _authentificationService = authentificationService;
-        _logger = logger;
     }
 
     [HttpPost("login")]
@@ -36,24 +34,22 @@ public class AuthenticationController : ControllerBase
     [Authorize]
     public async Task<ActionResult> Logout()
     {
-        var userId = Guid.Parse(User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value);
-        await _authentificationService.Logout(userId);
+        await _authentificationService.Logout(UserId);
         return Ok();
     }
 
     [HttpPost("refresh")]
     public async Task<ActionResult<TokenModel>> RefreshToken(RefreshDTO refreshToken)
     {
-        var user = await _authentificationService.FindByRefreshToken(refreshToken.RefreshToken);
+        var user = await _authentificationService.ValidateRefreshToken(refreshToken.RefreshToken, refreshToken.UserId);
         return Ok(await _authentificationService.GenerateTokenPairAsync(user));
     }
 
-    [HttpPost("change-password")]
+    [HttpPatch("change-password")]
     [Authorize]
     public async Task<ActionResult> ChangePassword(ChangePasswordDTO changePasswordDTO)
     {
-        var userId = Guid.Parse(User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value);
-        await _authentificationService.ChangePassword(userId, changePasswordDTO.OldPassword, changePasswordDTO.NewPassword);
+        await _authentificationService.ChangePassword(UserId, changePasswordDTO.OldPassword, changePasswordDTO.NewPassword);
         return Ok();
     }
 }

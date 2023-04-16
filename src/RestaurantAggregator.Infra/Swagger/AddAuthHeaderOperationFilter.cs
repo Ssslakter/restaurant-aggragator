@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace RestaurantAggregator.Auth.Swagger;
+namespace RestaurantAggregator.Infra.Swagger;
 
 public class AddAuthHeaderOperationFilter : IOperationFilter
 {

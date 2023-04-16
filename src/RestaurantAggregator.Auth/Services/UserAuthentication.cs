@@ -3,9 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using RestaurantAggregator.Auth.Data.Entities;
 using RestaurantAggregator.Core.Exceptions;
 using RestaurantAggregator.Auth.Data.DTO;
-using RestaurantAggregator.Auth.Data;
-using Microsoft.EntityFrameworkCore;
-using RestaurantAggregator.Auth.Data.Enums;
+using RestaurantAggregator.Core.Data.Enums;
 
 namespace RestaurantAggregator.Auth.Services;
 
@@ -13,25 +11,22 @@ public interface IUserAuthentication
 {
     Task<User> Login(string email, string password);
     Task<User> Register(RegistrationModel registrationModel);
-    Task<User> FindByRefreshToken(string token);
-    Task<TokenModel> GenerateTokenPairAsync(User user);
+    Task<User> ValidateRefreshToken(string token, Guid userId);
     Task ChangePassword(Guid userId, string oldPassword, string newPassword);
     Task Logout(Guid userId);
+    Task<TokenModel> GenerateTokenPairAsync(User user);
 }
 
 public class UserAuthentication : IUserAuthentication
 {
     private readonly UserManager<User> _userManager;
     private readonly IJwtAuthentication _jwtAuthentication;
-    private readonly AuthDbContext _context;
     //private readonly ILogger<UserAuthentication> _logger;
 
-    public UserAuthentication(UserManager<User> userManager, AuthDbContext context,
-     IJwtAuthentication jwtAuthentication)
+    public UserAuthentication(UserManager<User> userManager, IJwtAuthentication jwtAuthentication)
     {
         _userManager = userManager;
         _jwtAuthentication = jwtAuthentication;
-        _context = context;
         //_logger = logger;
     }
 
@@ -59,8 +54,7 @@ public class UserAuthentication : IUserAuthentication
             UserName = registrationModel.Email
         };
         user.Client = new Client { User = user };
-        user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, registrationModel.Password);
-        var result = await _userManager.CreateAsync(user);
+        var result = await _userManager.CreateAsync(user, registrationModel.Password);
         if (result.Errors.Any())
         {
             throw new AuthException(result.Errors.First().Description);
@@ -71,24 +65,45 @@ public class UserAuthentication : IUserAuthentication
 
     public async Task Logout(Guid userId)
     {
-        await _context.RefreshTokens.Where(t => t.UserId == userId).ExecuteDeleteAsync();
+        await _jwtAuthentication.RevokeAllUserRefreshTokensAsync(userId);
     }
 
-    public async Task<User> FindByRefreshToken(string token)
+    public async Task<User> ValidateRefreshToken(string token, Guid userId)
     {
-        var userId = await _jwtAuthentication.GetUserIdFromTokenAsync(token);
+        if (!await _jwtAuthentication.ValidateRefreshTokenAsync(token))
+        {
+            throw new AuthException("Invalid refresh token");
+        }
         var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
+        {
             throw new NotFoundInDbException("User not found");
+        }
         return user;
+    }
+
+    public async Task ChangePassword(Guid userId, string oldPassword, string newPassword)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+        {
+            throw new NotFoundInDbException("User not found");
+        }
+        var result = await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
+        if (!result.Succeeded)
+        {
+            throw new AuthException(result.Errors.First().Description);
+        }
     }
 
     public async Task<TokenModel> GenerateTokenPairAsync(User user)
     {
+        var accessToken = await GenerateAccessTokenAsync(user);
+        var refreshToken = await _jwtAuthentication.GenerateRefreshTokenAsync(user.Id);
         return new TokenModel
         {
-            AccessToken = await GenerateAccessTokenAsync(user),
-            RefreshToken = await GenerateRefreshTokenAsync(user)
+            AccessToken = accessToken,
+            RefreshToken = refreshToken
         };
     }
 
@@ -106,35 +121,6 @@ public class UserAuthentication : IUserAuthentication
             claims.Add(new Claim(ClaimTypes.Role, role));
         }
 #nullable enable
-        return _jwtAuthentication.GenerateToken(claims);
-    }
-
-    private async Task<string> GenerateRefreshTokenAsync(User user)
-    {
-        var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-        };
-        _context.RefreshTokens.Add(new RefreshToken
-        {
-            Token = _jwtAuthentication.GenerateToken(claims, isRefreshToken: true),
-            UserId = user.Id
-        });
-        await _context.SaveChangesAsync();
-        return _jwtAuthentication.GenerateToken(claims, isRefreshToken: true);
-    }
-
-    public async Task ChangePassword(Guid userId, string oldPassword, string newPassword)
-    {
-        var user = await _userManager.FindByIdAsync(userId.ToString());
-        if (user == null)
-        {
-            throw new NotFoundInDbException("User not found");
-        }
-        var result = await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
-        if (!result.Succeeded)
-        {
-            throw new AuthException(result.Errors.First().Description);
-        }
+        return _jwtAuthentication.GenerateAccessToken(claims);
     }
 }
