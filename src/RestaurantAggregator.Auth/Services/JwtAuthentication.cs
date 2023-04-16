@@ -58,7 +58,8 @@ public class JwtAuthentication : IJwtAuthentication
             Token = token,
             Expires = DateTime.UtcNow.Add(_jwtConfiguration.RefreshTokenLifetime)
         });
-        return Convert.ToBase64String(randomNumber);
+        await _context.SaveChangesAsync();
+        return token;
     }
 
     public string GenerateAccessToken(IEnumerable<Claim> claims)

@@ -20,14 +20,14 @@ public class ProfileController : AuthControllerBase
 
     [HttpGet]
     [Authorize]
-    public async Task<ActionResult<ProfileDTO>> GetProfile()
+    public async Task<ActionResult<ProfileCreation>> GetProfile()
     {
         return Ok(await _profileService.GetProfileAsync(User));
     }
 
     [HttpPut]
     [Authorize]
-    public async Task<ActionResult> UpdateProfile(ProfileDTO newProfile)
+    public async Task<ActionResult> UpdateProfile(ProfileCreation newProfile)
     {
         await _profileService.UpdateProfileAsync(newProfile);
         return Ok();

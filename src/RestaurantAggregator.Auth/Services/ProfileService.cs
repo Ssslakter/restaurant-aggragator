@@ -8,7 +8,7 @@ namespace RestaurantAggregator.Auth.Services;
 
 public interface IProfileService
 {
-    Task UpdateProfileAsync(ProfileDTO profileDTO);
+    Task UpdateProfileAsync(ProfileCreation profileCreation);
     Task<ProfileDTO> GetProfileAsync(ClaimsPrincipal userClaims);
     Task UpdateEmailAsync(string email, string newEmail);
 }
@@ -29,6 +29,7 @@ public class ProfileService : IProfileService
             throw new NotFoundInDbException("User not found");
         return new ProfileDTO
         {
+            Id = user.Id,
             Email = user.Email,
             Name = user.Name,
             Surname = user.FullName.Split(' ')[0],
@@ -52,7 +53,7 @@ public class ProfileService : IProfileService
         await _userManager.UpdateAsync(user);
     }
 
-    public async Task UpdateProfileAsync(ProfileDTO profileDTO)
+    public async Task UpdateProfileAsync(ProfileCreation profileDTO)
     {
         var user = await _userManager.FindByEmailAsync(profileDTO.Email);
         if (user == null)
