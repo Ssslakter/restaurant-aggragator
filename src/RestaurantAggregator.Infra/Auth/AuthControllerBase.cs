@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 
-namespace RestaurantAggregator.Infra.Utils;
+namespace RestaurantAggregator.Infra.Auth;
 
 public class AuthControllerBase : ControllerBase
 {

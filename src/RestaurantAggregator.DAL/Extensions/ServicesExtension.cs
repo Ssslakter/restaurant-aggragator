@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace RestaurantAggregator.DAL;
+namespace RestaurantAggregator.DAL.Extensions;
 
 public static class ServicesExtension
 {

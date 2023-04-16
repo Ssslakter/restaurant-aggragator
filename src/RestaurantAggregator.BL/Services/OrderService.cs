@@ -46,9 +46,9 @@ public class OrderService : IOrderService
         {
             throw new NotFoundInDbException($"Order with id {orderId} not found");
         }
-        if (status - order.Status != 1 && status != OrderStatus.Canceled)
+        if ((status - order.Status != 1) && status != OrderStatus.Canceled)
         {
-            throw new DbViolationException("Order status cannot be skipped");
+            throw new BusinessException("Order status can be changed only by 1 step");
         }
         order.Status = status;
         await _context.SaveChangesAsync();
@@ -56,12 +56,18 @@ public class OrderService : IOrderService
 
     public async Task CreateOrderFromCartAsync(Guid clientId, string address)
     {
-        var dishesInCart = await _context.DishesInCarts.Where(d => d.ClientId == clientId && !d.InOrder).ToListAsync();
+        var dishesInCart = await _context.DishesInCarts
+        .Include(d => d.Dish).ThenInclude(d => d.Menu)
+        .Where(d => d.ClientId == clientId && !d.InOrder).ToListAsync();
         if (dishesInCart.Count == 0)
         {
             throw new NotFoundInDbException($"Cart for client with id {clientId} is empty");
         }
-        //fixate dish prices
+        if (dishesInCart.Select(d => d.Dish.Menu.RestaurantId).Distinct().Count() > 1)
+        {
+            throw new InvalidDataException("All dishes in cart must be from the same restaurant");
+        }
+
         var totalPrice = 0.0M;
         foreach (var dish in dishesInCart)
         {
@@ -71,8 +77,10 @@ public class OrderService : IOrderService
         }
         var order = new Order
         {
+            RestaurantId = dishesInCart[0].Dish.Menu.RestaurantId,
             Status = OrderStatus.Created,
             OrderTime = DateTime.Now,
+            DeliveryTime = DateTime.Now.AddHours(1),
             ClientId = clientId,
             Dishes = dishesInCart,
             Address = address,
@@ -118,14 +126,14 @@ public class OrderService : IOrderService
         return await GetOrdersByFieldIdAsync(clientId, "client", status);
     }
 
-    public async Task<ICollection<OrderDTO>> GetOrdersByCookIdAsync(Guid cookId, OrderStatus? status, uint page)
+    public async Task<ICollection<OrderDTO>> GetOrdersByCookIdAsync(Guid cookId, uint page)
     {
-        return await GetOrdersByFieldIdAsync(cookId, "cook", status);
+        return await GetOrdersByFieldIdAsync(cookId, "cook", OrderStatus.Kitchen);
     }
 
-    public async Task<ICollection<OrderDTO>> GetOrdersByCourierIdAsync(Guid courierId, OrderStatus? status, uint page)
+    public async Task<ICollection<OrderDTO>> GetOrdersByCourierIdAsync(Guid courierId, uint page)
     {
-        return await GetOrdersByFieldIdAsync(courierId, "courier", status);
+        return await GetOrdersByFieldIdAsync(courierId, "courier", OrderStatus.Delivery);
     }
 
     public async Task<ICollection<OrderDTO>> GetOrdersByRestaurantIdAsync(Guid restaurantId, OrderStatus? status, uint page)
@@ -133,20 +141,16 @@ public class OrderService : IOrderService
         return await GetOrdersByFieldIdAsync(restaurantId, "restaurant", status);
     }
 
-    public async Task<OrderStatus> GetOrderStatusAsync(Guid orderId)
+    public Task<ICollection<OrderDTO>> GetOrdersByStatusAsync(OrderStatus status, uint page)
     {
-        var order = await _context.Orders.FindAsync(orderId);
-        if (order == null)
-        {
-            throw new NotFoundInDbException($"Order with id {orderId} not found");
-        }
-        return order.Status;
+        return GetOrdersByFieldIdAsync(Guid.Empty, "any", status);
     }
 
     private async Task<ICollection<OrderDTO>> GetOrdersByFieldIdAsync(Guid fieldId, string fieldName, OrderStatus? status)
     {
         var query = fieldName switch
         {
+            "any" => _context.Orders.AsQueryable(),
             "cook" => _context.Orders.Where(o => o.CookId == fieldId),
             "courier" => _context.Orders.Where(o => o.CourierId == fieldId),
             "client" => _context.Orders.Where(o => o.ClientId == fieldId),

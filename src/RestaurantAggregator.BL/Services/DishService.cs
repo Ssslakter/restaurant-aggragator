@@ -5,7 +5,7 @@ using RestaurantAggregator.Core.Services;
 using RestaurantAggregator.DAL;
 using RestaurantAggregator.DAL.Data;
 
-namespace RestaurantAggregator.BL;
+namespace RestaurantAggregator.BL.Services;
 
 public class DishService : IDishService
 {

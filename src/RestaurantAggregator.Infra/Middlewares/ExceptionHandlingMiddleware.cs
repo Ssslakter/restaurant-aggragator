@@ -42,6 +42,12 @@ public static class ExceptionHandlingMiddleware
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 await context.Response.WriteAsJsonAsync(new ErrorResponse(ex.Message));
             }
+            catch (ForbidException ex)
+            {
+                logger.LogInformation(ex, "Forbidden");
+                context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                await context.Response.WriteAsJsonAsync(new ErrorResponse(ex.Message));
+            }
             catch (Exception ex)
             {
                 logger.LogError(ex, "ServerError");

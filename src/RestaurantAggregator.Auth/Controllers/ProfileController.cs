@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RestaurantAggregator.Auth.Data.DTO;
 using RestaurantAggregator.Auth.Services;
-using RestaurantAggregator.Infra.Utils;
+using RestaurantAggregator.Infra.Auth;
 
 namespace RestaurantAggregator.Auth.Controllers;
 

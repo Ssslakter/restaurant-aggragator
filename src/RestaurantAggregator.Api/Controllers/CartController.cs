@@ -1,13 +1,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RestaurantAggregator.Core.Data.DTO;
+using RestaurantAggregator.Core.Data.Enums;
 using RestaurantAggregator.Core.Services;
-using RestaurantAggregator.Infra.Utils;
+using RestaurantAggregator.Infra.Auth;
 
 namespace RestaurantAggregator.Api.Controllers;
 
 [ApiController]
-//TODO: add auth
+[RoleAuthorize(RoleType.Client)]
 [Route("cart")]
 public class CartController : AuthControllerBase
 {
@@ -19,27 +20,29 @@ public class CartController : AuthControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = "Client")]
     public async Task<ActionResult<CartDTO>> GetCart()
     {
         return Ok(await _cartService.GetCartAsync(UserId));
     }
 
     [HttpPost("{dishId}/add")]
-    public async Task<IActionResult> AddDishToCart(Guid dishId)
+    public async Task<IActionResult> AddDishToCart(Guid dishId, [FromQuery] uint quantity = 1)
     {
-        throw new NotImplementedException();
+        await _cartService.AddDishToCartAsync(dishId, UserId, quantity);
+        return Ok();
     }
 
     [HttpPost("{dishId}/remove")]
-    public async Task<IActionResult> RemoveDishFromCart(Guid dishId)
+    public async Task<IActionResult> RemoveDishFromCart(Guid dishId, [FromQuery] uint quantity = 1)
     {
-        throw new NotImplementedException();
+        await _cartService.RemoveDishFromCartAsync(dishId, UserId, quantity);
+        return Ok();
     }
 
     [HttpPost("clear")]
     public async Task<IActionResult> ClearCart()
     {
-        throw new NotImplementedException();
+        await _cartService.ClearCartAsync(UserId);
+        return Ok();
     }
 }

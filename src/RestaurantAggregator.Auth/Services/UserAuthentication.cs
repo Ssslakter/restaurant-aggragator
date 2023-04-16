@@ -53,13 +53,16 @@ public class UserAuthentication : IUserAuthentication
             Phone = registrationModel.Phone,
             UserName = registrationModel.Email
         };
-        user.Client = new Client { User = user };
         var result = await _userManager.CreateAsync(user, registrationModel.Password);
         if (result.Errors.Any())
         {
             throw new AuthException(result.Errors.First().Description);
         }
-        await _userManager.AddToRoleAsync(user, nameof(RoleType.Client));
+        var roleResult = await _userManager.AddToRoleAsync(user, nameof(RoleType.Client));
+        if (roleResult.Errors.Any())
+        {
+            throw new AuthException(roleResult.Errors.First().Description);
+        }
         return user;
     }
 
