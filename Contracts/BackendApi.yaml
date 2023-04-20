@@ -1,0 +1,1223 @@
+openapi: 3.0.1
+info:
+  title: RestaurantAggregator.Api
+  version: '1.0'
+paths:
+  /cart:
+    get:
+      tags:
+        - Cart
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/CartDTO'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartDTO'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/CartDTO'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+  '/cart/{dishId}/add':
+    post:
+      tags:
+        - Cart
+      parameters:
+        - name: dishId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
+        - name: quantity
+          in: query
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 1
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+  '/cart/{dishId}/remove':
+    post:
+      tags:
+        - Cart
+      parameters:
+        - name: dishId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
+        - name: quantity
+          in: query
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 1
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+  /cart/clear:
+    post:
+      tags:
+        - Cart
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+  '/dish/{dishId}':
+    get:
+      tags:
+        - Dish
+      parameters:
+        - name: dishId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/DishDTO'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DishDTO'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/DishDTO'
+    put:
+      tags:
+        - Dish
+      parameters:
+        - name: dishId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DishCreation'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/DishCreation'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/DishCreation'
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/DishDTO'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DishDTO'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/DishDTO'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+    delete:
+      tags:
+        - Dish
+      parameters:
+        - name: dishId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+  '/dish/{dishId}/review':
+    post:
+      tags:
+        - Dish
+      parameters:
+        - name: dishId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewDTO'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/ReviewDTO'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/ReviewDTO'
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+  /dish:
+    post:
+      tags:
+        - Dish
+      parameters:
+        - name: restaurantId
+          in: query
+          style: form
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DishCreation'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/DishCreation'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/DishCreation'
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+  '/menu/{restaurantId}/all':
+    get:
+      tags:
+        - Menu
+      parameters:
+        - name: restaurantId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MenuDTO'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MenuDTO'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MenuDTO'
+  '/menu/{menuId}':
+    get:
+      tags:
+        - Menu
+      parameters:
+        - name: menuId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
+        - name: filters
+          in: query
+          style: form
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Category'
+        - name: sorting
+          in: query
+          style: form
+          schema:
+            $ref: '#/components/schemas/Sorting'
+        - name: page
+          in: query
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 1
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/MenuDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/MenuDetails'
+    put:
+      tags:
+        - Menu
+      parameters:
+        - name: menuId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MenuCreation'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/MenuCreation'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/MenuCreation'
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/MenuDTO'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuDTO'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/MenuDTO'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+    delete:
+      tags:
+        - Menu
+      parameters:
+        - name: menuId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+  '/menu/{restaurantId}':
+    post:
+      tags:
+        - Menu
+      parameters:
+        - name: restaurantId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MenuCreation'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/MenuCreation'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/MenuCreation'
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/MenuDTO'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuDTO'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/MenuDTO'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+  '/menu/{menuId}/dish/{dishId}/add':
+    post:
+      tags:
+        - Menu
+      parameters:
+        - name: menuId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
+        - name: dishId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+  '/menu/{menuId}/dish/{dishId}/remove':
+    post:
+      tags:
+        - Menu
+      parameters:
+        - name: menuId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
+        - name: dishId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+  /orders/create:
+    post:
+      tags:
+        - Order
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeliveryAddress'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/DeliveryAddress'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/DeliveryAddress'
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+  '/orders/{orderId}/info':
+    get:
+      tags:
+        - Order
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/OrderDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/OrderDetails'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+  /orders/history:
+    get:
+      tags:
+        - Order
+      parameters:
+        - name: deliveredOnly
+          in: query
+          style: form
+          schema:
+            type: boolean
+        - name: page
+          in: query
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 1
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderDTO'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderDTO'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderDTO'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+  '/orders/kitchen/{restaurantId}':
+    get:
+      tags:
+        - Order
+      parameters:
+        - name: restaurantId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
+        - name: createdOnly
+          in: query
+          style: form
+          schema:
+            type: boolean
+        - name: page
+          in: query
+          style: form
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderDetails'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderDetails'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderDetails'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+  '/orders/kitchen/{orderId}/status':
+    patch:
+      tags:
+        - Order
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          style: form
+          schema:
+            $ref: '#/components/schemas/OrderStatus'
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+  '/orders/delivery/{orderId}/status':
+    patch:
+      tags:
+        - Order
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          style: form
+          schema:
+            $ref: '#/components/schemas/OrderStatus'
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+  /orders/courier:
+    get:
+      tags:
+        - Order
+      parameters:
+        - name: page
+          in: query
+          style: form
+          schema:
+            type: integer
+            format: int32
+        - name: packaging
+          in: query
+          style: form
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderDTO'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderDTO'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderDTO'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+  '/orders/{orderId}/cancel':
+    post:
+      tags:
+        - Order
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+  /restaurant/all:
+    get:
+      tags:
+        - Restaurant
+      parameters:
+        - name: page
+          in: query
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 1
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RestaurantDTO'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RestaurantDTO'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RestaurantDTO'
+  '/restaurant/{name}':
+    get:
+      tags:
+        - Restaurant
+      parameters:
+        - name: name
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+        - name: page
+          in: query
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 1
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RestaurantDTO'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RestaurantDTO'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RestaurantDTO'
+  /restaurant:
+    post:
+      tags:
+        - Restaurant
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RestaurantCreation'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/RestaurantCreation'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/RestaurantCreation'
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/RestaurantDTO'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestaurantDTO'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/RestaurantDTO'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+  '/restaurant/{id}':
+    put:
+      tags:
+        - Restaurant
+      parameters:
+        - name: id
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RestaurantCreation'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/RestaurantCreation'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/RestaurantCreation'
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/RestaurantDTO'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestaurantDTO'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/RestaurantDTO'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+    delete:
+      tags:
+        - Restaurant
+      parameters:
+        - name: id
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+components:
+  schemas:
+    CartDTO:
+      type: object
+      properties:
+        clientId:
+          type: string
+          format: uuid
+        dishes:
+          type: array
+          items:
+            $ref: '#/components/schemas/DishInCartDTO'
+          nullable: true
+      additionalProperties: false
+    Category:
+      enum:
+        - WOK
+        - Pizza
+        - Soup
+        - Dessert
+        - Drink
+      type: string
+    DeliveryAddress:
+      required:
+        - city
+        - house
+        - street
+      type: object
+      properties:
+        city:
+          minLength: 1
+          type: string
+        street:
+          minLength: 1
+          type: string
+        house:
+          minLength: 1
+          type: string
+      additionalProperties: false
+    DishCreation:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        price:
+          type: number
+          format: double
+        isVegeterian:
+          type: boolean
+        photo:
+          type: string
+          nullable: true
+        category:
+          $ref: '#/components/schemas/Category'
+      additionalProperties: false
+    DishDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        price:
+          type: number
+          format: double
+        isVegeterian:
+          type: boolean
+        photo:
+          type: string
+          nullable: true
+        category:
+          $ref: '#/components/schemas/Category'
+        menuId:
+          type: string
+          format: uuid
+        restaurantId:
+          type: string
+          format: uuid
+        rating:
+          type: number
+          format: double
+      additionalProperties: false
+    DishInCartDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        price:
+          type: number
+          format: double
+        isVegeterian:
+          type: boolean
+        photo:
+          type: string
+          nullable: true
+        category:
+          $ref: '#/components/schemas/Category'
+        menuId:
+          type: string
+          format: uuid
+        restaurantId:
+          type: string
+          format: uuid
+        rating:
+          type: number
+          format: double
+        count:
+          type: integer
+          format: int32
+      additionalProperties: false
+    DishInOrderDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        isVegeterian:
+          type: boolean
+        photo:
+          type: string
+          nullable: true
+        category:
+          $ref: '#/components/schemas/Category'
+        menuId:
+          type: string
+          format: uuid
+        restaurantId:
+          type: string
+          format: uuid
+        rating:
+          type: number
+          format: double
+        count:
+          type: integer
+          format: int32
+        price:
+          type: number
+          format: double
+      additionalProperties: false
+    MenuCreation:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+      additionalProperties: false
+    MenuDTO:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        id:
+          type: string
+          format: uuid
+        restaurantId:
+          type: string
+          format: uuid
+      additionalProperties: false
+    MenuDetails:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        id:
+          type: string
+          format: uuid
+        restaurantId:
+          type: string
+          format: uuid
+        dishes:
+          type: array
+          items:
+            $ref: '#/components/schemas/DishDTO'
+          nullable: true
+      additionalProperties: false
+    OrderDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        orderNumber:
+          type: integer
+          format: int32
+        status:
+          $ref: '#/components/schemas/OrderStatus'
+        orderTime:
+          type: string
+          format: date-time
+        deliveryTime:
+          type: string
+          format: date-time
+          nullable: true
+        address:
+          type: string
+          nullable: true
+        totalPrice:
+          type: number
+          format: double
+      additionalProperties: false
+    OrderDetails:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        orderNumber:
+          type: integer
+          format: int32
+        status:
+          $ref: '#/components/schemas/OrderStatus'
+        orderTime:
+          type: string
+          format: date-time
+        deliveryTime:
+          type: string
+          format: date-time
+          nullable: true
+        address:
+          type: string
+          nullable: true
+        totalPrice:
+          type: number
+          format: double
+        dishes:
+          type: array
+          items:
+            $ref: '#/components/schemas/DishInOrderDTO'
+          nullable: true
+      additionalProperties: false
+    OrderStatus:
+      enum:
+        - Created
+        - Kitchen
+        - Packaging
+        - Delivery
+        - Delivered
+        - Canceled
+      type: string
+    RestaurantCreation:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          minLength: 1
+          type: string
+      additionalProperties: false
+    RestaurantDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          nullable: true
+        menus:
+          type: array
+          items:
+            $ref: '#/components/schemas/MenuDTO'
+          nullable: true
+      additionalProperties: false
+    ReviewDTO:
+      type: object
+      properties:
+        value:
+          maximum: 10
+          minimum: 1
+          type: integer
+          format: int32
+      additionalProperties: false
+    Sorting:
+      enum:
+        - PriceDesc
+        - PriceAsc
+        - ScoreDesc
+        - ScoreAsc
+        - AlphabetDesc
+        - AlphabetAsc
+      type: string
+  securitySchemes:
+    jwt_auth:
+      type: http
+      description: JWT authorization header using the Bearer scheme
+      scheme: bearer
+      bearerFormat: JWT

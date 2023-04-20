@@ -27,7 +27,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(options =>
-     options.SwaggerEndpoint("/swagger/v1/swagger.json", "RestaurantAggregator API"));
+     options.SwaggerEndpoint("v1/swagger.yaml", "RestaurantAggregator API"));
 }
 
 app.UseExceptionLogging(LoggerFactory.Create(builder => builder.AddConsole()));
