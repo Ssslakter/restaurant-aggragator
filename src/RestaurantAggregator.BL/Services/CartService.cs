@@ -34,7 +34,7 @@ public class CartService : ICartService
             ClientId = clientId,
             Dish = dish,
             DishId = dishId,
-            Count = quantity,
+            Count = quantity
         });
         await _context.SaveChangesAsync();
     }

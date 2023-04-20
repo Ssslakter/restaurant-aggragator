@@ -15,6 +15,7 @@ public static class Registration
         services.AddScoped<IRestaurantService, RestaurantService>();
         services.AddScoped<ICartService, CartService>();
         services.AddScoped<IOrderService, OrderService>();
+        services.AddScoped<IPermissionService, PermissionService>();
         services.RegisterDbContext(configuration);
     }
 }

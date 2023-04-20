@@ -42,11 +42,11 @@ public class PermissionService : IPermissionService
     {
         var order = await _context.Orders.FindAsync(orderId);
         if (order == null)
-            throw new NotFoundInDbException("Order not found");
+            throw new NotFoundInDbException($"Order with id {orderId} not found");
 
         var flag = order.Status switch
         {
-            OrderStatus.Created => order.CookId == userId && await RestaurantStaff(userId, order.RestaurantId),
+            OrderStatus.Created => await RestaurantStaff(userId, order.RestaurantId),
             OrderStatus.Kitchen => order.CookId == userId && await OrderParticipant(userId, orderId, RoleType.Cook),
             OrderStatus.Packaging => order.CourierId == userId,
             OrderStatus.Delivery => order.CourierId == userId && await OrderParticipant(userId, orderId, RoleType.Courier),
@@ -64,11 +64,11 @@ public class PermissionService : IPermissionService
     {
         var dish = await _context.Dishes.FindAsync(dishId);
         if (dish == null)
-            throw new NotFoundInDbException("Dish not found");
+            throw new NotFoundInDbException($"Dish with id {dishId} not found");
         var restaurantId = dish.RestaurantId;
         if (!await RestaurantOwner(userId, restaurantId))
         {
-            throw new ForbidException("You are not allowed to change the dish of this restaurant");
+            throw new ForbidException("You are not allowed to modify the dish of this restaurant");
         }
     }
 
@@ -76,11 +76,11 @@ public class PermissionService : IPermissionService
     {
         var menu = await _context.Menus.FindAsync(menuId);
         if (menu == null)
-            throw new NotFoundInDbException("Menu not found");
+            throw new NotFoundInDbException($"Menu with id {menuId} not found");
         var restaurantId = menu.RestaurantId;
         if (!await RestaurantOwner(userId, restaurantId))
         {
-            throw new ForbidException("You are not allowed to change the menu of this restaurant");
+            throw new ForbidException("You are not allowed to modify the menu of this restaurant");
         }
     }
 
@@ -88,7 +88,7 @@ public class PermissionService : IPermissionService
     {
         var restaurant = await _context.Restaurants.FindAsync(restaurantId);
         if (restaurant == null)
-            throw new NotFoundInDbException("Restaurant not found");
+            throw new NotFoundInDbException($"Restaurant with id {restaurantId} not found");
         return restaurant.Managers.Any(x => x == userId) || restaurant.Cooks.Any(x => x == userId);
     }
 
@@ -96,7 +96,7 @@ public class PermissionService : IPermissionService
     {
         var restaurant = await _context.Restaurants.FindAsync(restaurantId);
         if (restaurant == null)
-            throw new NotFoundInDbException("Restaurant not found");
+            throw new NotFoundInDbException($"Restaurant with id {restaurantId} not found");
         return restaurant.Managers.Any(x => x == userId);
     }
 
@@ -104,7 +104,7 @@ public class PermissionService : IPermissionService
     {
         var order = await _context.Orders.FindAsync(orderId);
         if (order == null)
-            throw new NotFoundInDbException("Order not found");
+            throw new NotFoundInDbException($"Order with id {orderId} not found");
         if (roleType == null)
             return order.ClientId == userId || order.CourierId == userId || order.CookId == userId;
         return (order.ClientId == userId && roleType == RoleType.Client) ||

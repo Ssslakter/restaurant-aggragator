@@ -101,6 +101,7 @@ public class MenuService : IMenuService
                 Description = d.Description,
                 Price = d.Price,
                 IsVegeterian = d.IsVegeterian,
+                RestaurantId = d.RestaurantId,
                 Photo = d.Photo,
                 Category = d.Category,
                 MenuId = d.MenuId,

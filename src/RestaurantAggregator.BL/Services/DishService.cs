@@ -25,7 +25,7 @@ public class DishService : IDishService
         }
         if (!_context.DishesInCarts.Any(d => d.DishId == dishId && d.ClientId == clientId && d.InOrder))
         {
-            throw new BusinessException($"Client with id {clientId} can't review dish with id {dishId}");
+            throw new BusinessException($"User can't review dish with id {dishId}, since it wasn't ordered");
         }
         try
         {

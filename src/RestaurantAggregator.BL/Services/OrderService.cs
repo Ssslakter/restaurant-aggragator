@@ -61,7 +61,7 @@ public class OrderService : IOrderService
         .Where(d => d.ClientId == clientId && !d.InOrder).ToListAsync();
         if (dishesInCart.Count == 0)
         {
-            throw new NotFoundInDbException($"Cart for client with id {clientId} is empty");
+            throw new NotFoundInDbException("Cart for client is empty");
         }
         if (dishesInCart.Select(d => d.Dish.Menu.RestaurantId).Distinct().Count() > 1)
         {
@@ -79,8 +79,8 @@ public class OrderService : IOrderService
         {
             RestaurantId = dishesInCart[0].Dish.Menu.RestaurantId,
             Status = OrderStatus.Created,
-            OrderTime = DateTime.Now,
-            DeliveryTime = DateTime.Now.AddHours(1),
+            OrderTime = DateTime.Now.ToUniversalTime(),
+            DeliveryTime = DateTime.Now.AddHours(1).ToUniversalTime(),
             ClientId = clientId,
             Dishes = dishesInCart,
             Address = address,

@@ -6,13 +6,19 @@ using RestaurantAggregator.Infra.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.RegisterBLServices(builder.Configuration);
+
 builder.Services.AddControllers().AddJsonOptions(options =>
  options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddAuthorization();
+
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.ConfigureSwagger();
-builder.Services.RegisterBLServices(builder.Configuration);
+
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.ConfigureSwagger();
+}
 
 var app = builder.Build();
 
@@ -20,7 +26,8 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+     options.SwaggerEndpoint("/swagger/v1/swagger.json", "RestaurantAggregator API"));
 }
 app.UseExceptionLogging(LoggerFactory.Create(builder => builder.AddConsole()));
 app.UseHttpsRedirection();

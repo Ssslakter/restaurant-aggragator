@@ -3,6 +3,7 @@ using RestaurantAggregator.Core.Data.Enums;
 using RestaurantAggregator.Core.Data.DTO;
 using RestaurantAggregator.Infra.Auth;
 using RestaurantAggregator.Core.Services;
+using RestaurantAggregator.Core.Exceptions;
 
 namespace RestaurantAggregator.Api.Controllers;
 
@@ -32,7 +33,14 @@ public class OrderController : AuthControllerBase
     [HttpGet("{orderId}/info")]
     public async Task<ActionResult<OrderDetails>> GetOrderInfo(Guid orderId)
     {
-        await _permissionService.OrderParticipantValidate(UserId, orderId, roleType: null);
+        try
+        {
+            await _permissionService.OrderParticipantValidate(UserId, orderId, roleType: null);
+        }
+        catch (ForbidException)
+        {
+            await _permissionService.CanChangeOrderStatusUpValidate(UserId, orderId);
+        }
         var order = await _orderService.GetOrderByIdAsync(orderId);
         return Ok(order);
     }
@@ -49,7 +57,7 @@ public class OrderController : AuthControllerBase
 
     [HttpGet("kitchen/{restaurantId}")]
     [RoleAuthorize(RoleType.Manager, RoleType.Cook)]
-    public async Task<ActionResult<ICollection<OrderDTO>>> GetOrdersForCook(Guid restaurantId,
+    public async Task<ActionResult<ICollection<OrderDetails>>> GetOrdersForCook(Guid restaurantId,
         [FromQuery] bool createdOnly, [FromQuery] uint page)
     {
         if (!createdOnly)
@@ -65,7 +73,7 @@ public class OrderController : AuthControllerBase
     public async Task<IActionResult> ChangeOrderStatusKitchen(Guid orderId, OrderStatus status)
     {
         if (status == OrderStatus.Canceled)
-            return Forbid("You are not allowed to change this order status");
+            throw new ForbidException("You can't cancel order in kitchen");
         await _permissionService.CanChangeOrderStatusUpValidate(UserId, orderId);
         await _orderService.ChangeOrderStatusAsync(orderId, status);
         if (status == OrderStatus.Kitchen)
@@ -76,7 +84,7 @@ public class OrderController : AuthControllerBase
     }
 
     [HttpPatch("delivery/{orderId}/status")]
-    [RoleAuthorize(RoleType.Cook)]
+    [RoleAuthorize(RoleType.Courier)]
     public async Task<IActionResult> ChangeOrderStatusDelivery(Guid orderId, OrderStatus status)
     {
         await _permissionService.CanChangeOrderStatusUpValidate(UserId, orderId);

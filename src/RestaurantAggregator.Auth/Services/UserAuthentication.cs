@@ -106,7 +106,8 @@ public class UserAuthentication : IUserAuthentication
         return new TokenModel
         {
             AccessToken = accessToken,
-            RefreshToken = refreshToken
+            RefreshToken = refreshToken,
+            UserId = user.Id
         };
     }
 

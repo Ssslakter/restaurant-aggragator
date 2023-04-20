@@ -31,10 +31,9 @@ namespace RestaurantAggregator.DAL
                 .HasAlternateKey(o => new { o.ClientId, o.OrderTime });
 
             modelBuilder.Entity<DishInCart>()
-                .HasIndex(c => c.OrderId);
-
-            modelBuilder.Entity<DishInCart>()
-                .HasAlternateKey(c => new { c.ClientId, c.DishId, c.OrderId });
+                .HasOne(d => d.Order)
+                .WithMany(o => o.Dishes)
+                .IsRequired(false);
         }
     }
 }

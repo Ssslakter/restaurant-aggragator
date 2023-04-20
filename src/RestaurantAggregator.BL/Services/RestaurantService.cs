@@ -22,7 +22,9 @@ public class RestaurantService : IRestaurantService
         var restaurantEntity = new Restaurant
         {
             Name = restaurantModel.Name,
-            Menus = new List<Menu>()
+            Menus = new List<Menu>(),
+            Cooks = new List<Guid>(),
+            Managers = new List<Guid>()
         };
         await _context.Restaurants.AddAsync(restaurantEntity);
         await _context.SaveChangesAsync();

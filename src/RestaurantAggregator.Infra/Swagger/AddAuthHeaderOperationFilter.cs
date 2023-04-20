@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi.Models;
+using RestaurantAggregator.Infra.Auth;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace RestaurantAggregator.Infra.Swagger;
@@ -12,7 +13,7 @@ public class AddAuthHeaderOperationFilter : IOperationFilter
 #nullable disable
             .Union(context.MethodInfo.DeclaringType.GetCustomAttributes(true))
 #nullable enable
-            .OfType<AuthorizeAttribute>();
+            .Where(a => a is AuthorizeAttribute || a is RoleAuthorizeAttribute);
 
         if (attributes.Any())
         {
