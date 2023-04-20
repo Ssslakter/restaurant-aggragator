@@ -1,4 +1,3 @@
-using RestaurantAggregator.Core.Data;
 using RestaurantAggregator.Core.Data.Enums;
 
 namespace RestaurantAggregator.DAL.Data;
@@ -14,5 +13,7 @@ public class Dish
     public Category Category { get; set; }
     public Menu Menu { get; set; }
     public Guid MenuId { get; set; }
+    public Guid RestaurantId { get; set; }
+    public Restaurant Restaurant { get; set; }
     public ICollection<Review> Reviews { get; set; }
 }

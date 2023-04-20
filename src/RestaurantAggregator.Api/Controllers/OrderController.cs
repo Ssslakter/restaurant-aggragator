@@ -32,8 +32,7 @@ public class OrderController : AuthControllerBase
     [HttpGet("{orderId}/info")]
     public async Task<ActionResult<OrderDetails>> GetOrderInfo(Guid orderId)
     {
-        if (!await _permissionService.OrderParticipant(UserId, orderId, roleType: null))
-            return Forbid("You are not allowed to view this order");
+        await _permissionService.OrderParticipantValidate(UserId, orderId, roleType: null);
         var order = await _orderService.GetOrderByIdAsync(orderId);
         return Ok(order);
     }
@@ -57,8 +56,7 @@ public class OrderController : AuthControllerBase
         {
             return Ok(await _orderService.GetOrdersByCookIdAsync(UserId, page));
         }
-        if (!await _permissionService.RestaurantStaff(UserId, restaurantId))
-            return Forbid("You are not allowed to view this restaurant orders");
+        await _permissionService.RestaurantStaffValidate(UserId, restaurantId);
         return Ok(await _orderService.GetOrdersByRestaurantIdAsync(restaurantId, OrderStatus.Created, page));
     }
 
@@ -66,8 +64,9 @@ public class OrderController : AuthControllerBase
     [RoleAuthorize(RoleType.Cook)]
     public async Task<IActionResult> ChangeOrderStatusKitchen(Guid orderId, OrderStatus status)
     {
-        if (status == OrderStatus.Canceled || !await _permissionService.CanChangeOrderStatusUp(UserId, orderId))
+        if (status == OrderStatus.Canceled)
             return Forbid("You are not allowed to change this order status");
+        await _permissionService.CanChangeOrderStatusUpValidate(UserId, orderId);
         await _orderService.ChangeOrderStatusAsync(orderId, status);
         if (status == OrderStatus.Kitchen)
         {
@@ -80,8 +79,7 @@ public class OrderController : AuthControllerBase
     [RoleAuthorize(RoleType.Cook)]
     public async Task<IActionResult> ChangeOrderStatusDelivery(Guid orderId, OrderStatus status)
     {
-        if (!await _permissionService.CanChangeOrderStatusUp(UserId, orderId))
-            return Forbid("You are not allowed to change this order status");
+        await _permissionService.CanChangeOrderStatusUpValidate(UserId, orderId);
         await _orderService.ChangeOrderStatusAsync(orderId, status);
         if (status == OrderStatus.Delivery)
         {
@@ -103,8 +101,7 @@ public class OrderController : AuthControllerBase
     [HttpPost("{orderId}/cancel")]
     public async Task<IActionResult> CancelOrder(Guid orderId)
     {
-        if (!await _permissionService.OrderParticipant(UserId, orderId, RoleType.Client))
-            return Forbid("You are not allowed to cancel this order");
+        await _permissionService.OrderParticipantValidate(UserId, orderId, RoleType.Client);
         await _orderService.ChangeOrderStatusAsync(orderId, OrderStatus.Canceled);
         return Ok();
     }

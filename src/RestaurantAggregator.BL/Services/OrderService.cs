@@ -116,7 +116,8 @@ public class OrderService : IOrderService
                 Photo = d.Dish.Photo,
                 Category = d.Dish.Category,
                 Count = d.Count,
-                MenuId = d.Dish.MenuId
+                MenuId = d.Dish.MenuId,
+                RestaurantId = d.Dish.RestaurantId
             })
         };
     }

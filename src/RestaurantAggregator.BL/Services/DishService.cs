@@ -43,14 +43,8 @@ public class DishService : IDishService
         }
     }
 
-    public async Task CreateDishAsync(DishCreation dish, Guid menuId)
+    public async Task<DishDTO> CreateDishAsync(DishCreation dish, Guid restaurantId)
     {
-        var menu = await _context.Menus.FirstOrDefaultAsync(m => m.Id == menuId);
-        if (menu == null)
-        {
-            throw new NotFoundInDbException($"Menu with id {menuId} not found");
-        }
-
         var dishEntity = new Dish
         {
             Name = dish.Name,
@@ -59,11 +53,23 @@ public class DishService : IDishService
             IsVegeterian = dish.IsVegeterian,
             Photo = dish.Photo,
             Category = dish.Category,
-            MenuId = menuId,
+            RestaurantId = restaurantId,
             Reviews = new List<Review>()
         };
-        _context.Dishes.Add(dishEntity);
+        await _context.Dishes.AddAsync(dishEntity);
         await _context.SaveChangesAsync();
+        return new DishDTO
+        {
+            Id = dishEntity.Id,
+            Name = dishEntity.Name,
+            Description = dishEntity.Description,
+            Price = dishEntity.Price,
+            IsVegeterian = dishEntity.IsVegeterian,
+            Photo = dishEntity.Photo,
+            Category = dishEntity.Category,
+            MenuId = dishEntity.MenuId,
+            Rating = dishEntity.Reviews.Any() ? dishEntity.Reviews.Average(r => r.Value) : 0
+        };
     }
 
     public async Task DeleteDishAsync(Guid id)
@@ -97,7 +103,7 @@ public class DishService : IDishService
         };
     }
 
-    public async Task UpdateDishAsync(DishCreation dish, Guid id)
+    public async Task<DishDTO> UpdateDishAsync(DishCreation dish, Guid id)
     {
         var dishEntity = await _context.Dishes.FirstOrDefaultAsync(d => d.Id == id);
         if (dishEntity == null)
@@ -111,5 +117,17 @@ public class DishService : IDishService
         dishEntity.Photo = dish.Photo;
         dishEntity.Category = dish.Category;
         await _context.SaveChangesAsync();
+        return new DishDTO
+        {
+            Id = dishEntity.Id,
+            Name = dishEntity.Name,
+            Description = dishEntity.Description,
+            Price = dishEntity.Price,
+            IsVegeterian = dishEntity.IsVegeterian,
+            Photo = dishEntity.Photo,
+            Category = dishEntity.Category,
+            MenuId = dishEntity.MenuId,
+            Rating = dishEntity.Reviews.Any() ? dishEntity.Reviews.Average(r => r.Value) : 0
+        };
     }
 }

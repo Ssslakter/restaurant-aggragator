@@ -61,6 +61,7 @@ public class CartService : ICartService
                 IsVegeterian = x.Dish.IsVegeterian,
                 Category = x.Dish.Category,
                 Count = x.Count,
+                RestaurantId = x.Dish.RestaurantId,
             }),
         };
     }

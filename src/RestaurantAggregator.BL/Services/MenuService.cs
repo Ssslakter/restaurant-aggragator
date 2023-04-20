@@ -32,19 +32,27 @@ public class MenuService : IMenuService
         await _context.SaveChangesAsync();
     }
 
-    public async Task CreateMenuAsync(MenuCreation menu, Guid restaurantId)
+    public async Task<MenuDTO> CreateMenuAsync(MenuCreation menu, Guid restaurantId)
     {
-        await _context.Menus.AddAsync(new Menu
+        var menuEntity = new Menu
         {
             Name = menu.Name,
             Description = menu.Description,
             RestaurantId = restaurantId,
             Dishes = new List<Dish>()
-        });
+        };
+        await _context.Menus.AddAsync(menuEntity);
         await _context.SaveChangesAsync();
+        return new MenuDTO
+        {
+            Id = menuEntity.Id,
+            Name = menuEntity.Name,
+            Description = menuEntity.Description,
+            RestaurantId = menuEntity.RestaurantId
+        };
     }
 
-    public async Task DeleteDishFromMenuAsync(Guid menuId, Guid dishId)
+    public async Task RemoveDishFromMenuAsync(Guid menuId, Guid dishId)
     {
         var menu = await _context.Menus.FindAsync(menuId);
         if (menu == null)
@@ -118,7 +126,7 @@ public class MenuService : IMenuService
         return menus;
     }
 
-    public async Task UpdateMenuAsync(MenuCreation menu, Guid id)
+    public async Task<MenuDTO> UpdateMenuAsync(MenuCreation menu, Guid id)
     {
         var menuDb = await _context.Menus.FindAsync(id);
         if (menuDb == null)
@@ -126,6 +134,13 @@ public class MenuService : IMenuService
         menuDb.Name = menu.Name;
         menuDb.Description = menu.Description;
         await _context.SaveChangesAsync();
+        return new MenuDTO
+        {
+            Id = menuDb.Id,
+            Name = menuDb.Name,
+            Description = menuDb.Description,
+            RestaurantId = menuDb.RestaurantId
+        };
     }
 }
 
