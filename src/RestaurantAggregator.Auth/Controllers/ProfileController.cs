@@ -8,7 +8,7 @@ using RestaurantAggregator.Infra.Auth;
 namespace RestaurantAggregator.Auth.Controllers;
 
 [ApiController]
-[Route("api/profile")]
+[Route("profile")]
 public class ProfileController : AuthControllerBase
 {
     private readonly IProfileService _profileService;
