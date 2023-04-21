@@ -69,7 +69,7 @@ public class OrderController : AuthControllerBase
     /// </summary>
     [HttpGet("restaurant/{restaurantId}/kitchen/orders")]
     [RoleAuthorize(RoleType.Manager, RoleType.Cook)]
-    public async Task<ActionResult<ICollection<OrderDetails>>> GetOrdersForCook(Guid restaurantId,
+    public async Task<ActionResult<ICollection<OrderWithDishes>>> GetOrdersForCook(Guid restaurantId,
         [FromQuery] bool createdOnly, [FromQuery] uint page)
     {
         if (!createdOnly)

@@ -23,15 +23,15 @@ public class JwtAuthentication : IJwtAuthentication
 {
     private readonly JwtSecurityTokenHandler _tokenHandler;
     private readonly AuthDbContext _context;
-    private readonly JwtConfiguration _jwtConfiguration;
+    private readonly IOptions<JwtConfiguration> _jwtConfiguration;
     private readonly SymmetricSecurityKey _key;
 
     public JwtAuthentication(AuthDbContext context, IOptions<JwtConfiguration> jwtConfiguration)
     {
         _context = context;
         _tokenHandler = new JwtSecurityTokenHandler();
-        _jwtConfiguration = jwtConfiguration.Value;
-        _key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_jwtConfiguration.Secret));
+        _jwtConfiguration = jwtConfiguration;
+        _key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_jwtConfiguration.Value.Secret));
     }
     public async Task<bool> ValidateRefreshTokenAsync(string refreshToken)
     {
@@ -64,7 +64,7 @@ public class JwtAuthentication : IJwtAuthentication
         {
             UserId = userId,
             Token = token,
-            Expires = DateTime.UtcNow.Add(_jwtConfiguration.RefreshTokenLifetime)
+            Expires = DateTime.UtcNow.Add(_jwtConfiguration.Value.RefreshTokenLifetime)
         });
         await _context.SaveChangesAsync();
         return token;
@@ -75,9 +75,9 @@ public class JwtAuthentication : IJwtAuthentication
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Issuer = _jwtConfiguration.Issuer,
-            Audience = _jwtConfiguration.Audience,
-            Expires = DateTime.UtcNow.Add(_jwtConfiguration.AccessTokenLifetime),
+            Issuer = _jwtConfiguration.Value.Issuer,
+            Audience = _jwtConfiguration.Value.Audience,
+            Expires = DateTime.UtcNow.Add(_jwtConfiguration.Value.AccessTokenLifetime),
             IssuedAt = DateTime.UtcNow,
             NotBefore = DateTime.UtcNow,
             SigningCredentials = new SigningCredentials(_key, SecurityAlgorithms.HmacSha256Signature)

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using RestaurantAggregator.Auth.Client.Services;
 using RestaurantAggregator.Core.Data.DTO;
 using RestaurantAggregator.Core.Data.Enums;
 using RestaurantAggregator.Core.Exceptions;
@@ -11,10 +12,12 @@ namespace RestaurantAggregator.BL.Services;
 public class OrderService : IOrderService
 {
     private readonly RestaurantDbContext _context;
+    private readonly IAuthService _authService;
 
-    public OrderService(RestaurantDbContext context)
+    public OrderService(RestaurantDbContext context, IAuthService authService)
     {
         _context = context;
+        _authService = authService;
     }
 
     public async Task AssingCookToOrderAsync(Guid orderId, Guid cookId)
@@ -90,14 +93,14 @@ public class OrderService : IOrderService
         await _context.SaveChangesAsync();
     }
 
-    public async Task<OrderDetails> GetOrderByIdAsync(Guid id)
+    public async Task<OrderWithDishes> GetOrderByIdAsync(Guid id)
     {
         var order = await _context.Orders.Include(o => o.Dishes).ThenInclude(d => d.Dish).FirstOrDefaultAsync(o => o.Id == id);
         if (order == null)
         {
             throw new NotFoundInDbException($"Order with id {id} not found");
         }
-        return new OrderDetails
+        return new OrderWithDishes
         {
             Id = order.Id,
             OrderNumber = order.OrderNumber,

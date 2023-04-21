@@ -50,7 +50,8 @@ public class UserAuthentication : IUserAuthentication
             Email = registrationModel.Email,
             Name = registrationModel.Name,
             FullName = $"{registrationModel.Surname} {registrationModel.Name} {registrationModel.MiddleName}",
-            UserName = registrationModel.Email
+            UserName = registrationModel.Email,
+            Phone = registrationModel.Phone
         };
         var result = await _userManager.CreateAsync(user, registrationModel.Password);
         if (result.Errors.Any())

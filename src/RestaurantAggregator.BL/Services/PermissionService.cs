@@ -48,7 +48,7 @@ public class PermissionService : IPermissionService
         {
             OrderStatus.Created => await RestaurantStaff(userId, order.RestaurantId),
             OrderStatus.Kitchen => order.CookId == userId && await OrderParticipant(userId, orderId, RoleType.Cook),
-            OrderStatus.Packaging => order.CourierId == userId,
+            OrderStatus.Packaging => true,
             OrderStatus.Delivery => order.CourierId == userId && await OrderParticipant(userId, orderId, RoleType.Courier),
             OrderStatus.Delivered => false,
             OrderStatus.Canceled => false,

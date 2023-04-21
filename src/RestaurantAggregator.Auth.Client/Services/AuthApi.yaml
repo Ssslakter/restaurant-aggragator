@@ -1,0 +1,321 @@
+openapi: 3.0.1
+info:
+  title: RestaurantAggregator.Auth
+  version: '1.0'
+paths:
+  /api/auth/login:
+    post:
+      tags:
+        - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginModel'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/LoginModel'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/LoginModel'
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/TokenModel'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenModel'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/TokenModel'
+  /api/auth/register:
+    post:
+      tags:
+        - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistrationModel'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/RegistrationModel'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/RegistrationModel'
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/TokenModel'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenModel'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/TokenModel'
+  /api/auth/logout:
+    post:
+      tags:
+        - Authentication
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+  /api/auth/refresh:
+    post:
+      tags:
+        - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshDTO'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/RefreshDTO'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/RefreshDTO'
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/TokenModel'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenModel'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/TokenModel'
+  /api/auth/change-password:
+    patch:
+      tags:
+        - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordDTO'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordDTO'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordDTO'
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+  /api/profile:
+    get:
+      tags:
+        - Profile
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProfileCreation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileCreation'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProfileCreation'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+    put:
+      tags:
+        - Profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileCreation'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/ProfileCreation'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/ProfileCreation'
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+  '/api/profile/{userId}':
+    get:
+      tags:
+        - Profile
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProfileCreation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileCreation'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProfileCreation'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+components:
+  schemas:
+    ChangePasswordDTO:
+      type: object
+      properties:
+        oldPassword:
+          type: string
+          nullable: true
+        newPassword:
+          type: string
+          nullable: true
+      additionalProperties: false
+    Gender:
+      enum:
+        - Male
+        - Female
+      type: string
+    LoginModel:
+      required:
+        - email
+        - password
+      type: object
+      properties:
+        email:
+          minLength: 1
+          type: string
+          format: email
+        password:
+          minLength: 1
+          type: string
+          format: password
+      additionalProperties: false
+    ProfileCreation:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        surname:
+          type: string
+          nullable: true
+        middleName:
+          type: string
+          nullable: true
+        birthDate:
+          type: string
+          format: date
+        gender:
+          $ref: '#/components/schemas/Gender'
+        phone:
+          type: string
+          format: tel
+          nullable: true
+      additionalProperties: false
+    RefreshDTO:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+        refreshToken:
+          type: string
+          nullable: true
+      additionalProperties: false
+    RegistrationModel:
+      required:
+        - email
+        - name
+        - password
+        - phone
+        - surname
+      type: object
+      properties:
+        email:
+          minLength: 1
+          type: string
+          format: email
+        password:
+          minLength: 1
+          type: string
+          format: password
+        name:
+          minLength: 1
+          type: string
+        surname:
+          minLength: 1
+          type: string
+        middleName:
+          type: string
+          nullable: true
+        phone:
+          minLength: 1
+          type: string
+          format: tel
+      additionalProperties: false
+    TokenModel:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          nullable: true
+        refreshToken:
+          type: string
+          nullable: true
+        userId:
+          type: string
+          format: uuid
+      additionalProperties: false
+  securitySchemes:
+    jwt_auth:
+      type: http
+      description: JWT authorization header using the Bearer scheme
+      scheme: bearer
+      bearerFormat: JWT

@@ -6,7 +6,7 @@ namespace RestaurantAggregator.Core.Services;
 public interface IOrderService
 {
     Task CreateOrderFromCartAsync(Guid clientId, string address);
-    Task<OrderDetails> GetOrderByIdAsync(Guid id);
+    Task<OrderWithDishes> GetOrderByIdAsync(Guid id);
     Task<ICollection<OrderDTO>> GetOrdersByClientIdAsync(Guid clientId, OrderStatus? status, uint page);
     Task<ICollection<OrderDTO>> GetOrdersByCourierIdAsync(Guid courierId, uint page);
     Task<ICollection<OrderDTO>> GetOrdersByCookIdAsync(Guid cookId, uint page);
