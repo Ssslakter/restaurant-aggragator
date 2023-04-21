@@ -48,6 +48,14 @@ public class JwtAuthentication : IJwtAuthentication
 
     public async Task<string> GenerateRefreshTokenAsync(Guid userId)
     {
+        var currentToken = await _context.RefreshTokens
+            .Where(t => t.UserId == userId && t.Expires > DateTime.UtcNow)
+            .FirstOrDefaultAsync();
+        if (currentToken != null)
+        {
+            return currentToken.Token;
+        }
+
         var randomNumber = new byte[32];
         using var rng = RandomNumberGenerator.Create();
         rng.GetBytes(randomNumber);
