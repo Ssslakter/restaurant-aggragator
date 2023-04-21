@@ -3,7 +3,7 @@ info:
   title: RestaurantAggregator.Auth
   version: '1.0'
 paths:
-  /api/auth/login:
+  /auth/login:
     post:
       tags:
         - Authentication
@@ -31,7 +31,7 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/TokenModel'
-  /api/auth/register:
+  /auth/register:
     post:
       tags:
         - Authentication
@@ -59,7 +59,7 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/TokenModel'
-  /api/auth/logout:
+  /auth/logout:
     post:
       tags:
         - Authentication
@@ -72,7 +72,7 @@ paths:
           description: Forbidden
       security:
         - jwt_auth: [ ]
-  /api/auth/refresh:
+  /auth/refresh:
     post:
       tags:
         - Authentication
@@ -100,7 +100,7 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/TokenModel'
-  /api/auth/change-password:
+  /auth/change-password:
     patch:
       tags:
         - Authentication
@@ -124,7 +124,7 @@ paths:
           description: Forbidden
       security:
         - jwt_auth: [ ]
-  /api/profile:
+  /profile:
     get:
       tags:
         - Profile
@@ -170,7 +170,7 @@ paths:
           description: Forbidden
       security:
         - jwt_auth: [ ]
-  /api/profile/email:
+  /profile/email:
     patch:
       tags:
         - Profile
