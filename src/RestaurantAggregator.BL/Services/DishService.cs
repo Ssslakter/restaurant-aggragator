@@ -72,22 +72,25 @@ public class DishService : IDishService
         };
     }
 
-    public async Task DeleteDishAsync(Guid id)
+    public async Task DeleteDishAsync(Guid dishId, Guid restaurantId)
     {
-        var result = await _context.Dishes.Where(d => d.Id == id).ExecuteDeleteAsync();
+        var result = await _context.Dishes
+        .Where(d => d.Id == dishId && d.RestaurantId == restaurantId)
+        .ExecuteDeleteAsync();
         if (result == 0)
         {
-            throw new NotFoundInDbException($"Dish with id {id} not found");
+            throw new NotFoundInDbException($"Dish with id {dishId} not found");
         }
         await _context.SaveChangesAsync();
     }
 
-    public async Task<DishDTO> GetDishInfoByIdAsync(Guid id)
+    public async Task<DishDTO> GetDishInfoByIdAsync(Guid dishId, Guid restaurantId)
     {
-        var dish = await _context.Dishes.Include(d => d.Reviews).FirstOrDefaultAsync(d => d.Id == id);
+        var dish = await _context.Dishes.Include(d => d.Reviews)
+        .FirstOrDefaultAsync(d => d.Id == dishId && d.RestaurantId == restaurantId);
         if (dish == null)
         {
-            throw new NotFoundInDbException($"Dish with id {id} not found");
+            throw new NotFoundInDbException($"Dish with id {dishId} not found");
         }
         return new DishDTO
         {
@@ -96,6 +99,7 @@ public class DishService : IDishService
             Description = dish.Description,
             Price = dish.Price,
             IsVegeterian = dish.IsVegeterian,
+            RestaurantId = dish.RestaurantId,
             Photo = dish.Photo,
             Category = dish.Category,
             MenuId = dish.MenuId,
@@ -103,12 +107,13 @@ public class DishService : IDishService
         };
     }
 
-    public async Task<DishDTO> UpdateDishAsync(DishCreation dish, Guid id)
+    public async Task<DishDTO> UpdateDishAsync(DishCreation dish, Guid dishId, Guid restaurantId)
     {
-        var dishEntity = await _context.Dishes.FirstOrDefaultAsync(d => d.Id == id);
+        var dishEntity = await _context.Dishes
+        .FirstOrDefaultAsync(d => d.Id == dishId && d.RestaurantId == restaurantId);
         if (dishEntity == null)
         {
-            throw new NotFoundInDbException($"Dish with id {id} not found");
+            throw new NotFoundInDbException($"Dish with id {dishId} not found");
         }
         dishEntity.Name = dish.Name;
         dishEntity.Description = dish.Description;

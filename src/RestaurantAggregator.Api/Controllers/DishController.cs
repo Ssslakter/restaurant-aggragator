@@ -1,5 +1,3 @@
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RestaurantAggregator.Core.Data.DTO;
 using RestaurantAggregator.Core.Data.Enums;
@@ -9,7 +7,7 @@ using RestaurantAggregator.Infra.Auth;
 namespace RestaurantAggregator.Api.Controllers;
 
 [ApiController]
-[Route("dish")]
+[Route("api/restaurant")]
 public class DishController : AuthControllerBase
 {
     private readonly IDishService _dishService;
@@ -21,14 +19,14 @@ public class DishController : AuthControllerBase
         _permissionService = permissionService;
     }
 
-    [HttpGet("{dishId}")]
-    public async Task<ActionResult<DishDTO>> GetDishInfo(Guid dishId)
+    [HttpGet("{restaurantId}/dish/{dishId}")]
+    public async Task<ActionResult<DishDTO>> GetDishInfo(Guid restaurantId, Guid dishId)
     {
-        var dish = await _dishService.GetDishInfoByIdAsync(dishId);
+        var dish = await _dishService.GetDishInfoByIdAsync(dishId, restaurantId);
         return Ok(dish);
     }
 
-    [HttpPost("{dishId}/review")]
+    [HttpPost("{restaurantId}/dish/{dishId}/review")]
     [RoleAuthorize(RoleType.Client)]
     public async Task<IActionResult> AddDishReview(Guid dishId, ReviewDTO reviewModel)
     {
@@ -36,30 +34,30 @@ public class DishController : AuthControllerBase
         return Ok();
     }
 
-    [HttpPost]
+    [HttpPost("{restaurantId}/dish")]
     [RoleAuthorize(RoleType.Manager)]
-    public async Task<IActionResult> CreateDish(DishCreation dishModel, [FromQuery] Guid restaurantId)
+    public async Task<IActionResult> CreateDish(Guid restaurantId, DishCreation dishModel)
     {
         await _permissionService.RestaurantOwnerValidate(UserId, restaurantId);
         await _dishService.CreateDishAsync(dishModel, restaurantId);
         return Ok();
     }
 
-    [HttpPut("{dishId}")]
+    [HttpPut("{restaurantId}/dish/{dishId}")]
     [RoleAuthorize(RoleType.Manager)]
-    public async Task<ActionResult<DishDTO>> UpdateDish(Guid dishId, DishCreation dishModel)
+    public async Task<ActionResult<DishDTO>> UpdateDish(Guid restaurantId, Guid dishId, DishCreation dishModel)
     {
-        await _permissionService.DishOwnerValidate(UserId, dishId);
-        var dish = await _dishService.UpdateDishAsync(dishModel, dishId);
+        await _permissionService.RestaurantOwnerValidate(UserId, restaurantId);
+        var dish = await _dishService.UpdateDishAsync(dishModel, dishId, restaurantId);
         return Ok(dish);
     }
 
-    [HttpDelete("{dishId}")]
+    [HttpDelete("{restaurantId}/dish/{dishId}")]
     [RoleAuthorize(RoleType.Manager)]
-    public async Task<IActionResult> DeleteDish(Guid dishId)
+    public async Task<IActionResult> DeleteDish(Guid restaurantId, Guid dishId)
     {
-        await _permissionService.DishOwnerValidate(UserId, dishId);
-        await _dishService.DeleteDishAsync(dishId);
+        await _permissionService.RestaurantOwnerValidate(UserId, restaurantId);
+        await _dishService.DeleteDishAsync(dishId, restaurantId);
         return Ok();
     }
 }

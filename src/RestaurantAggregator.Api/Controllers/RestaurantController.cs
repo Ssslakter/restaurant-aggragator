@@ -7,7 +7,7 @@ using RestaurantAggregator.Infra.Auth;
 namespace RestaurantAggregator.Api.Controllers;
 
 [ApiController]
-[Route("restaurant")]
+[Route("api/restaurant")]
 public class RestaurantController : ControllerBase
 {
     private readonly IRestaurantService _restaurantService;
@@ -17,7 +17,7 @@ public class RestaurantController : ControllerBase
         _restaurantService = restaurantService;
     }
 
-    [HttpGet("all")]
+    [HttpGet]
     public async Task<ActionResult<ICollection<RestaurantDTO>>> GetAllRestaurants(uint page = 1)
     {
         return Ok(await _restaurantService.GetRestaurantsAsync(page));

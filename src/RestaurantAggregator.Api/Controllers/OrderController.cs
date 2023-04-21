@@ -8,7 +8,7 @@ using RestaurantAggregator.Core.Exceptions;
 namespace RestaurantAggregator.Api.Controllers;
 
 [ApiController]
-[Route("orders")]
+[Route("api")]
 public class OrderController : AuthControllerBase
 {
     private readonly IOrderService _orderService;
@@ -20,8 +20,11 @@ public class OrderController : AuthControllerBase
         _permissionService = permissionService;
     }
 
+    /// <summary>
+    /// Creates order from cart
+    /// </summary>
     [RoleAuthorize(RoleType.Client)]
-    [HttpPost("create")]
+    [HttpPost("orders/cart")]
     public async Task<IActionResult> CreateOrderFromCart(DeliveryAddress address)
     {
         var fullAddress = $"{address.City}, {address.Street}, {address.House}";
@@ -29,8 +32,11 @@ public class OrderController : AuthControllerBase
         return Ok();
     }
 
+    /// <summary>
+    /// Gets order info by its id
+    /// </summary>
     [RoleAuthorize(RoleType.Client, RoleType.Courier, RoleType.Cook)]
-    [HttpGet("{orderId}/info")]
+    [HttpGet("orders/{orderId}")]
     public async Task<ActionResult<OrderDetails>> GetOrderInfo(Guid orderId)
     {
         try
@@ -45,8 +51,11 @@ public class OrderController : AuthControllerBase
         return Ok(order);
     }
 
+    /// <summary>
+    /// Gets order history for client
+    /// </summary>
     [RoleAuthorize(RoleType.Client)]
-    [HttpGet("history")]
+    [HttpGet("orders")]
     public async Task<ActionResult<ICollection<OrderDTO>>> GetPersonalOrderHistory([FromQuery] bool deliveredOnly,
      [FromQuery] uint page = 1)
     {
@@ -55,7 +64,10 @@ public class OrderController : AuthControllerBase
         return Ok(orders);
     }
 
-    [HttpGet("kitchen/{restaurantId}")]
+    /// <summary>
+    /// Gets orders for restaurant staff
+    /// </summary>
+    [HttpGet("restaurant/{restaurantId}/kitchen/orders")]
     [RoleAuthorize(RoleType.Manager, RoleType.Cook)]
     public async Task<ActionResult<ICollection<OrderDetails>>> GetOrdersForCook(Guid restaurantId,
         [FromQuery] bool createdOnly, [FromQuery] uint page)
@@ -68,7 +80,10 @@ public class OrderController : AuthControllerBase
         return Ok(await _orderService.GetOrdersByRestaurantIdAsync(restaurantId, OrderStatus.Created, page));
     }
 
-    [HttpPatch("kitchen/{orderId}/status")]
+    /// <summary>
+    /// Change order status for cook
+    /// </summary>
+    [HttpPatch("restaurant/{restaurantId}/kitchen/orders/{orderId}")]
     [RoleAuthorize(RoleType.Cook)]
     public async Task<IActionResult> ChangeOrderStatusKitchen(Guid orderId, OrderStatus status)
     {
@@ -83,7 +98,10 @@ public class OrderController : AuthControllerBase
         return Ok();
     }
 
-    [HttpPatch("delivery/{orderId}/status")]
+    /// <summary>
+    /// Change order status for courier
+    /// </summary>
+    [HttpPatch("delivery/orders/{orderId}")]
     [RoleAuthorize(RoleType.Courier)]
     public async Task<IActionResult> ChangeOrderStatusDelivery(Guid orderId, OrderStatus status)
     {
@@ -96,7 +114,10 @@ public class OrderController : AuthControllerBase
         return Ok();
     }
 
-    [HttpGet("courier")]
+    /// <summary>
+    /// Gets orders for courier
+    /// </summary>
+    [HttpGet("delivery/orders")]
     [RoleAuthorize(RoleType.Courier)]
     public async Task<ActionResult<ICollection<OrderDTO>>> GetOrdersForCourier([FromQuery] uint page, [FromQuery] bool packaging)
     {
@@ -105,8 +126,15 @@ public class OrderController : AuthControllerBase
         return Ok(await _orderService.GetOrdersByCourierIdAsync(UserId, page));
     }
 
+    /// <summary>
+    /// Cancel order by client
+    /// </summary>
+    /// <remarks>
+    /// Only client can cancel order using this method<br/>
+    /// For other roles use patch method
+    /// </remarks>
     [RoleAuthorize(RoleType.Client)]
-    [HttpPost("{orderId}/cancel")]
+    [HttpPost("orders/{orderId}/cancel")]
     public async Task<IActionResult> CancelOrder(Guid orderId)
     {
         await _permissionService.OrderParticipantValidate(UserId, orderId, RoleType.Client);

@@ -1,14 +1,14 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RestaurantAggregator.Auth.Data.DTO;
 using RestaurantAggregator.Auth.Services;
+using RestaurantAggregator.Core.Data.DTO;
+using RestaurantAggregator.Core.Data.Enums;
 using RestaurantAggregator.Infra.Auth;
 
 namespace RestaurantAggregator.Auth.Controllers;
 
 [ApiController]
-[Route("profile")]
+[Route("api/profile")]
 public class ProfileController : AuthControllerBase
 {
     private readonly IProfileService _profileService;
@@ -22,23 +22,21 @@ public class ProfileController : AuthControllerBase
     [Authorize]
     public async Task<ActionResult<ProfileCreation>> GetProfile()
     {
-        return Ok(await _profileService.GetProfileAsync(User));
+        return Ok(await _profileService.GetProfileAsync(UserId));
     }
 
     [HttpPut]
     [Authorize]
     public async Task<ActionResult> UpdateProfile(ProfileCreation newProfile)
     {
-        await _profileService.UpdateProfileAsync(newProfile);
+        await _profileService.UpdateProfileAsync(UserId, newProfile);
         return Ok();
     }
 
-    [HttpPatch("email")]
-    [Authorize]
-    public async Task<ActionResult> UpdateEmail(EmailDTO newEmail)
+    [HttpGet("{userId}")]
+    [RoleAuthorize(RoleType.Admin)]
+    public async Task<ActionResult<ProfileCreation>> GetProfile(Guid userId)
     {
-        var userEmail = User.Claims.First(x => x.Type == ClaimTypes.Email).Value;
-        await _profileService.UpdateEmailAsync(userEmail, newEmail.Email);
-        return Ok();
+        return Ok(await _profileService.GetProfileAsync(userId));
     }
 }

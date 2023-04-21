@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text.Json.Serialization;
 using RestaurantAggregator.BL;
 using RestaurantAggregator.Infra.Config;
@@ -17,7 +18,7 @@ builder.Services.AddEndpointsApiExplorer();
 
 if (builder.Environment.IsDevelopment())
 {
-    builder.Services.ConfigureSwagger();
+    builder.Services.ConfigureSwagger(Assembly.GetExecutingAssembly());
 }
 
 var app = builder.Build();

@@ -7,7 +7,7 @@ using RestaurantAggregator.Infra.Auth;
 namespace RestaurantAggregator.Auth.Controllers;
 
 [ApiController]
-[Route("auth")]
+[Route("api/auth")]
 public class AuthenticationController : AuthControllerBase
 {
     private readonly IUserAuthentication _authentificationService;

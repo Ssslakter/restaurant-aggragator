@@ -3,7 +3,7 @@ info:
   title: RestaurantAggregator.Auth
   version: '1.0'
 paths:
-  /auth/login:
+  /api/auth/login:
     post:
       tags:
         - Authentication
@@ -31,7 +31,7 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/TokenModel'
-  /auth/register:
+  /api/auth/register:
     post:
       tags:
         - Authentication
@@ -59,7 +59,7 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/TokenModel'
-  /auth/logout:
+  /api/auth/logout:
     post:
       tags:
         - Authentication
@@ -72,7 +72,7 @@ paths:
           description: Forbidden
       security:
         - jwt_auth: [ ]
-  /auth/refresh:
+  /api/auth/refresh:
     post:
       tags:
         - Authentication
@@ -100,7 +100,7 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/TokenModel'
-  /auth/change-password:
+  /api/auth/change-password:
     patch:
       tags:
         - Authentication
@@ -124,7 +124,7 @@ paths:
           description: Forbidden
       security:
         - jwt_auth: [ ]
-  /profile:
+  /api/profile:
     get:
       tags:
         - Profile
@@ -170,24 +170,31 @@ paths:
           description: Forbidden
       security:
         - jwt_auth: [ ]
-  /profile/email:
-    patch:
+  '/api/profile/{userId}':
+    get:
       tags:
         - Profile
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EmailDTO'
-          text/json:
-            schema:
-              $ref: '#/components/schemas/EmailDTO'
-          application/*+json:
-            schema:
-              $ref: '#/components/schemas/EmailDTO'
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
       responses:
         '200':
           description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProfileCreation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileCreation'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProfileCreation'
         '401':
           description: Unauthorized
         '403':
@@ -205,16 +212,6 @@ components:
         newPassword:
           type: string
           nullable: true
-      additionalProperties: false
-    EmailDTO:
-      required:
-        - email
-      type: object
-      properties:
-        email:
-          minLength: 1
-          type: string
-          format: email
       additionalProperties: false
     Gender:
       enum:

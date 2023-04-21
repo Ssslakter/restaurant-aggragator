@@ -60,30 +60,6 @@ public class PermissionService : IPermissionService
         }
     }
 
-    public async Task DishOwnerValidate(Guid userId, Guid dishId)
-    {
-        var dish = await _context.Dishes.FindAsync(dishId);
-        if (dish == null)
-            throw new NotFoundInDbException($"Dish with id {dishId} not found");
-        var restaurantId = dish.RestaurantId;
-        if (!await RestaurantOwner(userId, restaurantId))
-        {
-            throw new ForbidException("You are not allowed to modify the dish of this restaurant");
-        }
-    }
-
-    public async Task MenuOwnerValidate(Guid userId, Guid menuId)
-    {
-        var menu = await _context.Menus.FindAsync(menuId);
-        if (menu == null)
-            throw new NotFoundInDbException($"Menu with id {menuId} not found");
-        var restaurantId = menu.RestaurantId;
-        if (!await RestaurantOwner(userId, restaurantId))
-        {
-            throw new ForbidException("You are not allowed to modify the menu of this restaurant");
-        }
-    }
-
     private async Task<bool> RestaurantStaff(Guid userId, Guid restaurantId)
     {
         var restaurant = await _context.Restaurants.FindAsync(restaurantId);

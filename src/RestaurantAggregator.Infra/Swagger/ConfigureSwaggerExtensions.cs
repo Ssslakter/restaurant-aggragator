@@ -1,3 +1,4 @@
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
@@ -5,7 +6,7 @@ namespace RestaurantAggregator.Infra.Swagger;
 
 public static class ConfigureSwaggerExtensions
 {
-    public static IServiceCollection ConfigureSwagger(this IServiceCollection services)
+    public static IServiceCollection ConfigureSwagger(this IServiceCollection services, Assembly assembly)
     {
         services.AddSwaggerGen(options =>
         {
@@ -19,6 +20,9 @@ public static class ConfigureSwaggerExtensions
             });
 
             options.OperationFilter<AddAuthHeaderOperationFilter>();
+
+            var xmlFile = $"{assembly.GetName().Name}.xml";
+            options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFile));
         });
         return services;
     }

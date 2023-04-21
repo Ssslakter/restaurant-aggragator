@@ -3,10 +3,11 @@ info:
   title: RestaurantAggregator.Api
   version: '1.0'
 paths:
-  /cart:
+  /api/cart:
     get:
       tags:
         - Cart
+      summary: Shows cart
       responses:
         '200':
           description: Success
@@ -26,10 +27,24 @@ paths:
           description: Forbidden
       security:
         - jwt_auth: [ ]
-  '/cart/{dishId}/add':
+    delete:
+      tags:
+        - Cart
+      summary: Clears cart
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+  '/api/cart/{dishId}':
     post:
       tags:
         - Cart
+      summary: Adds dish to cart
       parameters:
         - name: dishId
           in: path
@@ -54,10 +69,10 @@ paths:
           description: Forbidden
       security:
         - jwt_auth: [ ]
-  '/cart/{dishId}/remove':
-    post:
+    delete:
       tags:
         - Cart
+      summary: Removes dish from cart
       parameters:
         - name: dishId
           in: path
@@ -82,24 +97,18 @@ paths:
           description: Forbidden
       security:
         - jwt_auth: [ ]
-  /cart/clear:
-    post:
-      tags:
-        - Cart
-      responses:
-        '200':
-          description: Success
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-      security:
-        - jwt_auth: [ ]
-  '/dish/{dishId}':
+  '/api/restaurant/{restaurantId}/dish/{dishId}':
     get:
       tags:
         - Dish
       parameters:
+        - name: restaurantId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
         - name: dishId
           in: path
           required: true
@@ -124,6 +133,13 @@ paths:
       tags:
         - Dish
       parameters:
+        - name: restaurantId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
         - name: dishId
           in: path
           required: true
@@ -165,6 +181,13 @@ paths:
       tags:
         - Dish
       parameters:
+        - name: restaurantId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
         - name: dishId
           in: path
           required: true
@@ -181,7 +204,7 @@ paths:
           description: Forbidden
       security:
         - jwt_auth: [ ]
-  '/dish/{dishId}/review':
+  '/api/restaurant/{restaurantId}/dish/{dishId}/review':
     post:
       tags:
         - Dish
@@ -193,6 +216,12 @@ paths:
           schema:
             type: string
             format: uuid
+        - name: restaurantId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
       requestBody:
         content:
           application/json:
@@ -213,14 +242,15 @@ paths:
           description: Forbidden
       security:
         - jwt_auth: [ ]
-  /dish:
+  '/api/restaurant/{restaurantId}/dish':
     post:
       tags:
         - Dish
       parameters:
         - name: restaurantId
-          in: query
-          style: form
+          in: path
+          required: true
+          style: simple
           schema:
             type: string
             format: uuid
@@ -244,7 +274,7 @@ paths:
           description: Forbidden
       security:
         - jwt_auth: [ ]
-  '/menu/{restaurantId}/all':
+  '/api/restaurant/{restaurantId}/menu':
     get:
       tags:
         - Menu
@@ -275,7 +305,48 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/MenuDTO'
-  '/menu/{menuId}':
+    post:
+      tags:
+        - Menu
+      parameters:
+        - name: restaurantId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MenuCreation'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/MenuCreation'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/MenuCreation'
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/MenuDTO'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuDTO'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/MenuDTO'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+  '/api/restaurant/{restaurantId}/menu/{menuId}':
     get:
       tags:
         - Menu
@@ -306,6 +377,12 @@ paths:
             type: integer
             format: int32
             default: 1
+        - name: restaurantId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
       responses:
         '200':
           description: Success
@@ -323,6 +400,13 @@ paths:
       tags:
         - Menu
       parameters:
+        - name: restaurantId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
         - name: menuId
           in: path
           required: true
@@ -364,6 +448,13 @@ paths:
       tags:
         - Menu
       parameters:
+        - name: restaurantId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
         - name: menuId
           in: path
           required: true
@@ -380,7 +471,7 @@ paths:
           description: Forbidden
       security:
         - jwt_auth: [ ]
-  '/menu/{restaurantId}':
+  '/api/restaurant/{restaurantId}/menu/{menuId}/dish/{dishId}':
     post:
       tags:
         - Menu
@@ -392,41 +483,6 @@ paths:
           schema:
             type: string
             format: uuid
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MenuCreation'
-          text/json:
-            schema:
-              $ref: '#/components/schemas/MenuCreation'
-          application/*+json:
-            schema:
-              $ref: '#/components/schemas/MenuCreation'
-      responses:
-        '200':
-          description: Success
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/MenuDTO'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MenuDTO'
-            text/json:
-              schema:
-                $ref: '#/components/schemas/MenuDTO'
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-      security:
-        - jwt_auth: [ ]
-  '/menu/{menuId}/dish/{dishId}/add':
-    post:
-      tags:
-        - Menu
-      parameters:
         - name: menuId
           in: path
           required: true
@@ -450,11 +506,17 @@ paths:
           description: Forbidden
       security:
         - jwt_auth: [ ]
-  '/menu/{menuId}/dish/{dishId}/remove':
-    post:
+    delete:
       tags:
         - Menu
       parameters:
+        - name: restaurantId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
         - name: menuId
           in: path
           required: true
@@ -478,10 +540,11 @@ paths:
           description: Forbidden
       security:
         - jwt_auth: [ ]
-  /orders/create:
+  /api/orders/cart:
     post:
       tags:
         - Order
+      summary: Creates order from cart
       requestBody:
         content:
           application/json:
@@ -502,10 +565,11 @@ paths:
           description: Forbidden
       security:
         - jwt_auth: [ ]
-  '/orders/{orderId}/info':
+  '/api/orders/{orderId}':
     get:
       tags:
         - Order
+      summary: Gets order info by its id
       parameters:
         - name: orderId
           in: path
@@ -533,10 +597,11 @@ paths:
           description: Forbidden
       security:
         - jwt_auth: [ ]
-  /orders/history:
+  /api/orders:
     get:
       tags:
         - Order
+      summary: Gets order history for client
       parameters:
         - name: deliveredOnly
           in: query
@@ -575,10 +640,11 @@ paths:
           description: Forbidden
       security:
         - jwt_auth: [ ]
-  '/orders/kitchen/{restaurantId}':
+  '/api/restaurant/{restaurantId}/kitchen/orders':
     get:
       tags:
         - Order
+      summary: Gets orders for restaurant staff
       parameters:
         - name: restaurantId
           in: path
@@ -623,10 +689,44 @@ paths:
           description: Forbidden
       security:
         - jwt_auth: [ ]
-  '/orders/kitchen/{orderId}/status':
+  '/api/restaurant/{restaurantId}/kitchen/orders/{orderId}':
     patch:
       tags:
         - Order
+      summary: Change order status for cook
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          style: form
+          schema:
+            $ref: '#/components/schemas/OrderStatus'
+        - name: restaurantId
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+  '/api/delivery/orders/{orderId}':
+    patch:
+      tags:
+        - Order
+      summary: Change order status for courier
       parameters:
         - name: orderId
           in: path
@@ -649,36 +749,11 @@ paths:
           description: Forbidden
       security:
         - jwt_auth: [ ]
-  '/orders/delivery/{orderId}/status':
-    patch:
-      tags:
-        - Order
-      parameters:
-        - name: orderId
-          in: path
-          required: true
-          style: simple
-          schema:
-            type: string
-            format: uuid
-        - name: status
-          in: query
-          style: form
-          schema:
-            $ref: '#/components/schemas/OrderStatus'
-      responses:
-        '200':
-          description: Success
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-      security:
-        - jwt_auth: [ ]
-  /orders/courier:
+  /api/delivery/orders:
     get:
       tags:
         - Order
+      summary: Gets orders for courier
       parameters:
         - name: page
           in: query
@@ -716,10 +791,12 @@ paths:
           description: Forbidden
       security:
         - jwt_auth: [ ]
-  '/orders/{orderId}/cancel':
+  '/api/orders/{orderId}/cancel':
     post:
       tags:
         - Order
+      summary: Cancel order by client
+      description: "Only client can cancel order using this method<br />\r\nFor other roles use patch method"
       parameters:
         - name: orderId
           in: path
@@ -737,7 +814,7 @@ paths:
           description: Forbidden
       security:
         - jwt_auth: [ ]
-  /restaurant/all:
+  /api/restaurant:
     get:
       tags:
         - Restaurant
@@ -768,7 +845,40 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/RestaurantDTO'
-  '/restaurant/{name}':
+    post:
+      tags:
+        - Restaurant
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RestaurantCreation'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/RestaurantCreation'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/RestaurantCreation'
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/RestaurantDTO'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestaurantDTO'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/RestaurantDTO'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - jwt_auth: [ ]
+  '/api/restaurant/{name}':
     get:
       tags:
         - Restaurant
@@ -805,41 +915,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/RestaurantDTO'
-  /restaurant:
-    post:
-      tags:
-        - Restaurant
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RestaurantCreation'
-          text/json:
-            schema:
-              $ref: '#/components/schemas/RestaurantCreation'
-          application/*+json:
-            schema:
-              $ref: '#/components/schemas/RestaurantCreation'
-      responses:
-        '200':
-          description: Success
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/RestaurantDTO'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RestaurantDTO'
-            text/json:
-              schema:
-                $ref: '#/components/schemas/RestaurantDTO'
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-      security:
-        - jwt_auth: [ ]
-  '/restaurant/{id}':
+  '/api/restaurant/{id}':
     put:
       tags:
         - Restaurant

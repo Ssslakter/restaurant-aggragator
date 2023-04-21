@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RestaurantAggregator.Core.Data.DTO;
 using RestaurantAggregator.Core.Data.Enums;
@@ -9,7 +8,7 @@ namespace RestaurantAggregator.Api.Controllers;
 
 [ApiController]
 [RoleAuthorize(RoleType.Client)]
-[Route("cart")]
+[Route("api/cart")]
 public class CartController : AuthControllerBase
 {
     private readonly ICartService _cartService;
@@ -19,27 +18,39 @@ public class CartController : AuthControllerBase
         _cartService = cartService;
     }
 
+    /// <summary>
+    /// Shows cart
+    /// </summary>
     [HttpGet]
     public async Task<ActionResult<CartDTO>> GetCart()
     {
         return Ok(await _cartService.GetCartAsync(UserId));
     }
 
-    [HttpPost("{dishId}/add")]
+    /// <summary>
+    /// Adds dish to cart
+    /// </summary>
+    [HttpPost("{dishId}")]
     public async Task<IActionResult> AddDishToCart(Guid dishId, [FromQuery] uint quantity = 1)
     {
         await _cartService.AddDishToCartAsync(dishId, UserId, quantity);
         return Ok();
     }
 
-    [HttpPost("{dishId}/remove")]
+    /// <summary>
+    /// Removes dish from cart
+    /// </summary>
+    [HttpDelete("{dishId}")]
     public async Task<IActionResult> RemoveDishFromCart(Guid dishId, [FromQuery] uint quantity = 1)
     {
         await _cartService.RemoveDishFromCartAsync(dishId, UserId, quantity);
         return Ok();
     }
 
-    [HttpPost("clear")]
+    /// <summary>
+    /// Clears cart
+    /// </summary>
+    [HttpDelete]
     public async Task<IActionResult> ClearCart()
     {
         await _cartService.ClearCartAsync(UserId);

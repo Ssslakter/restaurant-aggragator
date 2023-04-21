@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace RestaurantAggregator.Auth.Data.DTO;
+namespace RestaurantAggregator.Core.Data.DTO;
 #nullable disable
 public class ProfileCreation
 {

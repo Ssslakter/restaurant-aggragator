@@ -3,6 +3,7 @@ using RestaurantAggregator.Infra.Middlewares;
 using RestaurantAggregator.Infra.Swagger;
 using RestaurantAggregator.Infra.Config;
 using System.Text.Json.Serialization;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +19,7 @@ builder.Services.AddEndpointsApiExplorer();
 
 if (builder.Environment.IsDevelopment())
 {
-    builder.Services.ConfigureSwagger();
+    builder.Services.ConfigureSwagger(Assembly.GetExecutingAssembly());
 }
 
 var app = builder.Build();

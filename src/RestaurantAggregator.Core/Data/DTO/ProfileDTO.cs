@@ -1,4 +1,4 @@
-namespace RestaurantAggregator.Auth.Data.DTO;
+namespace RestaurantAggregator.Core.Data.DTO;
 
 public class ProfileDTO : ProfileCreation
 {

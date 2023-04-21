@@ -1,16 +1,14 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
-using RestaurantAggregator.Auth.Data.DTO;
 using RestaurantAggregator.Auth.Data.Entities;
+using RestaurantAggregator.Core.Data.DTO;
 using RestaurantAggregator.Core.Exceptions;
 
 namespace RestaurantAggregator.Auth.Services;
 
 public interface IProfileService
 {
-    Task UpdateProfileAsync(ProfileCreation profileCreation);
-    Task<ProfileDTO> GetProfileAsync(ClaimsPrincipal userClaims);
-    Task UpdateEmailAsync(string email, string newEmail);
+    Task UpdateProfileAsync(Guid userId, ProfileCreation profileCreation);
+    Task<ProfileDTO> GetProfileAsync(Guid userId);
 }
 
 public class ProfileService : IProfileService
@@ -22,15 +20,14 @@ public class ProfileService : IProfileService
         _userManager = userManager;
     }
 
-    public async Task<ProfileDTO> GetProfileAsync(ClaimsPrincipal userClaims)
+    public async Task<ProfileDTO> GetProfileAsync(Guid userId)
     {
-        var user = await _userManager.GetUserAsync(userClaims);
+        var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
             throw new NotFoundInDbException("User not found");
         return new ProfileDTO
         {
             Id = user.Id,
-            Email = user.Email,
             Name = user.Name,
             Surname = user.FullName.Split(' ')[0],
             MiddleName = user.FullName.Split(' ')[2],
@@ -40,25 +37,19 @@ public class ProfileService : IProfileService
         };
     }
 
-    public async Task UpdateEmailAsync(string email, string newEmail)
+    public async Task UpdateProfileAsync(Guid userId, ProfileCreation profileDTO)
     {
-        var user = await _userManager.FindByEmailAsync(email);
+        var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
             throw new NotFoundInDbException("User not found");
-        if (await _userManager.FindByEmailAsync(newEmail) != null)
-            throw new DbViolationException("User with this email already exists");
+        if (profileDTO.Email != user.Email)
+        {
+            var emailUser = await _userManager.FindByEmailAsync(profileDTO.Email);
+            if (emailUser != null)
+                throw new DbViolationException("User with this email already exists");
+        }
 
-        user.Email = newEmail;
-        user.UserName = newEmail;
-        await _userManager.UpdateAsync(user);
-    }
-
-    public async Task UpdateProfileAsync(ProfileCreation profileDTO)
-    {
-        var user = await _userManager.FindByEmailAsync(profileDTO.Email);
-        if (user == null)
-            throw new NotFoundInDbException("User not found");
-
+        user.Email = profileDTO.Email;
         user.FullName = $"{profileDTO.Surname} {profileDTO.Name} {profileDTO.MiddleName}";
         user.BirthDate = profileDTO.BirthDate;
         user.Phone = profileDTO.Phone;
