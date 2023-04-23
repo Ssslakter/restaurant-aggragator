@@ -20,7 +20,7 @@ public class ProfileController : AuthControllerBase
 
     [HttpGet]
     [Authorize]
-    public async Task<ActionResult<ProfileCreation>> GetProfile()
+    public async Task<ActionResult<ProfileDTO>> GetProfile()
     {
         return Ok(await _profileService.GetProfileAsync(UserId));
     }
@@ -35,7 +35,7 @@ public class ProfileController : AuthControllerBase
 
     [HttpGet("{userId}")]
     [RoleAuthorize(RoleType.Admin)]
-    public async Task<ActionResult<ProfileCreation>> GetProfile(Guid userId)
+    public async Task<ActionResult<ProfileDTO>> GetProfile(Guid userId)
     {
         return Ok(await _profileService.GetProfileAsync(userId));
     }

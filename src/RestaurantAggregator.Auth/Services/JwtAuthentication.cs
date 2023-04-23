@@ -13,8 +13,8 @@ namespace RestaurantAggregator.Auth.Services;
 
 public interface IJwtAuthentication
 {
-    Task<string> GenerateRefreshTokenAsync(Guid userId);
-    string GenerateAccessToken(IEnumerable<Claim> claims);
+    Task<RefreshToken> GenerateRefreshTokenAsync(Guid userId);
+    AccessToken GenerateAccessToken(IEnumerable<Claim> claims);
     Task<bool> ValidateRefreshTokenAsync(string token);
     Task RevokeAllUserRefreshTokensAsync(Guid userId);
 }
@@ -46,31 +46,32 @@ public class JwtAuthentication : IJwtAuthentication
             .ExecuteDeleteAsync();
     }
 
-    public async Task<string> GenerateRefreshTokenAsync(Guid userId)
+    public async Task<RefreshToken> GenerateRefreshTokenAsync(Guid userId)
     {
         var currentToken = await _context.RefreshTokens
             .Where(t => t.UserId == userId && t.Expires > DateTime.UtcNow)
             .FirstOrDefaultAsync();
         if (currentToken != null)
         {
-            return currentToken.Token;
+            return currentToken;
         }
 
         var randomNumber = new byte[32];
         using var rng = RandomNumberGenerator.Create();
         rng.GetBytes(randomNumber);
         var token = Convert.ToBase64String(randomNumber);
-        await _context.RefreshTokens.AddAsync(new RefreshToken
+        var tokenEntity = new RefreshToken
         {
             UserId = userId,
             Token = token,
             Expires = DateTime.UtcNow.Add(_jwtConfiguration.Value.RefreshTokenLifetime)
-        });
+        };
+        await _context.RefreshTokens.AddAsync(tokenEntity);
         await _context.SaveChangesAsync();
-        return token;
+        return tokenEntity;
     }
 
-    public string GenerateAccessToken(IEnumerable<Claim> claims)
+    public AccessToken GenerateAccessToken(IEnumerable<Claim> claims)
     {
         var tokenDescriptor = new SecurityTokenDescriptor
         {
@@ -83,7 +84,11 @@ public class JwtAuthentication : IJwtAuthentication
             SigningCredentials = new SigningCredentials(_key, SecurityAlgorithms.HmacSha256Signature)
         };
 
-        var token = _tokenHandler.CreateToken(tokenDescriptor);
-        return _tokenHandler.WriteToken(token);
+        var token = _tokenHandler.WriteToken(_tokenHandler.CreateToken(tokenDescriptor));
+        return new AccessToken
+        {
+            Token = token,
+            Expires = (DateTime)tokenDescriptor.Expires
+        };
     }
 }

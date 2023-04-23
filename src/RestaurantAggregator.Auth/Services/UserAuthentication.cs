@@ -105,13 +105,15 @@ public class UserAuthentication : IUserAuthentication
         var refreshToken = await _jwtAuthentication.GenerateRefreshTokenAsync(user.Id);
         return new TokenModel
         {
-            AccessToken = accessToken,
-            RefreshToken = refreshToken,
+            AccessToken = accessToken.Token,
+            AccessTokenExpires = accessToken.Expires,
+            RefreshToken = refreshToken.Token,
+            RefreshTokenExpires = refreshToken.Expires,
             UserId = user.Id
         };
     }
 
-    private async Task<string> GenerateAccessTokenAsync(User user)
+    private async Task<AccessToken> GenerateAccessTokenAsync(User user)
     {
 #nullable disable
         var claims = new List<Claim>
