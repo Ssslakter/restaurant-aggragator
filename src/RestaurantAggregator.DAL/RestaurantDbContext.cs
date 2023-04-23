@@ -15,7 +15,6 @@ namespace RestaurantAggregator.DAL
 
         public RestaurantDbContext(DbContextOptions<RestaurantDbContext> options) : base(options)
         {
-            Database.Migrate();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
