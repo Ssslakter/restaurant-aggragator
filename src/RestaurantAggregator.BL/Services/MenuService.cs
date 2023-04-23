@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using RestaurantAggregator.BL.Mappers;
 using RestaurantAggregator.Core.Data.DTO;
 using RestaurantAggregator.Core.Data.Enums;
 using RestaurantAggregator.Core.Exceptions;
@@ -43,13 +44,7 @@ public class MenuService : IMenuService
         };
         await _context.Menus.AddAsync(menuEntity);
         await _context.SaveChangesAsync();
-        return new MenuDTO
-        {
-            Id = menuEntity.Id,
-            Name = menuEntity.Name,
-            Description = menuEntity.Description,
-            RestaurantId = menuEntity.RestaurantId
-        };
+        return menuEntity.ToDTO();
     }
 
     public async Task RemoveDishFromMenuAsync(Guid menuId, Guid dishId)
@@ -88,39 +83,14 @@ public class MenuService : IMenuService
             .Skip(((int)page - 1) * _pageSize)
             .Take(_pageSize);
 
-        return new MenuDetails
-        {
-            Id = menu.Id,
-            Name = menu.Name,
-            Description = menu.Description,
-            RestaurantId = menu.RestaurantId,
-            Dishes = filteredDishes.Select(d => new DishDTO
-            {
-                Id = d.Id,
-                Name = d.Name,
-                Description = d.Description,
-                Price = d.Price,
-                IsVegeterian = d.IsVegeterian,
-                RestaurantId = d.RestaurantId,
-                Photo = d.Photo,
-                Category = d.Category,
-                MenuId = d.MenuId,
-                Rating = d.Reviews.Any() ? d.Reviews.Average(r => r.Value) : 0
-            }).ToList()
-        };
+        return menu.ToDetails(filteredDishes);
     }
 
     public async Task<ICollection<MenuDTO>> GetMenusByRestaurantIdAsync(Guid restaurantId)
     {
         var menus = await _context.Menus
             .Where(m => m.RestaurantId == restaurantId)
-            .Select(m => new MenuDTO
-            {
-                Id = m.Id,
-                Name = m.Name,
-                Description = m.Description,
-                RestaurantId = m.RestaurantId
-            }).ToListAsync();
+            .Select(m => m.ToDTO()).ToListAsync();
         if (!menus.Any())
             throw new NotFoundInDbException($"Menus for restaurant with id {restaurantId} not found");
 
@@ -129,19 +99,13 @@ public class MenuService : IMenuService
 
     public async Task<MenuDTO> UpdateMenuAsync(MenuCreation menu, Guid id)
     {
-        var menuDb = await _context.Menus.FindAsync(id);
-        if (menuDb == null)
+        var menuEntity = await _context.Menus.FindAsync(id);
+        if (menuEntity == null)
             throw new NotFoundInDbException($"Menu with id {id} not found");
-        menuDb.Name = menu.Name;
-        menuDb.Description = menu.Description;
+        menuEntity.Name = menu.Name;
+        menuEntity.Description = menu.Description;
         await _context.SaveChangesAsync();
-        return new MenuDTO
-        {
-            Id = menuDb.Id,
-            Name = menuDb.Name,
-            Description = menuDb.Description,
-            RestaurantId = menuDb.RestaurantId
-        };
+        return menuEntity.ToDTO();
     }
 }
 

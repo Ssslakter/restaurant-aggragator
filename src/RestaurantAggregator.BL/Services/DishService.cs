@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using RestaurantAggregator.BL.Mappers;
 using RestaurantAggregator.Core.Data.DTO;
 using RestaurantAggregator.Core.Exceptions;
 using RestaurantAggregator.Core.Services;
@@ -58,18 +59,7 @@ public class DishService : IDishService
         };
         await _context.Dishes.AddAsync(dishEntity);
         await _context.SaveChangesAsync();
-        return new DishDTO
-        {
-            Id = dishEntity.Id,
-            Name = dishEntity.Name,
-            Description = dishEntity.Description,
-            Price = dishEntity.Price,
-            IsVegeterian = dishEntity.IsVegeterian,
-            Photo = dishEntity.Photo,
-            Category = dishEntity.Category,
-            MenuId = dishEntity.MenuId,
-            Rating = dishEntity.Reviews.Any() ? dishEntity.Reviews.Average(r => r.Value) : 0
-        };
+        return dishEntity.ToDTO();
     }
 
     public async Task DeleteDishAsync(Guid dishId, Guid restaurantId)
@@ -86,25 +76,13 @@ public class DishService : IDishService
 
     public async Task<DishDTO> GetDishInfoByIdAsync(Guid dishId, Guid restaurantId)
     {
-        var dish = await _context.Dishes.Include(d => d.Reviews)
+        var dishEntity = await _context.Dishes.Include(d => d.Reviews)
         .FirstOrDefaultAsync(d => d.Id == dishId && d.RestaurantId == restaurantId);
-        if (dish == null)
+        if (dishEntity == null)
         {
             throw new NotFoundInDbException($"Dish with id {dishId} not found");
         }
-        return new DishDTO
-        {
-            Id = dish.Id,
-            Name = dish.Name,
-            Description = dish.Description,
-            Price = dish.Price,
-            IsVegeterian = dish.IsVegeterian,
-            RestaurantId = dish.RestaurantId,
-            Photo = dish.Photo,
-            Category = dish.Category,
-            MenuId = dish.MenuId,
-            Rating = dish.Reviews.Any() ? dish.Reviews.Average(r => r.Value) : 0
-        };
+        return dishEntity.ToDTO();
     }
 
     public async Task<DishDTO> UpdateDishAsync(DishCreation dish, Guid dishId, Guid restaurantId)
@@ -122,17 +100,6 @@ public class DishService : IDishService
         dishEntity.Photo = dish.Photo;
         dishEntity.Category = dish.Category;
         await _context.SaveChangesAsync();
-        return new DishDTO
-        {
-            Id = dishEntity.Id,
-            Name = dishEntity.Name,
-            Description = dishEntity.Description,
-            Price = dishEntity.Price,
-            IsVegeterian = dishEntity.IsVegeterian,
-            Photo = dishEntity.Photo,
-            Category = dishEntity.Category,
-            MenuId = dishEntity.MenuId,
-            Rating = dishEntity.Reviews.Any() ? dishEntity.Reviews.Average(r => r.Value) : 0
-        };
+        return dishEntity.ToDTO();
     }
 }

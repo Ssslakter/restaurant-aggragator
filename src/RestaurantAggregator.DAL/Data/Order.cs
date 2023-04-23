@@ -14,7 +14,9 @@ public class Order
     public decimal TotalPrice { get; set; }
     public List<DishInCart> Dishes { get; set; }
     public Guid ClientId { get; set; }
+    public string ClientName { get; set; }
     public Guid? CourierId { get; set; }
+    public string CourierName { get; set; }
     public Guid? CookId { get; set; }
     public Guid RestaurantId { get; set; }
 }

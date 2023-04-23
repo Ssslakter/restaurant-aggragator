@@ -4,6 +4,7 @@ using RestaurantAggregator.DAL;
 using Microsoft.EntityFrameworkCore;
 using RestaurantAggregator.DAL.Data;
 using RestaurantAggregator.Core.Exceptions;
+using RestaurantAggregator.BL.Mappers;
 
 namespace RestaurantAggregator.BL.Services;
 
@@ -46,23 +47,11 @@ public class CartService : ICartService
 
     public async Task<CartDTO> GetCartAsync(Guid clientId)
     {
-        var dishes = _context.DishesInCarts.Include(c => c.Dish).Where(c => c.ClientId == clientId && !c.InOrder).Select(x => new { x.Dish, x.Count }).ToListAsync();
+        var dishes = _context.DishesInCarts.Include(c => c.Dish).Where(c => c.ClientId == clientId && !c.InOrder).ToListAsync();
         return new CartDTO
         {
             ClientId = clientId,
-            Dishes = (await dishes).ConvertAll(x => new DishInCartDTO
-            {
-                Id = x.Dish.Id,
-                Name = x.Dish.Name,
-                Description = x.Dish.Description,
-                Price = x.Dish.Price,
-                MenuId = x.Dish.MenuId,
-                Photo = x.Dish.Photo,
-                IsVegeterian = x.Dish.IsVegeterian,
-                Category = x.Dish.Category,
-                Count = x.Count,
-                RestaurantId = x.Dish.RestaurantId,
-            }),
+            Dishes = (await dishes).ConvertAll(x => x.ToDTO()),
         };
     }
 

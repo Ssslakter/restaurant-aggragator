@@ -252,6 +252,7 @@ components:
         birthDate:
           type: string
           format: date
+          nullable: true
         gender:
           $ref: '#/components/schemas/Gender'
         phone:
@@ -278,6 +279,7 @@ components:
         birthDate:
           type: string
           format: date
+          nullable: true
         gender:
           $ref: '#/components/schemas/Gender'
         phone:

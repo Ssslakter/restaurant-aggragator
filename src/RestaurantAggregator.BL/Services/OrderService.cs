@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RestaurantAggregator.Auth.Client.Services;
+using RestaurantAggregator.BL.Mappers;
 using RestaurantAggregator.Core.Data.DTO;
 using RestaurantAggregator.Core.Data.Enums;
 using RestaurantAggregator.Core.Exceptions;
@@ -12,12 +13,12 @@ namespace RestaurantAggregator.BL.Services;
 public class OrderService : IOrderService
 {
     private readonly RestaurantDbContext _context;
-    private readonly IAuthService _authService;
+    private readonly IUserService _userService;
 
-    public OrderService(RestaurantDbContext context, IAuthService authService)
+    public OrderService(RestaurantDbContext context, IUserService userService)
     {
         _context = context;
-        _authService = authService;
+        _userService = userService;
     }
 
     public async Task AssingCookToOrderAsync(Guid orderId, Guid cookId)
@@ -39,6 +40,8 @@ public class OrderService : IOrderService
             throw new NotFoundInDbException($"Order with id {orderId} not found");
         }
         order.CourierId = courierId;
+        var courierProfile = await _userService.GetProfile(courierId);
+        order.CourierName = $"{courierProfile.Name} {courierProfile.MiddleName} {courierProfile.Surname}";
         await _context.SaveChangesAsync();
     }
 
@@ -70,7 +73,7 @@ public class OrderService : IOrderService
         {
             throw new InvalidDataException("All dishes in cart must be from the same restaurant");
         }
-
+        var clientProfile = await _userService.GetProfile(clientId);
         var totalPrice = 0.0M;
         foreach (var dish in dishesInCart)
         {
@@ -87,70 +90,54 @@ public class OrderService : IOrderService
             ClientId = clientId,
             Dishes = dishesInCart,
             Address = address,
-            TotalPrice = totalPrice
+            TotalPrice = totalPrice,
+            ClientName = $"{clientProfile.Name} {clientProfile.MiddleName} {clientProfile.Surname}"
         };
         await _context.Orders.AddAsync(order);
         await _context.SaveChangesAsync();
     }
 
-    public async Task<OrderWithDishes> GetOrderByIdAsync(Guid id)
+    public async Task<OrderDetails> GetOrderByIdAsync(Guid id)
     {
         var order = await _context.Orders.Include(o => o.Dishes).ThenInclude(d => d.Dish).FirstOrDefaultAsync(o => o.Id == id);
         if (order == null)
         {
             throw new NotFoundInDbException($"Order with id {id} not found");
         }
-        return new OrderWithDishes
-        {
-            Id = order.Id,
-            OrderNumber = order.OrderNumber,
-            Status = order.Status,
-            OrderTime = order.OrderTime,
-            DeliveryTime = order.DeliveryTime,
-            Address = order.Address,
-            TotalPrice = order.TotalPrice,
-            Dishes = order.Dishes.ConvertAll(d => new DishInOrderDTO
-            {
-                Id = d.Dish.Id,
-                Name = d.Dish.Name,
-                Description = d.Dish.Description,
-                Price = d.Dish.Price,
-                IsVegeterian = d.Dish.IsVegeterian,
-                Photo = d.Dish.Photo,
-                Category = d.Dish.Category,
-                Count = d.Count,
-                MenuId = d.Dish.MenuId,
-                RestaurantId = d.Dish.RestaurantId
-            })
-        };
+        return order.ToDetails();
     }
 
     public async Task<ICollection<OrderDTO>> GetOrdersByClientIdAsync(Guid clientId, OrderStatus? status, uint page)
     {
-        return await GetOrdersByFieldIdAsync(clientId, "client", status);
+        var orders = await GetOrdersByFieldId(clientId, "client", status).ToListAsync();
+        return orders.ConvertAll(o => o.ToDTO());
     }
 
-    public async Task<ICollection<OrderDTO>> GetOrdersByCookIdAsync(Guid cookId, uint page)
+    public async Task<ICollection<OrderWithDishes>> GetOrdersByCookIdAsync(Guid cookId, uint page)
     {
-        return await GetOrdersByFieldIdAsync(cookId, "cook", OrderStatus.Kitchen);
+        var orders = await GetOrdersByFieldId(cookId, "cook", OrderStatus.Kitchen).Include(o => o.Dishes).ToListAsync();
+        return orders.ConvertAll(o => o.ToOrderWithDishes());
     }
 
     public async Task<ICollection<OrderDTO>> GetOrdersByCourierIdAsync(Guid courierId, uint page)
     {
-        return await GetOrdersByFieldIdAsync(courierId, "courier", OrderStatus.Delivery);
+        var orders = await GetOrdersByFieldId(courierId, "courier", OrderStatus.Delivery).ToListAsync();
+        return orders.ConvertAll(o => o.ToDTO());
     }
 
     public async Task<ICollection<OrderDTO>> GetOrdersByRestaurantIdAsync(Guid restaurantId, OrderStatus? status, uint page)
     {
-        return await GetOrdersByFieldIdAsync(restaurantId, "restaurant", status);
+        var orders = await GetOrdersByFieldId(restaurantId, "restaurant", status).ToListAsync();
+        return orders.ConvertAll(o => o.ToDTO());
     }
 
-    public Task<ICollection<OrderDTO>> GetOrdersByStatusAsync(OrderStatus status, uint page)
+    public async Task<ICollection<OrderDTO>> GetOrdersByStatusAsync(OrderStatus status, uint page)
     {
-        return GetOrdersByFieldIdAsync(Guid.Empty, "any", status);
+        var orders = await GetOrdersByFieldId(Guid.Empty, "any", status).ToListAsync();
+        return orders.ConvertAll(o => o.ToDTO());
     }
 
-    private async Task<ICollection<OrderDTO>> GetOrdersByFieldIdAsync(Guid fieldId, string fieldName, OrderStatus? status)
+    private IQueryable<Order> GetOrdersByFieldId(Guid fieldId, string fieldName, OrderStatus? status)
     {
         var query = fieldName switch
         {
@@ -161,17 +148,7 @@ public class OrderService : IOrderService
             "restaurant" => _context.Orders.Where(o => o.RestaurantId == fieldId),
             _ => throw new ArgumentException($"Role {fieldName} is not supported")
         };
-        var orders = await query.FilterByStatus(status).ToListAsync();
-        return orders.ConvertAll(o => new OrderDTO
-        {
-            Id = o.Id,
-            OrderNumber = o.OrderNumber,
-            Status = o.Status,
-            OrderTime = o.OrderTime,
-            DeliveryTime = o.DeliveryTime,
-            Address = o.Address,
-            TotalPrice = o.TotalPrice
-        });
+        return query.FilterByStatus(status);
     }
 }
 

@@ -6,10 +6,10 @@ namespace RestaurantAggregator.Core.Services;
 public interface IOrderService
 {
     Task CreateOrderFromCartAsync(Guid clientId, string address);
-    Task<OrderWithDishes> GetOrderByIdAsync(Guid id);
+    Task<OrderDetails> GetOrderByIdAsync(Guid id);
     Task<ICollection<OrderDTO>> GetOrdersByClientIdAsync(Guid clientId, OrderStatus? status, uint page);
     Task<ICollection<OrderDTO>> GetOrdersByCourierIdAsync(Guid courierId, uint page);
-    Task<ICollection<OrderDTO>> GetOrdersByCookIdAsync(Guid cookId, uint page);
+    Task<ICollection<OrderWithDishes>> GetOrdersByCookIdAsync(Guid cookId, uint page);
     Task<ICollection<OrderDTO>> GetOrdersByRestaurantIdAsync(Guid restaurantId, OrderStatus? status, uint page);
     Task<ICollection<OrderDTO>> GetOrdersByStatusAsync(OrderStatus status, uint page);
     Task ChangeOrderStatusAsync(Guid orderId, OrderStatus status);

@@ -90,11 +90,11 @@ public class OrderController : AuthControllerBase
         if (status == OrderStatus.Canceled)
             throw new ForbidException("You can't cancel order in kitchen");
         await _permissionService.CanChangeOrderStatusUpValidate(UserId, orderId);
-        await _orderService.ChangeOrderStatusAsync(orderId, status);
         if (status == OrderStatus.Kitchen)
         {
             await _orderService.AssingCookToOrderAsync(orderId, UserId);
         }
+        await _orderService.ChangeOrderStatusAsync(orderId, status);
         return Ok();
     }
 
@@ -106,11 +106,11 @@ public class OrderController : AuthControllerBase
     public async Task<IActionResult> ChangeOrderStatusDelivery(Guid orderId, OrderStatus status)
     {
         await _permissionService.CanChangeOrderStatusUpValidate(UserId, orderId);
-        await _orderService.ChangeOrderStatusAsync(orderId, status);
         if (status == OrderStatus.Delivery)
         {
             await _orderService.AssingCourierToOrderAsync(orderId, UserId);
         }
+        await _orderService.ChangeOrderStatusAsync(orderId, status);
         return Ok();
     }
 

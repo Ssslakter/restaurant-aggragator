@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using RestaurantAggregator.BL.Mappers;
 using RestaurantAggregator.Core.Data.DTO;
 using RestaurantAggregator.Core.Exceptions;
 using RestaurantAggregator.Core.Services;
@@ -32,13 +33,7 @@ public class RestaurantService : IRestaurantService
         {
             Id = restaurantEntity.Id,
             Name = restaurantEntity.Name,
-            Menus = restaurantEntity.Menus.Select(m => new MenuDTO
-            {
-                Id = m.Id,
-                Name = m.Name,
-                Description = m.Description,
-                RestaurantId = m.RestaurantId,
-            }).ToList()
+            Menus = restaurantEntity.Menus.Select(m => m.ToDTO()).ToList()
         };
     }
 
@@ -57,13 +52,7 @@ public class RestaurantService : IRestaurantService
         {
             Id = r.Id,
             Name = r.Name,
-            Menus = r.Menus.Select(m => new MenuDTO
-            {
-                Id = m.Id,
-                Name = m.Name,
-                Description = m.Description,
-                RestaurantId = m.RestaurantId,
-            }).ToList()
+            Menus = r.Menus.Select(m => m.ToDTO()).ToList()
         }).OrderBy(r => r.Name).Skip(((int)page - 1) * _pageSize).Take(_pageSize);
         return await restaurants.ToListAsync();
     }
@@ -74,13 +63,7 @@ public class RestaurantService : IRestaurantService
         {
             Id = r.Id,
             Name = r.Name,
-            Menus = r.Menus.Select(m => new MenuDTO
-            {
-                Id = m.Id,
-                Name = m.Name,
-                Description = m.Description,
-                RestaurantId = m.RestaurantId,
-            }).ToList()
+            Menus = r.Menus.Select(m => m.ToDTO()).ToList()
         }).OrderBy(r => r.Name).Skip(((int)page - 1) * _pageSize).Take(_pageSize).ToListAsync();
     }
 
@@ -97,13 +80,7 @@ public class RestaurantService : IRestaurantService
         {
             Id = restaurant.Id,
             Name = restaurant.Name,
-            Menus = restaurant.Menus.Select(m => new MenuDTO
-            {
-                Id = m.Id,
-                Name = m.Name,
-                Description = m.Description,
-                RestaurantId = m.RestaurantId,
-            }).ToList()
+            Menus = restaurant.Menus.Select(m => m.ToDTO()).ToList()
         };
     }
 }

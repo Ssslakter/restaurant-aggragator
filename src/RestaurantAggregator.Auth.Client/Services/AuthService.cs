@@ -6,26 +6,42 @@ namespace RestaurantAggregator.Auth.Client.Services;
 public class AuthService : IAuthService
 {
     private readonly IAuthApiClient _authApiClient;
-    private TokenInfo _tokenInfo;
+    private readonly TokenInfo _tokenInfo;
     private readonly ILogger<AuthService> _logger;
     private readonly IOptions<AuthApiSecret> _authApiSecret;
 
-    public AuthService(IAuthApiClient authApiClient, IOptions<AuthApiSecret> authApiSecret, ILogger<AuthService> logger)
+    public AuthService(IAuthApiClient authApiClient,
+     IOptions<AuthApiSecret> authApiSecret, ILogger<AuthService> logger, TokenInfo tokenInfo)
     {
         _authApiClient = authApiClient;
-        _tokenInfo = new TokenInfo();
+        _tokenInfo = tokenInfo;
         _authApiSecret = authApiSecret;
         _logger = logger;
     }
 
-    public async Task<string> GetTokenAsync()
+    public async Task Authenticate()
     {
-        if (string.IsNullOrEmpty(_tokenInfo.AccessToken) || _tokenInfo.AccessTokenExpiration < DateTime.UtcNow)
+        if (string.IsNullOrEmpty(_tokenInfo.AccessToken))
         {
             await AuthenticateAsync();
+            return;
         }
-
-        return _tokenInfo.AccessToken;
+        switch (_tokenInfo.AccessTokenExpiration)
+        {
+            case var exp when exp > DateTime.UtcNow.AddMinutes(1):
+                break;
+            default:
+                switch (_tokenInfo.RefreshTokenExpiration)
+                {
+                    case var exp when exp > DateTime.UtcNow.AddMinutes(1):
+                        await RefreshAsync();
+                        break;
+                    default:
+                        await AuthenticateAsync();
+                        break;
+                }
+                break;
+        }
     }
 
     private async Task AuthenticateAsync()
@@ -38,7 +54,9 @@ public class AuthService : IAuthService
         try
         {
             var response = await _authApiClient.LoginAsync(loginModel);
-            _tokenInfo = _tokenInfo.ConfigureTokens(response.AccessToken, response.RefreshToken, response.UserId);
+            _tokenInfo.ConfigureTokens(response.AccessToken, response.AccessTokenExpires,
+             response.RefreshToken, response.RefreshTokenExpires, response.UserId);
+            _authApiClient.SetToken(_tokenInfo.AccessToken);
         }
         catch (Exception ex)
         {
@@ -57,49 +75,14 @@ public class AuthService : IAuthService
         try
         {
             var response = await _authApiClient.RefreshAsync(tokenModel);
-            _tokenInfo = _tokenInfo.ConfigureTokens(response.AccessToken, response.RefreshToken, response.UserId);
-        }
-        catch (ApiException ex)
-        {
-            if (ex.StatusCode == (int)System.Net.HttpStatusCode.Unauthorized)
-            {
-                await AuthenticateAsync();
-            }
-            else
-            {
-                _logger.LogError(ex, "Error while refreshing token");
-                throw;
-            }
+            _tokenInfo.ConfigureTokens(response.AccessToken, response.AccessTokenExpires,
+             response.RefreshToken, response.RefreshTokenExpires, response.UserId);
+            _authApiClient.SetToken(_tokenInfo.AccessToken);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error while refreshing token");
             throw;
-        }
-    }
-
-    public class TokenInfo
-    {
-        public string AccessToken { get; set; }
-        public DateTime AccessTokenExpiration { get; set; }
-        public string RefreshToken { get; set; }
-        public DateTime RefreshTokenExpiration { get; set; }
-        public Guid UserId { get; set; }
-
-        public TokenInfo()
-        {
-            AccessToken = string.Empty;
-            AccessTokenExpiration = DateTime.MinValue;
-            RefreshToken = string.Empty;
-            RefreshTokenExpiration = DateTime.MinValue;
-        }
-
-        public TokenInfo ConfigureTokens(string accessToken, string refreshToken, Guid userId)
-        {
-            AccessToken = accessToken;
-            RefreshToken = refreshToken;
-            UserId = userId;
-            return this;
         }
     }
 }

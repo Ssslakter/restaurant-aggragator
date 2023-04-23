@@ -134,13 +134,13 @@ paths:
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/ProfileCreation'
+                $ref: '#/components/schemas/ProfileDTO'
             application/json:
               schema:
-                $ref: '#/components/schemas/ProfileCreation'
+                $ref: '#/components/schemas/ProfileDTO'
             text/json:
               schema:
-                $ref: '#/components/schemas/ProfileCreation'
+                $ref: '#/components/schemas/ProfileDTO'
         '401':
           description: Unauthorized
         '403':
@@ -188,13 +188,13 @@ paths:
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/ProfileCreation'
+                $ref: '#/components/schemas/ProfileDTO'
             application/json:
               schema:
-                $ref: '#/components/schemas/ProfileCreation'
+                $ref: '#/components/schemas/ProfileDTO'
             text/json:
               schema:
-                $ref: '#/components/schemas/ProfileCreation'
+                $ref: '#/components/schemas/ProfileDTO'
         '401':
           description: Unauthorized
         '403':
@@ -252,12 +252,43 @@ components:
         birthDate:
           type: string
           format: date
+          nullable: true
         gender:
           $ref: '#/components/schemas/Gender'
         phone:
           type: string
           format: tel
           nullable: true
+      additionalProperties: false
+    ProfileDTO:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        surname:
+          type: string
+          nullable: true
+        middleName:
+          type: string
+          nullable: true
+        birthDate:
+          type: string
+          format: date
+          nullable: true
+        gender:
+          $ref: '#/components/schemas/Gender'
+        phone:
+          type: string
+          format: tel
+          nullable: true
+        id:
+          type: string
+          format: uuid
       additionalProperties: false
     RefreshDTO:
       type: object
@@ -306,9 +337,15 @@ components:
         accessToken:
           type: string
           nullable: true
+        accessTokenExpires:
+          type: string
+          format: date-time
         refreshToken:
           type: string
           nullable: true
+        refreshTokenExpires:
+          type: string
+          format: date-time
         userId:
           type: string
           format: uuid
