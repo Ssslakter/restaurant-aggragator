@@ -39,59 +39,70 @@ public class RestaurantController : AuthControllerBase
         return Ok(restaurant);
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{restaurantId}")]
     [RoleAuthorize(RoleType.Admin)]
-    public async Task<ActionResult<RestaurantDTO>> UpdateRestaurant(Guid id, RestaurantCreation restaurantModel)
+    public async Task<ActionResult<RestaurantDTO>> UpdateRestaurant(Guid restaurantId, RestaurantCreation restaurantModel)
     {
-        var restaurant = await _restaurantService.UpdateRestaurantAsync(id, restaurantModel);
+        var restaurant = await _restaurantService.UpdateRestaurantAsync(restaurantId, restaurantModel);
         return Ok(restaurant);
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{restaurantId}")]
     [RoleAuthorize(RoleType.Admin)]
-    public async Task<IActionResult> DeleteRestaurant(Guid id)
+    public async Task<IActionResult> DeleteRestaurant(Guid restaurantId)
     {
-        await _restaurantService.DeleteRestaurantAsync(id);
+        await _restaurantService.DeleteRestaurantAsync(restaurantId);
         return Ok();
     }
 
-    [HttpPost("{id}/managers/{userId}")]
+    [HttpPost("{restaurantId}/managers/{userId}")]
     [RoleAuthorize(RoleType.Admin)]
-    public async Task<IActionResult> GiveManagerRole(Guid id, Guid userId)
+    public async Task<IActionResult> GiveManagerRole(Guid restaurantId, Guid userId)
     {
-        await _permissionService.GivePermissionToUser(userId, id, RoleType.Manager);
+        await _permissionService.GivePermissionToUser(userId, restaurantId, RoleType.Manager);
         return Ok();
     }
 
-    [HttpDelete("{id}/managers/{userId}")]
+    [HttpDelete("{restaurantId}/managers/{userId}")]
     [RoleAuthorize(RoleType.Admin)]
-    public async Task<IActionResult> RevokeManagerRole(Guid id, Guid userId)
+    public async Task<IActionResult> RevokeManagerRole(Guid restaurantId, Guid userId)
     {
-        await _permissionService.RevokePermissionFromUser(userId, id, RoleType.Manager);
+        await _permissionService.RevokePermissionFromUser(userId, restaurantId, RoleType.Manager);
         return Ok();
     }
 
-    [HttpPost("{id}/cooks/{userId}")]
+    [HttpPost("{restaurantId}/cooks/{userId}")]
     [RoleAuthorize(RoleType.Admin, RoleType.Manager)]
-    public async Task<IActionResult> GiveCookRole(Guid id, Guid userId)
+    public async Task<IActionResult> GiveCookRole(Guid restaurantId, Guid userId)
     {
         if (!UserRoles.Contains(RoleType.Admin))
         {
-            await _permissionService.RestaurantOwnerValidate(UserId, id);
+            await _permissionService.RestaurantOwnerValidate(UserId, restaurantId);
         }
-        await _permissionService.GivePermissionToUser(userId, id, RoleType.Cook);
+        await _permissionService.GivePermissionToUser(userId, restaurantId, RoleType.Cook);
         return Ok();
     }
 
-    [HttpDelete("{id}/cooks/{userId}")]
+    [HttpDelete("{restaurantId}/cooks/{userId}")]
     [RoleAuthorize(RoleType.Admin, RoleType.Manager)]
-    public async Task<IActionResult> RevokeCookRole(Guid id, Guid userId)
+    public async Task<IActionResult> RevokeCookRole(Guid restaurantId, Guid userId)
     {
         if (!UserRoles.Contains(RoleType.Admin))
         {
-            await _permissionService.RestaurantOwnerValidate(UserId, id);
+            await _permissionService.RestaurantOwnerValidate(UserId, restaurantId);
         }
-        await _permissionService.RevokePermissionFromUser(userId, id, RoleType.Cook);
+        await _permissionService.RevokePermissionFromUser(userId, restaurantId, RoleType.Cook);
         return Ok();
+    }
+
+    [HttpGet("{restaurantId}/staff")]
+    [RoleAuthorize(RoleType.Admin, RoleType.Manager)]
+    public async Task<ActionResult<ICollection<ProfileDTO>>> GetRestaurantStaff(Guid restaurantId)
+    {
+        if (!UserRoles.Contains(RoleType.Admin))
+        {
+            await _permissionService.RestaurantOwnerValidate(UserId, restaurantId);
+        }
+        return Ok(await _restaurantService.GetRestaurantStaffAsync(restaurantId));
     }
 }

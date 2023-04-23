@@ -67,6 +67,11 @@ public class RestaurantService : IRestaurantService
         }).OrderBy(r => r.Name).Skip((int.Max(1, (int)page) - 1) * _pageSize).Take(_pageSize).ToListAsync();
     }
 
+    public Task<IEnumerable<ProfileDTO>> GetRestaurantStaffAsync(Guid restaurantId)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<RestaurantDTO> UpdateRestaurantAsync(Guid id, RestaurantCreation restaurantModel)
     {
         var restaurant = await _context.Restaurants.FindAsync(id);

@@ -9,4 +9,5 @@ public interface IRestaurantService
     Task<RestaurantDTO> CreateRestaurantAsync(RestaurantCreation restaurantModel);
     Task<RestaurantDTO> UpdateRestaurantAsync(Guid id, RestaurantCreation restaurantModel);
     Task DeleteRestaurantAsync(Guid id);
+    Task<IEnumerable<ProfileDTO>> GetRestaurantStaffAsync(Guid restaurantId);
 }

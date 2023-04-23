@@ -15,6 +15,7 @@ public static class ServicesExtension
         services.AddScoped<IJwtAuthentication, JwtAuthentication>();
         services.AddScoped<IProfileService, ProfileService>();
         services.AddScoped<IUserAuthentication, UserAuthentication>();
+        services.AddScoped<IRolesService, RolesService>();
 
         return services;
     }
