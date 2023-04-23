@@ -80,7 +80,7 @@ public class MenuService : IMenuService
         var filteredDishes = menu.Dishes
             .FilterDishes(filters)
             .SortDishes(sorting)
-            .Skip(((int)page - 1) * _pageSize)
+            .Skip((int.Max(1, (int)page) - 1) * _pageSize)
             .Take(_pageSize);
 
         return menu.ToDetails(filteredDishes);

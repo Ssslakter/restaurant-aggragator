@@ -45,7 +45,7 @@ public class OrderController : AuthControllerBase
         }
         catch (ForbidException)
         {
-            await _permissionService.CanChangeOrderStatusUpValidate(UserId, orderId);
+            await _permissionService.CanChangeOrderStatusUpValidate(UserId, orderId, UserRoles);
         }
         var order = await _orderService.GetOrderByIdAsync(orderId);
         return Ok(order);
@@ -68,16 +68,16 @@ public class OrderController : AuthControllerBase
     /// Gets orders for restaurant staff
     /// </summary>
     [HttpGet("restaurant/{restaurantId}/kitchen/orders")]
-    [RoleAuthorize(RoleType.Manager, RoleType.Cook)]
+    [RoleAuthorize(RoleType.Cook)]
     public async Task<ActionResult<ICollection<OrderWithDishes>>> GetOrdersForCook(Guid restaurantId,
-        [FromQuery] bool createdOnly, [FromQuery] uint page)
+        [FromQuery] OrderStatus status, [FromQuery] uint page)
     {
-        if (!createdOnly)
+        await _permissionService.RestaurantCookValidate(UserId, restaurantId);
+        if (status == OrderStatus.Created)
         {
-            return Ok(await _orderService.GetOrdersByCookIdAsync(UserId, page));
+            return Ok(await _orderService.GetOrdersByRestaurantIdAsync(restaurantId, status, page));
         }
-        await _permissionService.RestaurantStaffValidate(UserId, restaurantId);
-        return Ok(await _orderService.GetOrdersByRestaurantIdAsync(restaurantId, OrderStatus.Created, page));
+        return Ok(await _orderService.GetOrdersByCookIdAsync(UserId, page));
     }
 
     /// <summary>
@@ -89,7 +89,7 @@ public class OrderController : AuthControllerBase
     {
         if (status == OrderStatus.Canceled)
             throw new ForbidException("You can't cancel order in kitchen");
-        await _permissionService.CanChangeOrderStatusUpValidate(UserId, orderId);
+        await _permissionService.CanChangeOrderStatusUpValidate(UserId, orderId, UserRoles);
         if (status == OrderStatus.Kitchen)
         {
             await _orderService.AssingCookToOrderAsync(orderId, UserId);
@@ -105,7 +105,7 @@ public class OrderController : AuthControllerBase
     [RoleAuthorize(RoleType.Courier)]
     public async Task<IActionResult> ChangeOrderStatusDelivery(Guid orderId, OrderStatus status)
     {
-        await _permissionService.CanChangeOrderStatusUpValidate(UserId, orderId);
+        await _permissionService.CanChangeOrderStatusUpValidate(UserId, orderId, UserRoles);
         if (status == OrderStatus.Delivery)
         {
             await _orderService.AssingCourierToOrderAsync(orderId, UserId);

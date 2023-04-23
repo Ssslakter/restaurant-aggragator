@@ -32,11 +32,4 @@ public class ProfileController : AuthControllerBase
         await _profileService.UpdateProfileAsync(UserId, newProfile);
         return Ok();
     }
-
-    [HttpGet("{userId}")]
-    [RoleAuthorize(RoleType.Admin)]
-    public async Task<ActionResult<ProfileDTO>> GetProfile(Guid userId)
-    {
-        return Ok(await _profileService.GetProfileAsync(userId));
-    }
 }

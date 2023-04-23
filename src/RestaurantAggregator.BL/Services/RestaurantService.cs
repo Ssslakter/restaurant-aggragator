@@ -53,7 +53,7 @@ public class RestaurantService : IRestaurantService
             Id = r.Id,
             Name = r.Name,
             Menus = r.Menus.Select(m => m.ToDTO()).ToList()
-        }).OrderBy(r => r.Name).Skip(((int)page - 1) * _pageSize).Take(_pageSize);
+        }).OrderBy(r => r.Name).Skip((int.Max(1, (int)page) - 1) * _pageSize).Take(_pageSize);
         return await restaurants.ToListAsync();
     }
 
@@ -64,7 +64,7 @@ public class RestaurantService : IRestaurantService
             Id = r.Id,
             Name = r.Name,
             Menus = r.Menus.Select(m => m.ToDTO()).ToList()
-        }).OrderBy(r => r.Name).Skip(((int)page - 1) * _pageSize).Take(_pageSize).ToListAsync();
+        }).OrderBy(r => r.Name).Skip((int.Max(1, (int)page) - 1) * _pageSize).Take(_pageSize).ToListAsync();
     }
 
     public async Task<RestaurantDTO> UpdateRestaurantAsync(Guid id, RestaurantCreation restaurantModel)

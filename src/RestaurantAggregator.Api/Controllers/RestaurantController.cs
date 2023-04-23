@@ -8,13 +8,15 @@ namespace RestaurantAggregator.Api.Controllers;
 
 [ApiController]
 [Route("api/restaurant")]
-public class RestaurantController : ControllerBase
+public class RestaurantController : AuthControllerBase
 {
     private readonly IRestaurantService _restaurantService;
+    private readonly IPermissionService _permissionService;
 
-    public RestaurantController(IRestaurantService restaurantService)
+    public RestaurantController(IRestaurantService restaurantService, IPermissionService permissionService)
     {
         _restaurantService = restaurantService;
+        _permissionService = permissionService;
     }
 
     [HttpGet]
@@ -50,6 +52,46 @@ public class RestaurantController : ControllerBase
     public async Task<IActionResult> DeleteRestaurant(Guid id)
     {
         await _restaurantService.DeleteRestaurantAsync(id);
+        return Ok();
+    }
+
+    [HttpPost("{id}/managers/{userId}")]
+    [RoleAuthorize(RoleType.Admin)]
+    public async Task<IActionResult> GiveManagerRole(Guid id, Guid userId)
+    {
+        await _permissionService.GivePermissionToUser(userId, id, RoleType.Manager);
+        return Ok();
+    }
+
+    [HttpDelete("{id}/managers/{userId}")]
+    [RoleAuthorize(RoleType.Admin)]
+    public async Task<IActionResult> RevokeManagerRole(Guid id, Guid userId)
+    {
+        await _permissionService.RevokePermissionFromUser(userId, id, RoleType.Manager);
+        return Ok();
+    }
+
+    [HttpPost("{id}/cooks/{userId}")]
+    [RoleAuthorize(RoleType.Admin, RoleType.Manager)]
+    public async Task<IActionResult> GiveCookRole(Guid id, Guid userId)
+    {
+        if (!UserRoles.Contains(RoleType.Admin))
+        {
+            await _permissionService.RestaurantOwnerValidate(UserId, id);
+        }
+        await _permissionService.GivePermissionToUser(userId, id, RoleType.Cook);
+        return Ok();
+    }
+
+    [HttpDelete("{id}/cooks/{userId}")]
+    [RoleAuthorize(RoleType.Admin, RoleType.Manager)]
+    public async Task<IActionResult> RevokeCookRole(Guid id, Guid userId)
+    {
+        if (!UserRoles.Contains(RoleType.Admin))
+        {
+            await _permissionService.RestaurantOwnerValidate(UserId, id);
+        }
+        await _permissionService.RevokePermissionFromUser(userId, id, RoleType.Cook);
         return Ok();
     }
 }

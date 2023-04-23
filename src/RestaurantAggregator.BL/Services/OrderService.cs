@@ -40,7 +40,7 @@ public class OrderService : IOrderService
             throw new NotFoundInDbException($"Order with id {orderId} not found");
         }
         order.CourierId = courierId;
-        var courierProfile = await _userService.GetProfile(courierId);
+        var courierProfile = await _userService.GetProfileAsync(courierId);
         order.CourierName = $"{courierProfile.Name} {courierProfile.MiddleName} {courierProfile.Surname}";
         await _context.SaveChangesAsync();
     }
@@ -73,7 +73,7 @@ public class OrderService : IOrderService
         {
             throw new InvalidDataException("All dishes in cart must be from the same restaurant");
         }
-        var clientProfile = await _userService.GetProfile(clientId);
+        var clientProfile = await _userService.GetProfileAsync(clientId);
         var totalPrice = 0.0M;
         foreach (var dish in dishesInCart)
         {

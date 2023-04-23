@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using RestaurantAggregator.Auth.Data.Entities;
 using RestaurantAggregator.Core.Data.DTO;
 using RestaurantAggregator.Core.Exceptions;
@@ -9,10 +10,13 @@ public interface IProfileService
 {
     Task UpdateProfileAsync(Guid userId, ProfileCreation profileCreation);
     Task<ProfileDTO> GetProfileAsync(Guid userId);
+    Task<IEnumerable<ProfileDTO>> GetUserProfilesAsync(uint page = 1);
+    Task DeleteUserAsync(Guid userId);
 }
 
 public class ProfileService : IProfileService
 {
+    private readonly int _pageSize = 10;
     private readonly UserManager<User> _userManager;
 
     public ProfileService(UserManager<User> userManager)
@@ -56,5 +60,29 @@ public class ProfileService : IProfileService
         user.Name = profileDTO.Name;
         user.Gender = profileDTO.Gender;
         await _userManager.UpdateAsync(user);
+    }
+
+    public async Task<IEnumerable<ProfileDTO>> GetUserProfilesAsync(uint page)
+    {
+        var users = await _userManager.Users
+        .Skip((int.Max(1, (int)page) - 1) * _pageSize).Take(_pageSize).ToListAsync();
+        return users.ConvertAll(user => new ProfileDTO
+        {
+            Id = user.Id,
+            Name = user.Name,
+            Surname = user.FullName.Split(' ')[0],
+            MiddleName = user.FullName.Split(' ')[2],
+            Phone = user.Phone,
+            Gender = user.Gender,
+            BirthDate = user.BirthDate
+        });
+    }
+
+    public async Task DeleteUserAsync(Guid userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+            throw new NotFoundInDbException("User not found");
+        await _userManager.DeleteAsync(user);
     }
 }

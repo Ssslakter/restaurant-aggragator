@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using RestaurantAggregator.Core.Exceptions;
+using RoleTypeCore = RestaurantAggregator.Core.Data.Enums.RoleType;
 
 namespace RestaurantAggregator.Auth.Client.Services;
 
@@ -28,20 +29,46 @@ public class UserService : IUserService
         _tokenInfo = tokenInfo;
     }
 
-    public async Task<ProfileDTO> GetProfile()
+    public async Task<ProfileDTO> GetProfileAsync()
     {
         await _authService.Authenticate();
         _authApiClient.SetToken(_tokenInfo.AccessToken);
         return await _authApiClient.ProfileAsync();
     }
 
-    public async Task<ProfileDTO> GetProfile(Guid userId)
+    public async Task<ProfileDTO> GetProfileAsync(Guid userId)
     {
         await _authService.Authenticate();
         _authApiClient.SetToken(_tokenInfo.AccessToken);
         try
         {
-            return await _authApiClient.Profile3Async(userId);
+            return await _authApiClient.Users2Async(userId);
+        }
+        catch (ApiException e)
+        {
+            switch ((ResponseStatus)e.StatusCode)
+            {
+                case ResponseStatus.NotFound:
+                    _logger.LogWarning("Not found");
+                    throw new NotFoundInDbException($"User with id {userId} not found");
+                case ResponseStatus.Forbidden:
+                    _logger.LogError(e, "Failed to get access to resource");
+                    throw new ForbidException("Forbidden");
+                default:
+                    _logger.LogError(e, "Error");
+                    throw;
+            }
+        }
+    }
+
+    public async Task<IEnumerable<RoleTypeCore>> GetUserRolesAsync(Guid userId)
+    {
+        await _authService.Authenticate();
+        _authApiClient.SetToken(_tokenInfo.AccessToken);
+        try
+        {
+            return (await _authApiClient.RolesAllAsync(userId))
+            .Select(r => (RoleTypeCore)Enum.Parse(typeof(RoleTypeCore), r.ToString())).ToList();
         }
         catch (ApiException e)
         {
