@@ -5,13 +5,6 @@ using RestaurantAggregator.Core.Exceptions;
 
 namespace RestaurantAggregator.Auth.Services;
 
-public interface IRolesService
-{
-    Task AddRoleToUserAsync(Guid userId, RoleType roleType);
-    Task RemoveRoleFromUserAsync(Guid userId, RoleType roleType);
-    Task<IEnumerable<RoleType>> GetUserRolesAsync(Guid userId);
-}
-
 public class RolesService : IRolesService
 {
     private readonly UserManager<User> _userManager;

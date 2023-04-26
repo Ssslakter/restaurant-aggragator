@@ -6,14 +6,6 @@ using RestaurantAggregator.Core.Exceptions;
 
 namespace RestaurantAggregator.Auth.Services;
 
-public interface IProfileService
-{
-    Task UpdateProfileAsync(Guid userId, ProfileCreation profileCreation);
-    Task<ProfileDTO> GetProfileAsync(Guid userId);
-    Task<IEnumerable<ProfileDTO>> GetUserProfilesAsync(uint page = 1);
-    Task DeleteUserAsync(Guid userId);
-}
-
 public class ProfileService : IProfileService
 {
     private readonly int _pageSize = 10;

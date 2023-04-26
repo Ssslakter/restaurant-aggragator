@@ -33,7 +33,7 @@ public class UserService : IUserService
     {
         await _authService.Authenticate();
         _authApiClient.SetToken(_tokenInfo.AccessToken);
-        return await _authApiClient.ProfileAsync();
+        return await _authApiClient.ProfileGETAsync();
     }
 
     public async Task<ProfileDTO> GetProfileAsync(Guid userId)
@@ -42,7 +42,7 @@ public class UserService : IUserService
         _authApiClient.SetToken(_tokenInfo.AccessToken);
         try
         {
-            return await _authApiClient.Users2Async(userId);
+            return await _authApiClient.UsersGETAsync(userId);
         }
         catch (ApiException e)
         {
@@ -77,6 +77,31 @@ public class UserService : IUserService
                 case ResponseStatus.NotFound:
                     _logger.LogWarning("Not found");
                     throw new NotFoundInDbException($"User with id {userId} not found");
+                case ResponseStatus.Forbidden:
+                    _logger.LogError(e, "Failed to get access to resource");
+                    throw new ForbidException("Forbidden");
+                default:
+                    _logger.LogError(e, "Error");
+                    throw;
+            }
+        }
+    }
+
+    public async Task<IEnumerable<ProfileDTO>> GetUsersAsync(int page)
+    {
+        await _authService.Authenticate();
+        _authApiClient.SetToken(_tokenInfo.AccessToken);
+        try
+        {
+            return await _authApiClient.UsersAllAsync(page);
+        }
+        catch (ApiException e)
+        {
+            switch ((ResponseStatus)e.StatusCode)
+            {
+                case ResponseStatus.NotFound:
+                    _logger.LogWarning("Not found");
+                    throw new NotFoundInDbException($"Page {page} not found");
                 case ResponseStatus.Forbidden:
                     _logger.LogError(e, "Failed to get access to resource");
                     throw new ForbidException("Forbidden");

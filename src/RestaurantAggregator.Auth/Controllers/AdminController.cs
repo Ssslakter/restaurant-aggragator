@@ -21,7 +21,7 @@ public class AdminController : AuthControllerBase
     }
 
     [HttpGet("users")]
-    public async Task<ActionResult> GetUsers([FromQuery] uint page)
+    public async Task<ActionResult<IEnumerable<ProfileDTO>>> GetUsers([FromQuery] uint page)
     {
         return Ok(await _profileService.GetUserProfilesAsync(page));
     }

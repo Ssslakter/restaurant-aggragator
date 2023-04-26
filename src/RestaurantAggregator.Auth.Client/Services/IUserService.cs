@@ -6,4 +6,5 @@ public interface IUserService
     Task<ProfileDTO> GetProfileAsync();
     Task<ProfileDTO> GetProfileAsync(Guid userId);
     Task<IEnumerable<RoleTypeCore>> GetUserRolesAsync(Guid userId);
+    Task<IEnumerable<ProfileDTO>> GetUsersAsync(int page);
 }

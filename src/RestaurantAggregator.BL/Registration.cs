@@ -19,6 +19,7 @@ public static class Registration
         services.AddScoped<IPermissionService, PermissionService>();
         services.RegisterDbContext(configuration);
         services.AddAuthApiClient(configuration);
+        services.AddServiceAuthorization(configuration);
         return services;
     }
 }
