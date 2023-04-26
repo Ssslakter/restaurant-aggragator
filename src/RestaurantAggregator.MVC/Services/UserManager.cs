@@ -1,22 +1,27 @@
 using RestaurantAggregator.Auth.Client.Services;
-using RestaurantAggregator.MVC.Services.Client;
 using ProfileDTO = RestaurantAggregator.Auth.Client.Services.ProfileDTO;
 
 namespace RestaurantAggregator.MVC.Services;
 
 public class UserManager : IUserManager
 {
-    private readonly IUserService _usersService;
-    private readonly IRestaurantApiClient _restaurantApiClient;
-
-    public UserManager(IRestaurantApiClient restaurantApiClient)
+    public Task AddRoleToUserAsync(Guid userId, RoleType roleType)
     {
-        _usersService = null;
-        _restaurantApiClient = restaurantApiClient;
+        throw new NotImplementedException();
     }
 
-    public async Task<IEnumerable<ProfileDTO>> GetUsersAsync(int page)
+    public Task<IEnumerable<ProfileDTO>> GetUserProfilesAsync(uint page)
     {
-        return await _usersService.GetUsersAsync(page);
+        throw new NotImplementedException();
+    }
+
+    public Task<IEnumerable<RoleType>> GetUserRolesAsync(Guid userId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task RemoveRoleFromUserAsync(Guid userId, RoleType roleType)
+    {
+        throw new NotImplementedException();
     }
 }

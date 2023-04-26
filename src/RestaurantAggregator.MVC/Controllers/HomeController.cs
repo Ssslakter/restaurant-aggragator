@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using RestaurantAggregator.Auth.Client.Services;
 using RestaurantAggregator.MVC.Models;
 using LoginModelMVC = RestaurantAggregator.Core.Data.DTO.LoginModel;
 
@@ -25,13 +24,14 @@ public class HomeController : Controller
     {
         if (ModelState.IsValid)
         {
-            return RedirectToAction("Index");
+            return RedirectToAction("Error");
         }
 
         return View("Index", model);
     }
 
-    public IActionResult Privacy()
+    [HttpGet]
+    public ActionResult Login()
     {
         return View();
     }
