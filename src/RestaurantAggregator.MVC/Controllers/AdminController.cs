@@ -7,6 +7,13 @@ namespace RestaurantAggregator.MVC.Controllers;
 [Route("api/[controller]")]
 public class AdminController : Controller
 {
+    private readonly IRolesService _rolesService;
+
+    public AdminController(IRolesService rolesService)
+    {
+        _rolesService = rolesService;
+    }
+
     public IActionResult Index()
     {
         return View();

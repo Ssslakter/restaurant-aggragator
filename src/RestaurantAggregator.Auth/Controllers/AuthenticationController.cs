@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RestaurantAggregator.Auth.Data.DTO;
-using RestaurantAggregator.Auth.Services;
+using RestaurantAggregator.Auth.BL.Services;
+using RestaurantAggregator.Core.Data.Auth;
 using RestaurantAggregator.Core.Data.DTO;
 using RestaurantAggregator.Infra.Auth;
 

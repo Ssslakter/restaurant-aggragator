@@ -2,6 +2,7 @@
   <ItemGroup>
     <ProjectReference Include="..\RestaurantAggregator.Auth.Client\RestaurantAggregator.Auth.Client.csproj" />
     <ProjectReference Include="..\RestaurantAggregator.Core\RestaurantAggregator.Core.csproj" />
+    <ProjectReference Include="..\RestaurantAggregator.BL\RestaurantAggregator.BL.csproj" />
   </ItemGroup>
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>

@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using RestaurantAggregator.Auth.Services;
+using RestaurantAggregator.Auth.BL.Services;
 using RestaurantAggregator.Core.Data.DTO;
 using RestaurantAggregator.Core.Data.Enums;
 using RestaurantAggregator.Infra.Auth;
