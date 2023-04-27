@@ -1,17 +1,21 @@
 using Microsoft.AspNetCore.Mvc;
+using RestaurantAggregator.Auth.BL.Services;
 using RestaurantAggregator.Core.Data.Enums;
+using RestaurantAggregator.Infra.Auth;
 
 namespace RestaurantAggregator.MVC.Controllers;
 
-[ApiController]
-[Route("api/[controller]")]
+//[RoleAuthorize(RoleType.Admin)]
+[Route("users")]
 public class AdminController : Controller
 {
     private readonly IRolesService _rolesService;
+    private readonly IProfileService _usersService;
 
-    public AdminController(IRolesService rolesService)
+    public AdminController(IRolesService rolesService, IProfileService usersService)
     {
         _rolesService = rolesService;
+        _usersService = usersService;
     }
 
     public IActionResult Index()
@@ -19,34 +23,29 @@ public class AdminController : Controller
         return View();
     }
 
-    [HttpGet]
-    public IActionResult Users()
+    [HttpGet("users")]
+    public async Task<IActionResult> Users([FromQuery] uint page)
     {
-        //get list of all users from api
+        var users = await _usersService.GetUserProfilesAsync(page);
+        return View(users);
+    }
+
+    public async Task<IActionResult> Restaurants()
+    {
         return View();
     }
 
-    [HttpGet]
-    public IActionResult Restaurants()
-    {
-        //get list of all restaurants from api
-        return View();
-    }
-
-    [HttpGet]
     public IActionResult Users(Guid userId)
     {
         //get user by id from api
         return View();
     }
 
-    [HttpPost]
     public IActionResult GiveRole(Guid userId, RoleType role)
     {
         return Ok();
     }
 
-    [HttpPost]
     public IActionResult RemoveRole(Guid userId, RoleType role)
     {
         return Ok();

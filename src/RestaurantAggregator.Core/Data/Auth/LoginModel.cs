@@ -1,10 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace RestaurantAggregator.Core.Data.DTO;
+namespace RestaurantAggregator.Core.Data.Auth;
 #nullable disable
 public class LoginModel
 {
-    [DataType(DataType.EmailAddress)]
+    [EmailAddress]
     [Required]
     public string Email { get; set; }
     [DataType(DataType.Password)]

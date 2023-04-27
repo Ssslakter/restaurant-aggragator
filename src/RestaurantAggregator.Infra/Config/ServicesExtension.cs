@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,9 +20,27 @@ public static class ServicesExtension
         .AddJwtBearer(options =>
         {
 #nullable disable
-            var jwtConfiguration = services.BuildServiceProvider().GetRequiredService<IOptions<JwtConfiguration>>().Value;
-            options.TokenValidationParameters = jwtConfiguration.GenerateTokenValidationParameters();
+            var jwtConfig = services.BuildServiceProvider().GetRequiredService<IOptions<JwtConfiguration>>().Value;
+            options.TokenValidationParameters = jwtConfig.GenerateTokenValidationParameters();
 #nullable enable
+        });
+        return services;
+    }
+
+    public static IServiceCollection AddCookieAuthentication(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<CookieConfiguration>(configuration.GetSection("CookieConfiguration"));
+        services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+        .AddCookie(options =>
+        {
+            var cookieConfig = services.BuildServiceProvider()
+            .GetRequiredService<IOptions<CookieConfiguration>>().Value;
+
+            options.ExpireTimeSpan = cookieConfig.Lifetime;
+            options.ClaimsIssuer = cookieConfig.Issuer;
+            options.AccessDeniedPath = cookieConfig.AccessDeniedPath;
+            options.LoginPath = cookieConfig.LoginPath;
+            options.LogoutPath = cookieConfig.LogoutPath;
         });
         return services;
     }

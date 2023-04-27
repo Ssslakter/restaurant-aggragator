@@ -1,17 +1,19 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using RestaurantAggregator.MVC.Models;
-using LoginModelMVC = RestaurantAggregator.Core.Data.DTO.LoginModel;
+using RestaurantAggregator.Auth.BL.Services;
+using RestaurantAggregator.Core.Data.Auth;
 
 namespace RestaurantAggregator.MVC.Controllers;
 
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
+    private readonly IUserAuthentication _authentificationService;
 
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(ILogger<HomeController> logger, IUserAuthentication authentificationService)
     {
         _logger = logger;
+        _authentificationService = authentificationService;
     }
 
     public IActionResult Index()
@@ -19,26 +21,26 @@ public class HomeController : Controller
         return View();
     }
 
-    [HttpPost]
-    public ActionResult Login(LoginModelMVC model)
+    [HttpPost("login")]
+    public ActionResult Login(LoginModel model)
     {
-        if (ModelState.IsValid)
+        if (!ModelState.IsValid)
         {
-            return RedirectToAction("Error");
+            return Forbidden();
         }
 
         return View("Index", model);
     }
 
-    [HttpGet]
+    [HttpGet("login")]
     public ActionResult Login()
     {
         return View();
     }
 
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
+    [HttpGet("forbidden")]
+    public ActionResult Forbidden()
     {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        return View();
     }
 }
