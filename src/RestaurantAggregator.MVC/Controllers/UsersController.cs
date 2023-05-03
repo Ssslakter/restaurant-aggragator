@@ -41,7 +41,7 @@ public class UsersController : Controller
     public async Task<IActionResult> RemoveRole(Guid userId, RoleType role)
     {
         await _rolesService.RemoveRoleFromUserAsync(userId, role);
-        return RedirectToPage($"/admin/users/{userId}");
+        return LocalRedirectPermanent($"/admin/users/{userId}");
     }
 
     [HttpPost("{userId}")]

@@ -29,21 +29,18 @@
 
                 {
                     <td>
-                        <form action="RemoveRole" method="post">
+                        <form asp-route-userId="@Model.Id" asp-controller="Users" asp-action="RemoveRole" method="post">
                             <input type="hidden" value="@item" name="Role" />
-                            <input type="hidden" value="@Model.Id" name="userId" />
                             <input type="submit" class="col-md-auto btn btn-danger" value="remove role" />
                         </form>
                     </td>
                 }
-
                 else
 
                 {
                     <td>
-                        <form action="AddRole" method="post">
+                        <form asp-route-userId="@Model.Id" asp-controller="Users" asp-action="AddRole" method="post">
                             <input type="hidden" value="@item" name="Role" />
-                            <input type="hidden" value="@Model.Id" name="userId" />
                             <input type="submit" class="col-md-auto btn btn-success" value="add role" />
                         </form>
                     </td>
