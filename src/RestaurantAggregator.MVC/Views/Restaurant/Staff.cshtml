@@ -1,0 +1,63 @@
+@using RestaurantAggregator.Core.Data.DTO
+@using RestaurantAggregator.Core.Data.Enums;
+@model IEnumerable<ProfileWithRolesDTO>
+@{
+    ViewData["Title"] = ViewData["Name"];
+
+    var restaurantId = ViewData["RestaurantId"];
+}
+<h3>@ViewData["Title"]</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>Full name</th>
+            <th>Gender</th>
+            <th>Birthdate</th>
+            <th>Phone</th>
+            <th>Manager action</th>
+            <th>Cook action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+
+            var cook = item.Roles.Contains(RoleType.Cook);
+
+            var manager = item.Roles.Contains(RoleType.Manager);
+
+            <tr>
+                <td>@item.Email</td>
+                <td>@item.Name @item.Surname @item.MiddleName</td>
+                <td>@item.Gender</td>
+                <td>@item.BirthDate</td>
+                <td>@item.Phone</td>
+                <td>
+                    @if(cook){
+                    @using (Html.BeginForm("RemoveStaff", "Restaurant",
+                   new { restaurantId = restaurantId, userId = item.Id, role = RoleType.Manager },
+                   FormMethod.Post))
+                    {
+                        <p><input type="submit" class="col-md-auto btn btn-danger delete-button"
+                         value="Remove manager role" />
+                        </p>
+                    }
+                    }
+                    @if(manager)
+                    {
+                    @using (Html.BeginForm("RemoveStaff", "Restaurant",
+                   new { restaurantId = restaurantId, userId = item.Id, role = RoleType.Cook },
+                   FormMethod.Post))
+                    {
+                        <p><input type="submit" class="col-md-auto btn btn-danger delete-button"
+                         value="Remove cook role" /></p>
+                    }
+                    }
+
+                </td>
+            </tr>
+
+        }
+    </tbody>
+</table>

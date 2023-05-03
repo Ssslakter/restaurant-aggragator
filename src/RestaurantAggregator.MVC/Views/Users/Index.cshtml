@@ -1,0 +1,38 @@
+@using RestaurantAggregator.Core.Data.DTO
+@model IEnumerable<ProfileDTO>
+@{
+    ViewData["Title"] = "Users Page";
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>email</th>
+            <th>Full name</th>
+            <th>Gender</th>
+            <th>Birthdate</th>
+            <th>Phone</th>
+            <th>Delete</th>
+            <th>Details</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+         {
+            <tr>
+                <td>@item.Email</td>
+                <td>@item.Name @item.Surname @item.MiddleName</td>
+                <td>@item.Gender</td>
+                <td>@item.BirthDate</td>
+                <td>@item.Phone</td>
+                <td>
+                    <form class="col-md-auto btn btn-danger delete-button" asp-action="Delete" asp-route-userId="@item.Id">delete</form>
+                </td>
+                <td>
+                    <a class="col-md-auto btn" asp-action="UserInfo" asp-route-userId="@item.Id">details</a>
+                </td>
+            </tr>
+
+        }
+    </tbody>
+</table>

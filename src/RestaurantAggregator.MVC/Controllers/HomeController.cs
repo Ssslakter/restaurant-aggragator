@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using RestaurantAggregator.Auth.BL.Services;
 using RestaurantAggregator.Core.Data.Auth;
 

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using RestaurantAggregator.Auth.Client.Services;
 using RestaurantAggregator.BL.Mappers;
 using RestaurantAggregator.Core.Data.DTO;
 using RestaurantAggregator.Core.Exceptions;
@@ -11,11 +12,13 @@ namespace RestaurantAggregator.BL.Services;
 public class RestaurantService : IRestaurantService
 {
     private readonly RestaurantDbContext _context;
+    private readonly IUserService _userService;
     private readonly int _pageSize = 10;
 
-    public RestaurantService(RestaurantDbContext context)
+    public RestaurantService(RestaurantDbContext context, IUserService userService)
     {
         _context = context;
+        _userService = userService;
     }
 
     public async Task<RestaurantDTO> CreateRestaurantAsync(RestaurantCreation restaurantModel)
@@ -67,9 +70,29 @@ public class RestaurantService : IRestaurantService
         }).OrderBy(r => r.Name).Skip((int.Max(1, (int)page) - 1) * _pageSize).Take(_pageSize).ToListAsync();
     }
 
-    public Task<IEnumerable<ProfileDTO>> GetRestaurantStaffAsync(Guid restaurantId)
+    public async Task<IEnumerable<ProfileWithRolesDTO>> GetRestaurantStaffAsync(Guid restaurantId)
     {
-        throw new NotImplementedException();
+        var restaurant = await _context.Restaurants.FirstOrDefaultAsync(r => r.Id == restaurantId);
+        if (restaurant == null)
+        {
+            throw new NotFoundInDbException($"Restaurant with id {restaurantId} not found");
+        }
+        var userIds = restaurant.Cooks.Concat(restaurant.Managers);
+        var userProfiles = userIds.Select(async id =>
+         (await _userService.GetProfileAsync(id), await _userService.GetUserRolesAsync(id))).ToList();
+        var profiles = await Task.WhenAll(userProfiles);
+        return profiles.Select(pair => pair is (var p, var roles) ? new ProfileWithRolesDTO
+        {
+            Id = p.Id,
+            Email = p.Email,
+            Name = p.Name,
+            Surname = p.Surname,
+            MiddleName = p.MiddleName,
+            Phone = p.Phone,
+            Gender = (Core.Data.Enums.Gender?)p.Gender,
+            Roles = roles,
+            BirthDate = p.BirthDate is null ? null : DateOnly.FromDateTime(((DateTimeOffset)p.BirthDate).Date)
+        } : null);
     }
 
     public async Task<RestaurantDTO> UpdateRestaurantAsync(Guid id, RestaurantCreation restaurantModel)

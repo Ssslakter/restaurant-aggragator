@@ -1,4 +1,5 @@
 using RestaurantAggregator.Auth.Extensions;
+using RestaurantAggregator.BL;
 using RestaurantAggregator.Infra.Config;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,6 +8,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddCookieAuthentication(builder.Configuration);
 builder.Services.RegisterDbContext(builder.Configuration);
 builder.Services.AddUserServices();
+builder.Services.RegisterBLServices(builder.Configuration);
 
 var app = builder.Build();
 

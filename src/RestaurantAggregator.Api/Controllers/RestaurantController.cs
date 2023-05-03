@@ -97,7 +97,7 @@ public class RestaurantController : AuthControllerBase
 
     [HttpGet("{restaurantId}/staff")]
     [RoleAuthorize(RoleType.Admin, RoleType.Manager)]
-    public async Task<ActionResult<ICollection<ProfileDTO>>> GetRestaurantStaff(Guid restaurantId)
+    public async Task<ActionResult<ICollection<ProfileWithRolesDTO>>> GetRestaurantStaff(Guid restaurantId)
     {
         if (!UserRoles.Contains(RoleType.Admin))
         {

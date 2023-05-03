@@ -68,7 +68,7 @@ public class UserService : IUserService
         try
         {
             return (await _authApiClient.RolesAllAsync(userId))
-            .Select(r => (RoleTypeCore)Enum.Parse(typeof(RoleTypeCore), r.ToString())).ToList();
+            .Select(r => (RoleTypeCore)Enum.Parse(typeof(RoleTypeCore), r)).ToList();
         }
         catch (ApiException e)
         {

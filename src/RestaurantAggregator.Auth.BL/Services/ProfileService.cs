@@ -24,6 +24,7 @@ public class ProfileService : IProfileService
         return new ProfileDTO
         {
             Id = user.Id,
+            Email = user.Email,
             Name = user.Name,
             Surname = user.FullName.Split(' ')[0],
             MiddleName = user.FullName.Split(' ')[2],
@@ -62,6 +63,7 @@ public class ProfileService : IProfileService
         {
             Id = user.Id,
             Name = user.Name,
+            Email = user.Email,
             Surname = user.FullName.Split(' ')[0],
             MiddleName = user.FullName.Split(' ')[2],
             Phone = user.Phone,

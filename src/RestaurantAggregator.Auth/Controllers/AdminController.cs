@@ -27,7 +27,7 @@ public class AdminController : AuthControllerBase
     }
 
     [HttpGet("users/{userId}/roles")]
-    public async Task<ActionResult<IEnumerable<RoleType>>> GetUserRoles(Guid userId)
+    public async Task<ActionResult<IEnumerable<string>>> GetUserRoles(Guid userId)
     {
         return Ok(await _rolesService.GetUserRolesAsync(userId));
     }

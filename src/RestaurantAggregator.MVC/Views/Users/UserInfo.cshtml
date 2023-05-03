@@ -1,0 +1,54 @@
+@using RestaurantAggregator.Core.Data.DTO
+@using RestaurantAggregator.Core.Data.Enums
+@using System
+@model ProfileWithRolesDTO
+@{
+    ViewData["Title"] = "Users Page";
+}
+<ul>
+    <td>@Model.Email</td>
+    <td>@Model.Name @Model.Surname @Model.MiddleName</td>
+    <td>@Model.Gender</td>
+    <td>@Model.BirthDate</td>
+    <td>@Model.Phone</td>
+</ul>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Role name</th>
+            <th>Remove/Add</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (RoleType item in Enum.GetValues(typeof(RoleType)))
+
+        {
+            <tr>
+                <td>@item</td>
+                @if (Model.Roles.Contains(item))
+
+                {
+                    <td>
+                        <form action="RemoveRole" method="post">
+                            <input type="hidden" value="@item" name="Role" />
+                            <input type="hidden" value="@Model.Id" name="userId" />
+                            <input type="submit" class="col-md-auto btn btn-danger" value="remove role" />
+                        </form>
+                    </td>
+                }
+
+                else
+
+                {
+                    <td>
+                        <form action="AddRole" method="post">
+                            <input type="hidden" value="@item" name="Role" />
+                            <input type="hidden" value="@Model.Id" name="userId" />
+                            <input type="submit" class="col-md-auto btn btn-success" value="add role" />
+                        </form>
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>

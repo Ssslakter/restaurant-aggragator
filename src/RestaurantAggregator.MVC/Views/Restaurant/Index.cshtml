@@ -1,0 +1,59 @@
+@using RestaurantAggregator.Core.Data.DTO
+@model IEnumerable<RestaurantDTO>
+@{ 
+    ViewData["Title"] = "Restaurants Page";
+}
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var restaurant in Model)
+        {
+            <tr>
+                <td>@restaurant.Name</td>
+                <td>
+                    <a type="button" class="btn btn-primary" asp-route-restaurantName="@restaurant.Name"
+                        asp-action="Staff" asp-route-restaurantId="@restaurant.Id" action="get">
+                        Staff
+                    </a>
+                    <a type="button" class="btn btn-danger"
+                        asp-action="DeleteRestaurant" asp-route-restaurantId="@restaurant.Id" action="delete">
+                        Delete
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<button type="button" id="createButton" class="btn btn-success">Create</button>
+<form id="createRestaurantForm">
+    <div id="restaurantNameContainer" >
+        <label for="restaurantNameInput">Name:</label>
+        <input type="text" id="restaurantNameInput" name="name">
+        <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+</form>
+
+
+<script>
+    $(document).ready(function () {
+        $('#createRestaurantForm').hide();
+
+        $('#createButton').on('click', function () {
+            $('#createRestaurantForm').show();
+        });
+
+        $('#saveButton').on('click', function () {
+            var name = $('#restaurantNameInput').val();
+            $.ajax({
+                url: '@ViewData["url"]'+ '@Url.Action("CreateRestaurant")',
+                type: 'POST',
+                data: { name: name }
+            });
+        });
+    });
+</script>
