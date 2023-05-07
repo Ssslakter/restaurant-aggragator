@@ -7,8 +7,7 @@ using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.RegisterDbContext(builder.Configuration);
-builder.Services.AddUserServices();
+builder.Services.AddUserServices(builder.Configuration);
 
 builder.Services.AddControllers().AddJsonOptions(options =>
  options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));

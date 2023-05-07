@@ -42,41 +42,5 @@ public class AuthDbContext : IdentityDbContext<User, Role, Guid>
 
         modelBuilder.Entity<Role>()
         .HasAlternateKey(r => r.RoleType);
-
-        modelBuilder.Entity<Role>().HasData(new Role
-        {
-            Id = Guid.NewGuid(),
-            Name = nameof(RoleType.Manager),
-            NormalizedName = nameof(RoleType.Manager).ToUpper(),
-            RoleType = RoleType.Manager
-        });
-        modelBuilder.Entity<Role>().HasData(new Role
-        {
-            Id = Guid.NewGuid(),
-            Name = nameof(RoleType.Cook),
-            NormalizedName = nameof(RoleType.Cook).ToUpper(),
-            RoleType = RoleType.Cook
-        });
-        modelBuilder.Entity<Role>().HasData(new Role
-        {
-            Id = Guid.NewGuid(),
-            Name = nameof(RoleType.Courier),
-            NormalizedName = nameof(RoleType.Courier).ToUpper(),
-            RoleType = RoleType.Courier
-        });
-        modelBuilder.Entity<Role>().HasData(new Role
-        {
-            Id = Guid.NewGuid(),
-            Name = nameof(RoleType.Client),
-            NormalizedName = nameof(RoleType.Client).ToUpper(),
-            RoleType = RoleType.Client
-        });
-        modelBuilder.Entity<Role>().HasData(new Role
-        {
-            Id = Guid.NewGuid(),
-            Name = nameof(RoleType.Admin),
-            NormalizedName = nameof(RoleType.Admin).ToUpper(),
-            RoleType = RoleType.Admin
-        });
     }
 }

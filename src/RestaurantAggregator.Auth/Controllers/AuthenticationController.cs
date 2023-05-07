@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RestaurantAggregator.Auth.BL.Services;
 using RestaurantAggregator.Core.Data.Auth;
-using RestaurantAggregator.Core.Data.DTO;
+using RestaurantAggregator.Core.Exceptions;
 using RestaurantAggregator.Infra.Auth;
 
 namespace RestaurantAggregator.Auth.Controllers;
@@ -12,16 +12,20 @@ namespace RestaurantAggregator.Auth.Controllers;
 public class AuthenticationController : AuthControllerBase
 {
     private readonly IUserAuthentication _authentificationService;
+    private readonly IBanService _banService;
 
-    public AuthenticationController(IUserAuthentication authentificationService)
+    public AuthenticationController(IUserAuthentication authentificationService, IBanService banService)
     {
         _authentificationService = authentificationService;
+        _banService = banService;
     }
 
     [HttpPost("login")]
     public async Task<ActionResult<TokenModel>> Login(LoginModel loginModel)
     {
         var user = await _authentificationService.Login(loginModel.Email, loginModel.Password);
+        if (await _banService.IsBannedAsync(user.Id))
+            throw new ForbidException("This user is banned");
         return Ok(await _authentificationService.GenerateTokenPairAsync(user));
     }
 
@@ -43,6 +47,8 @@ public class AuthenticationController : AuthControllerBase
     public async Task<ActionResult<TokenModel>> RefreshToken(RefreshDTO refreshToken)
     {
         var user = await _authentificationService.ValidateRefreshToken(refreshToken.RefreshToken, refreshToken.UserId);
+        if (await _banService.IsBannedAsync(user.Id))
+            throw new ForbidException("This user is banned");
         return Ok(await _authentificationService.GenerateTokenPairAsync(user));
     }
 

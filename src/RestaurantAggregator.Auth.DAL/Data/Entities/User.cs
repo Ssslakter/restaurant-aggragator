@@ -14,4 +14,5 @@ public class User : IdentityUser<Guid>
     public Client? Client { get; set; }
     public Manager? Manager { get; set; }
     public Cook? Cook { get; set; }
+    public bool IsBanned { get; set; }
 }
