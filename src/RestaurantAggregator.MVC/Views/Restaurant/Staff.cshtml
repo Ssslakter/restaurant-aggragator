@@ -3,7 +3,6 @@
 @model IEnumerable<ProfileWithRolesDTO>
 @{
     ViewData["Title"] = ViewData["Name"];
-
     var restaurantId = ViewData["RestaurantId"];
 }
 <h3>@ViewData["Title"]</h3>
@@ -22,38 +21,55 @@
     <tbody>
         @foreach (var item in Model)
         {
-
-            var cook = item.Roles.Contains(RoleType.Cook);
-
-            var manager = item.Roles.Contains(RoleType.Manager);
-
+            var managerMeta = new {
+                aspManagerAction = "AddStaff",
+                managerText = "Add manager role",
+                buttonClass = "btn-success"
+            };
+            if(item.Roles.Contains(RoleType.Manager))
+            {
+                managerMeta = new {
+                    aspManagerAction = "RemoveStaff",
+                    managerText = "Remove manager role",
+                    buttonClass = "btn-danger"
+                };
+            }
+            var cookMeta = new {
+                aspCookAction = "AddStaff",
+                cookText = "Add cook role",
+                buttonClass = "btn-success"
+            };
+            if(item.Roles.Contains(RoleType.Cook))
+            {
+                cookMeta = new {
+                    aspCookAction = "RemoveStaff",
+                    cookText = "Remove cook role",
+                    buttonClass = "btn-danger"
+                };
+            }
             <tr>
-                <td>@item.Email</td>
+                <td><a href="/admin/users/@item.Id">@item.Email</a></td>
                 <td>@item.Name @item.Surname @item.MiddleName</td>
                 <td>@item.Gender</td>
                 <td>@item.BirthDate</td>
                 <td>@item.Phone</td>
                 <td>
-                    @if(cook){
-                    @using (Html.BeginForm("RemoveStaff", "Restaurant",
-                   new { restaurantId = restaurantId, userId = item.Id, role = RoleType.Manager },
-                   FormMethod.Post))
-                    {
-                        <p><input type="submit" class="col-md-auto btn btn-danger delete-button"
-                         value="Remove manager role" />
-                        </p>
-                    }
-                    }
-                    @if(manager)
-                    {
-                    @using (Html.BeginForm("RemoveStaff", "Restaurant",
-                   new { restaurantId = restaurantId, userId = item.Id, role = RoleType.Cook },
-                   FormMethod.Post))
-                    {
-                        <p><input type="submit" class="col-md-auto btn btn-danger delete-button"
-                         value="Remove cook role" /></p>
-                    }
-                    }
+                    <form 
+                    asp-route-restaurantId="@restaurantId"
+                    asp-route-userId="@item.Id"
+                    asp-route-role="@RoleType.Manager"
+                    asp-action="@managerMeta.aspManagerAction" method="post">
+                        <input type="submit" class="col-md-auto btn @managerMeta.buttonClass" value="@managerMeta.managerText" />
+                    </form>
+                </td>
+                <td>
+                    <form 
+                    asp-route-restaurantId="@restaurantId"
+                    asp-route-userId="@item.Id"
+                    asp-route-role="@RoleType.Cook"
+                    asp-action="@cookMeta.aspCookAction" method="post">
+                        <input type="submit" class="col-md-auto btn @cookMeta.buttonClass" value="@cookMeta.cookText" />
+                    </form>
 
                 </td>
             </tr>
@@ -61,3 +77,44 @@
         }
     </tbody>
 </table>
+
+
+<button type="button" id="addtaff" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+Add new staff member
+</button>
+
+
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Add staff</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      
+
+      <div class="modal-body">
+        <input id="page-number" class="form-input" type="number" min="1" value="1" />
+        <button id="find-page" class="btn btn-primary">Search</button>
+        <form asp-route-restaurantId="@restaurantId"
+            asp-action="AddStaff" method="post">
+            <label for="user-select" class="form-label">Select user</label>
+            <select id="user-select" class="form-select" name="userId"
+             data-val="true" data-val-required="The field is required.">
+            </select>
+             
+             <select id="role-select" class="form-select" name="role"
+             data-val="true" data-val-required="The field is required.">
+        <option value="@RoleType.Cook">Cook</option>
+        <option value="@RoleType.Manager">Manager</option>
+            </select>
+            <input type="submit" class="col-md-auto btn btn-success" value="Confirm" />      
+        </form>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+<script src="../../wwwroot/js/site.js">
+</script>

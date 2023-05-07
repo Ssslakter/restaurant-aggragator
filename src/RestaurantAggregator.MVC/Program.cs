@@ -1,13 +1,13 @@
 using RestaurantAggregator.Auth.Extensions;
 using RestaurantAggregator.BL;
 using RestaurantAggregator.Infra.Config;
+using RestaurantAggregator.MVC.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddCookieAuthentication(builder.Configuration);
-builder.Services.RegisterDbContext(builder.Configuration);
-builder.Services.AddUserServices();
+builder.Services.AddUserServices(builder.Configuration);
 builder.Services.RegisterBLServices(builder.Configuration);
 
 var app = builder.Build();
@@ -18,6 +18,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.UseErrorDisplayPage(LoggerFactory.Create(builder => builder.AddConsole()));
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 

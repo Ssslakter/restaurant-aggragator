@@ -42,4 +42,11 @@ public class HomeController : Controller
     {
         return View();
     }
+
+    [HttpGet("error")]
+    public ActionResult Error(string message)
+    {
+        ViewData["ErrorMessage"] = message;
+        return View();
+    }
 }

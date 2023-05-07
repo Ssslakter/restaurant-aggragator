@@ -1,41 +1,49 @@
 @using RestaurantAggregator.Core.Data.DTO
 @model IEnumerable<RestaurantDTO>
-@{ 
+@{
     ViewData["Title"] = "Restaurants Page";
+    #nullable disable
+    var currPage =(int) ViewData["Page"];
+    #nullable enable
 }
 
-<table>
+<table class="table">
     <thead>
         <tr>
             <th>Name</th>
+            <th>Staff info</th>
+            <th>Delete</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var restaurant in Model)
+
+
+
         {
             <tr>
                 <td>@restaurant.Name</td>
                 <td>
-                    <a type="button" class="btn btn-primary" asp-route-restaurantName="@restaurant.Name"
-                        asp-action="Staff" asp-route-restaurantId="@restaurant.Id" action="get">
+                    <a type="button" class="btn btn-primary" asp-action="Staff"
+                        asp-route-restaurantId="@restaurant.Id" action="get">
                         Staff
                     </a>
-                    <a type="button" class="btn btn-danger"
-                        asp-action="DeleteRestaurant" asp-route-restaurantId="@restaurant.Id" action="delete">
-                        Delete
-                    </a>
+                    </td>
+                <td>
+                    <form asp-action="DeleteRestaurant"
+                        asp-route-restaurantId="@restaurant.Id"  method="post">
+                        <input type="submit" class="col-md-auto btn btn-danger" value="Delete" />
+                    </form>
                 </td>
             </tr>
         }
     </tbody>
 </table>
 <button type="button" id="createButton" class="btn btn-success">Create</button>
-<form id="createRestaurantForm">
-    <div id="restaurantNameContainer" >
-        <label for="restaurantNameInput">Name:</label>
-        <input type="text" id="restaurantNameInput" name="name">
-        <button type="submit" class="btn btn-primary">Save</button>
-    </div>
+<form id="createRestaurantForm" asp-action="CreateRestaurant" method="post">
+    <label for="restaurantNameInput">Name:</label>
+    <input type="text" id="restaurantNameInput" name="Name" />
+    <input type="submit" class="col-md-auto btn btn-success" value="Save" />
 </form>
 
 
@@ -44,16 +52,30 @@
         $('#createRestaurantForm').hide();
 
         $('#createButton').on('click', function () {
-            $('#createRestaurantForm').show();
-        });
-
-        $('#saveButton').on('click', function () {
-            var name = $('#restaurantNameInput').val();
-            $.ajax({
-                url: '@ViewData["url"]'+ '@Url.Action("CreateRestaurant")',
-                type: 'POST',
-                data: { name: name }
-            });
+            if ($('#createRestaurantForm').is(':visible')) {
+                $('#createRestaurantForm').hide();
+            } else {
+                $('#createRestaurantForm').show();
+            }
         });
     });
 </script>
+
+ <div class="row col-md-6 mx-auto">
+        <div class="col-md-12">
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    @if (currPage > 1)
+                    {
+                        <li class="page-item"><a class="page-link" asp-action="Index" asp-route-page=@(currPage-1)>@(currPage-1)</a></li>
+                    }
+                    else
+                    {
+                        <li class="page-item disabled"><span class="page-link">0</span></li>
+                    }
+                    <li class="page-item"><a class="page-link" asp-action="Index" asp-route-page=@(currPage)>@(currPage)</a></li>
+                    <li class="page-item"><a class="page-link" asp-action="Index" asp-route-page=@(currPage+1)>@(currPage+1)</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>

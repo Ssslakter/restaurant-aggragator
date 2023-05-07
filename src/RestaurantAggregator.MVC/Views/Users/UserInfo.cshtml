@@ -4,13 +4,18 @@
 @model ProfileWithRolesDTO
 @{
     ViewData["Title"] = "Users Page";
+    var allRoles = Enum.GetValues(typeof(RoleType));
+    var roles = allRoles.Cast<RoleType>().Where(x => x != RoleType.Client && x != RoleType.Admin);
+#nullable disable
+    var isBanned =(bool) ViewData["IsBanned"];
+#nullable enable
 }
 <ul>
-    <td>@Model.Email</td>
-    <td>@Model.Name @Model.Surname @Model.MiddleName</td>
-    <td>@Model.Gender</td>
-    <td>@Model.BirthDate</td>
-    <td>@Model.Phone</td>
+    <li>@Model.Email</li>
+    <li>@Model.Name @Model.Surname @Model.MiddleName</li>
+    <li>@Model.Gender</li>
+    <li>@Model.BirthDate</li>
+    <li>@Model.Phone</li>
 </ul>
 <table class="table">
     <thead>
@@ -20,13 +25,11 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (RoleType item in Enum.GetValues(typeof(RoleType)))
-
+        @foreach (RoleType item in roles)
         {
             <tr>
                 <td>@item</td>
                 @if (Model.Roles.Contains(item))
-
                 {
                     <td>
                         <form asp-route-userId="@Model.Id" asp-controller="Users" asp-action="RemoveRole" method="post">
@@ -36,7 +39,6 @@
                     </td>
                 }
                 else
-
                 {
                     <td>
                         <form asp-route-userId="@Model.Id" asp-controller="Users" asp-action="AddRole" method="post">
@@ -49,3 +51,26 @@
         }
     </tbody>
 </table>
+
+@if (isBanned)
+{
+    <td>
+        <form asp-route-userId="@Model.Id" asp-controller="Users" asp-action="UnbanUser" method="post">
+            <input type="submit" class="col-md-auto btn btn-success" value="unban" />
+        </form>
+    </td>
+}
+else
+{
+    <td>
+        <form asp-route-userId="@Model.Id" asp-controller="Users" asp-action="BanUser" method="post">
+            <input type="submit" class="col-md-auto btn btn-danger" value="ban" />
+        </form>
+    </td>
+}
+
+
+<form class="col-md-auto" asp-controller="Users"
+asp-action="DeleteUser" asp-route-userId="@Model.Id" method="post">
+<input type="submit" class="btn btn-danger" value="delete" />
+</form>

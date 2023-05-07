@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using RestaurantAggregator.Auth.DAL.Data.Entities;
 using RestaurantAggregator.Core.Data.DTO;
+using RestaurantAggregator.Core.Data.Enums;
 using RestaurantAggregator.Core.Exceptions;
 
 namespace RestaurantAggregator.Auth.BL.Services;
@@ -59,7 +60,7 @@ public class ProfileService : IProfileService
     {
         var users = await _userManager.Users
         .Skip((int.Max(1, (int)page) - 1) * _pageSize).Take(_pageSize).ToListAsync();
-        return users.ConvertAll(user => new ProfileDTO
+        return users.FilterNonAdmins(_userManager).ConvertAll(user => new ProfileDTO
         {
             Id = user.Id,
             Name = user.Name,
@@ -78,5 +79,17 @@ public class ProfileService : IProfileService
         if (user == null)
             throw new NotFoundInDbException("User not found");
         await _userManager.DeleteAsync(user);
+    }
+}
+internal static class UsersListExtensions
+{
+    internal static List<User> FilterNonAdmins(this List<User> users, UserManager<User> userManager)
+    {
+        return users.Where(user =>
+        {
+            var roles = userManager.GetRolesAsync(user).Result.Select(Enum.Parse<RoleType>);
+            return !roles.Contains(RoleType.Admin);
+        }
+         ).ToList();
     }
 }

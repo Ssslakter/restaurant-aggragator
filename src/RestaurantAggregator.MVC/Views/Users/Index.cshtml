@@ -2,6 +2,9 @@
 @model IEnumerable<ProfileDTO>
 @{
     ViewData["Title"] = "Users Page";
+    #nullable disable
+    var currPage =(int) ViewData["Page"];
+    #nullable enable
 }
 
 <table class="table">
@@ -12,7 +15,6 @@
             <th>Gender</th>
             <th>Birthdate</th>
             <th>Phone</th>
-            <th>Delete</th>
             <th>Details</th>
         </tr>
     </thead>
@@ -26,13 +28,29 @@
                 <td>@item.BirthDate</td>
                 <td>@item.Phone</td>
                 <td>
-                    <form class="col-md-auto btn btn-danger delete-button" asp-action="Delete" asp-route-userId="@item.Id">delete</form>
-                </td>
-                <td>
-                    <a class="col-md-auto btn" asp-action="UserInfo" asp-route-userId="@item.Id">details</a>
+                    <a class="col-md-auto btn btn-primary" asp-action="UserInfo" asp-route-userId="@item.Id">details</a>
                 </td>
             </tr>
 
         }
     </tbody>
 </table>
+
+ <div class="row col-md-6 mx-auto">
+        <div class="col-md-12">
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    @if (currPage > 1)
+                    {
+                        <li class="page-item"><a class="page-link" asp-action="Index" asp-route-page=@(currPage-1)>@(currPage-1)</a></li>
+                    }
+                    else
+                    {
+                        <li class="page-item disabled"><span class="page-link">0</span></li>
+                    }
+                    <li class="page-item"><a class="page-link" asp-action="Index" asp-route-page=@(currPage)>@(currPage)</a></li>
+                    <li class="page-item"><a class="page-link" asp-action="Index" asp-route-page=@(currPage+1)>@(currPage+1)</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>

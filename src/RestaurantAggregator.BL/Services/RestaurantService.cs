@@ -6,6 +6,8 @@ using RestaurantAggregator.Core.Exceptions;
 using RestaurantAggregator.Core.Services;
 using RestaurantAggregator.DAL;
 using RestaurantAggregator.DAL.Data;
+using ProfileDTO = RestaurantAggregator.Auth.Client.Services.ProfileDTO;
+using RoleTypeCore = RestaurantAggregator.Core.Data.Enums.RoleType;
 
 namespace RestaurantAggregator.BL.Services;
 
@@ -77,22 +79,23 @@ public class RestaurantService : IRestaurantService
         {
             throw new NotFoundInDbException($"Restaurant with id {restaurantId} not found");
         }
-        var userIds = restaurant.Cooks.Concat(restaurant.Managers);
-        var userProfiles = userIds.Select(async id =>
-         (await _userService.GetProfileAsync(id), await _userService.GetUserRolesAsync(id))).ToList();
-        var profiles = await Task.WhenAll(userProfiles);
-        return profiles.Select(pair => pair is (var p, var roles) ? new ProfileWithRolesDTO
-        {
-            Id = p.Id,
-            Email = p.Email,
-            Name = p.Name,
-            Surname = p.Surname,
-            MiddleName = p.MiddleName,
-            Phone = p.Phone,
-            Gender = (Core.Data.Enums.Gender?)p.Gender,
-            Roles = roles,
-            BirthDate = p.BirthDate is null ? null : DateOnly.FromDateTime(((DateTimeOffset)p.BirthDate).Date)
-        } : null);
+        var cookIds = restaurant.Cooks;
+        var managerIds = restaurant.Managers;
+        return await Task.WhenAll(cookIds.Concat(managerIds).Distinct().ToList()
+            .ConvertAll(async id =>
+            {
+                var restaurantRoles = new List<RoleTypeCore>();
+                if (cookIds.Contains(id))
+                {
+                    restaurantRoles.Add(RoleTypeCore.Cook);
+                }
+                if (managerIds.Contains(id))
+                {
+                    restaurantRoles.Add(RoleTypeCore.Manager);
+                }
+                return (await _userService.GetProfileAsync(id))
+                .ToProfileWithRoles(restaurantRoles);
+            }));
     }
 
     public async Task<RestaurantDTO> UpdateRestaurantAsync(Guid id, RestaurantCreation restaurantModel)
@@ -109,6 +112,25 @@ public class RestaurantService : IRestaurantService
             Id = restaurant.Id,
             Name = restaurant.Name,
             Menus = restaurant.Menus.Select(m => m.ToDTO()).ToList()
+        };
+    }
+}
+
+internal static class ProfileDtoExtensions
+{
+    internal static ProfileWithRolesDTO ToProfileWithRoles(this ProfileDTO profile, IEnumerable<RoleTypeCore> roles)
+    {
+        return new ProfileWithRolesDTO
+        {
+            Id = profile.Id,
+            Email = profile.Email,
+            Name = profile.Name,
+            Surname = profile.Surname,
+            MiddleName = profile.MiddleName,
+            BirthDate = profile.BirthDate is null ? null : DateOnly.FromDateTime(((DateTimeOffset)profile.BirthDate).Date),
+            Gender = (Core.Data.Enums.Gender?)profile.Gender,
+            Phone = profile.Phone,
+            Roles = roles
         };
     }
 }
