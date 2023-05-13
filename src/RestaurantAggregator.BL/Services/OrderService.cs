@@ -14,11 +14,13 @@ public class OrderService : IOrderService
 {
     private readonly RestaurantDbContext _context;
     private readonly IUserService _userService;
+    private readonly INotificationService _notificationService;
 
-    public OrderService(RestaurantDbContext context, IUserService userService)
+    public OrderService(RestaurantDbContext context, IUserService userService, INotificationService notificationService)
     {
         _context = context;
         _userService = userService;
+        _notificationService = notificationService;
     }
 
     public async Task AssingCookToOrderAsync(Guid orderId, Guid cookId)
@@ -57,6 +59,12 @@ public class OrderService : IOrderService
             throw new BusinessException("Order status can be changed only by 1 step");
         }
         order.Status = status;
+        _notificationService.SendOrderStatusNotification(new OrderStatusNotification
+        {
+            ClientId = order.ClientId,
+            OrderNumber = (int)order.OrderNumber,
+            Status = status
+        });
         await _context.SaveChangesAsync();
     }
 

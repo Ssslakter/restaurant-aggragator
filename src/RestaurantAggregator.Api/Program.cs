@@ -1,13 +1,15 @@
 using System.Reflection;
 using System.Text.Json.Serialization;
 using RestaurantAggregator.BL;
-using RestaurantAggregator.Infra.Config;
+using RestaurantAggregator.Infra;
+using RestaurantAggregator.Infra.Auth;
 using RestaurantAggregator.Infra.Middlewares;
 using RestaurantAggregator.Infra.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.RegisterBLServices(builder.Configuration);
+builder.Services.AddRabbitMq(builder.Configuration);
 
 builder.Services.AddControllers().AddJsonOptions(options =>
  options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));

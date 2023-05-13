@@ -3,10 +3,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using RestaurantAggregator.Infra.Config;
 
-namespace RestaurantAggregator.Infra.Config;
+namespace RestaurantAggregator.Infra.Auth;
 
-public static class ServicesExtension
+public static class AuthRegistration
 {
     public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
     {

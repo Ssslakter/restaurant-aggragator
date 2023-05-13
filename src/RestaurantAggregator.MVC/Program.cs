@@ -1,6 +1,6 @@
 using RestaurantAggregator.Auth.Extensions;
 using RestaurantAggregator.BL;
-using RestaurantAggregator.Infra.Config;
+using RestaurantAggregator.Infra.Auth;
 using RestaurantAggregator.MVC.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);

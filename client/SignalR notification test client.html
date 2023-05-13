@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>SignalR notification test client</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.css">
+    <style>a.navbar-brand{white-space:normal;text-align:center;word-break:break-all}a{color:#0366d6}.btn-primary{color:#fff;background-color:#1b6ec2;border-color:#1861ac}.nav-pills .nav-link.active,.nav-pills .show>.nav-link{color:#fff;background-color:#1b6ec2;border-color:#1861ac}html{font-size:14px}@media (min-width:768px){html{font-size:16px}}.border-top{border-top:1px solid #e5e5e5}.border-bottom{border-bottom:1px solid #e5e5e5}.box-shadow{box-shadow:0 .25rem .75rem rgba(0,0,0,.05)}button.accept-policy{font-size:1rem;line-height:inherit}html{position:relative;min-height:100%}body{margin-bottom:60px}.footer{position:absolute;bottom:0;width:100%;white-space:nowrap;line-height:60px}</style>
+</head>
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container">
+                <span class="navbar-brand">SignalR</span>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse"
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+    <main role="main" class="pb-3">
+            
+
+<div class="form-group row">
+    <label for="serviceUrl" class="col-3 col-form-label">Notification hub URL</label>
+    <div class="col col-sm-6">
+        <input id="serviceUrl" class="form-control" />
+    </div>
+</div>
+
+<div class="form-group row">
+    <label for="jwt" class="col-3 col-form-label">JWT</label>
+    <div class="col col-sm-6">
+        <input id="jwt" class="form-control" />
+    </div>
+</div>
+
+<button id="connectBtn" type="button" class="btn btn-primary">Connect to service</button>
+
+<hr>
+
+<ul id="notificationList"></ul>
+
+
+    </main>
+    </div>
+
+    
+    <script src="signalr.7.0.5.js"></script>
+    <script src="jquery.3.6.4.js"></script>
+    <script src="chat.js"></script>
+</script></body>
+
+</html>

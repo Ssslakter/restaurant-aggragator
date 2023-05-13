@@ -1,9 +1,9 @@
 using RestaurantAggregator.Auth.Extensions;
 using RestaurantAggregator.Infra.Middlewares;
 using RestaurantAggregator.Infra.Swagger;
-using RestaurantAggregator.Infra.Config;
 using System.Text.Json.Serialization;
 using System.Reflection;
+using RestaurantAggregator.Infra.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
 

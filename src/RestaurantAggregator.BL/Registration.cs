@@ -17,6 +17,8 @@ public static class Registration
         services.AddScoped<ICartService, CartService>();
         services.AddScoped<IOrderService, OrderService>();
         services.AddScoped<IPermissionService, PermissionService>();
+        services.AddScoped<INotificationService, NotificationService>();
+
         services.RegisterDbContext(configuration);
         services.AddAuthApiClient(configuration);
         services.AddServiceAuthorization(configuration);
