@@ -17,9 +17,10 @@ public class NotificationReciever
     {
         _rabbitMqConnection = rabbitMqConnection;
         _serviceProvider = serviceProvider;
+        AddRabbitListener();
     }
 
-    public void RecieveOrderStatusNotification()
+    public void AddRabbitListener()
     {
         using var channel = _rabbitMqConnection.CreateModel();
         channel.QueueDeclare(queue: "order-status",

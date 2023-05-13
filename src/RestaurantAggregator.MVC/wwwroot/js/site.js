@@ -26,7 +26,7 @@ function fillSelect(pageNumber) {
         success: function (data) {
             $('#user-select').empty();
 
-            $.each(data, function (index, model) {
+            $.each(data, (_index, model) => {
                 $('#user-select').append($('<option>', {
                     value: model.Id,
                     text: model.Name

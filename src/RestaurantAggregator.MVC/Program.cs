@@ -1,5 +1,6 @@
 using RestaurantAggregator.Auth.Extensions;
 using RestaurantAggregator.BL;
+using RestaurantAggregator.Infra;
 using RestaurantAggregator.Infra.Auth;
 using RestaurantAggregator.MVC.Middlewares;
 
@@ -9,6 +10,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddCookieAuthentication(builder.Configuration);
 builder.Services.AddUserServices(builder.Configuration);
 builder.Services.RegisterBLServices(builder.Configuration);
+builder.Services.AddRabbitMq(builder.Configuration);
 
 var app = builder.Build();
 

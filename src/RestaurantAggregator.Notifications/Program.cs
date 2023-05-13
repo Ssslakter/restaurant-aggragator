@@ -1,5 +1,6 @@
 using RestaurantAggregator.Infra;
 using RestaurantAggregator.Infra.Auth;
+using RestaurantAggregator.Notifications.Services;
 using SignalRAuthenticationSample.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRabbitMq(builder.Configuration);
 builder.Services.AddSignalR();
 builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddSingleton<NotificationReciever>();
 
 builder.Services.AddCors(options =>
 {
