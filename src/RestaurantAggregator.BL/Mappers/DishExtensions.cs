@@ -16,7 +16,6 @@ public static class DishExtensions
             IsVegeterian = dish.IsVegeterian,
             Photo = dish.Photo,
             Category = dish.Category,
-            MenuId = dish.MenuId,
             RestaurantId = dish.RestaurantId,
             Rating = dish.Reviews.Any() ? dish.Reviews.Average(r => r.Value) : 0
         };

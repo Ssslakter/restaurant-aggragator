@@ -26,10 +26,11 @@ function fillSelect(pageNumber) {
         success: function (data) {
             $('#user-select').empty();
 
-            $.each(data, (_index, model) => {
+            $.each(data, (_, model) => {
+                console.log(model)
                 $('#user-select').append($('<option>', {
-                    value: model.Id,
-                    text: model.Name
+                    value: model.id,
+                    text: model.email + " " + model.name
                 }));
             });
         },

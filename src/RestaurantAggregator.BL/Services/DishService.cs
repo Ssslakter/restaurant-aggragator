@@ -74,6 +74,14 @@ public class DishService : IDishService
         await _context.SaveChangesAsync();
     }
 
+    public async Task<IEnumerable<DishDTO>> GetDishesAsync(Guid restaurantId)
+    {
+        return await _context.Dishes.Include(d => d.Reviews)
+        .Where(d => d.RestaurantId == restaurantId)
+        .Select(d => d.ToDTO())
+        .ToListAsync();
+    }
+
     public async Task<DishDTO> GetDishInfoByIdAsync(Guid dishId, Guid restaurantId)
     {
         var dishEntity = await _context.Dishes.Include(d => d.Reviews)

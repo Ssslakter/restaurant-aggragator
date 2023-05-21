@@ -5,10 +5,18 @@ using SignalRAuthenticationSample.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddLogging(opts =>
+    {
+        opts.AddConsole();
+        opts.AddDebug();
+    });
+}
 builder.Services.AddRabbitMq(builder.Configuration);
 builder.Services.AddSignalR();
 builder.Services.AddJwtAuthentication(builder.Configuration);
-builder.Services.AddSingleton<NotificationReciever>();
+builder.Services.AddHostedService<NotificationReciever>();
 
 builder.Services.AddCors(options =>
 {

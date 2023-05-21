@@ -103,7 +103,7 @@ public class UserAuthentication : IUserAuthentication
         };
     }
 
-    private async Task<AccessToken> GenerateAccessTokenAsync(User user)
+    public async Task<List<Claim>> GetClaims(User user)
     {
 #nullable disable
         var claims = new List<Claim>
@@ -117,6 +117,12 @@ public class UserAuthentication : IUserAuthentication
             claims.Add(new Claim(ClaimTypes.Role, role));
         }
 #nullable enable
+        return claims;
+    }
+
+    private async Task<AccessToken> GenerateAccessTokenAsync(User user)
+    {
+        var claims = await GetClaims(user);
         return _jwtAuthentication.GenerateAccessToken(claims);
     }
 }

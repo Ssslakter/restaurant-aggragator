@@ -1,17 +1,20 @@
-﻿@using RestaurantAggregator.Auth.Client.Services;
+﻿@using RestaurantAggregator.Core.Data.Auth;
 @model LoginModel;
 
-@using (Html.BeginForm(FormMethod.Post))
-{
-    <div>
-        @Html.LabelFor(m=>m.Email)
-        @Html.TextBoxFor(m => m.Email)
-        @Html.ValidationMessageFor(m => m.Email)
+<form asp-action="Login">
+    <div class="form-group">
+        <label asp-for="Email"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
     </div>
-    <div>
-        @Html.LabelFor(m => m.Password)
-        @Html.PasswordFor(m => m.Password)
-        @Html.ValidationMessageFor(m => m.Password)
+    
+    <div class="form-group">
+        <label asp-for="Password"></label>
+        <input asp-for="Password" class="form-control" />
+        <span asp-validation-for="Password" class="text-danger"></span>
     </div>
-    <button type="submit">Login</button>
-}
+    
+    <button type="submit" class="btn btn-primary">Submit</button>
+    
+    <div asp-validation-summary="All" class="text-danger"></div>
+</form>

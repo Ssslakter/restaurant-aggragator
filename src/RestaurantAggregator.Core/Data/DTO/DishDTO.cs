@@ -11,7 +11,6 @@ public class DishDTO
     public bool IsVegeterian { get; set; }
     public string Photo { get; set; }
     public Category Category { get; set; }
-    public Guid MenuId { get; set; }
     public Guid RestaurantId { get; set; }
     public double Rating { get; set; }
 }

@@ -1,12 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
-using RestaurantAggregator.Auth.BL.Services;
 using RestaurantAggregator.Core.Data.DTO;
 using RestaurantAggregator.Core.Data.Enums;
 using RestaurantAggregator.Core.Services;
+using RestaurantAggregator.Infra.Auth;
 
 namespace RestaurantAggregator.MVC.Controllers;
 
 [Route("admin/restaurant")]
+[RoleAuthorize(RoleType.Admin)]
 public class RestaurantController : Controller
 {
     private readonly IRestaurantService _restaurantService;
@@ -38,14 +39,14 @@ public class RestaurantController : Controller
     }
 
     [HttpPost("{restaurantId}/staff/add")]
-    public async Task<IActionResult> AddStaff(Guid restaurantId, [FromQuery] Guid userId, [FromQuery] RoleType role)
+    public async Task<IActionResult> AddStaff(Guid restaurantId, Guid userId, RoleType role)
     {
         await _permissionService.GivePermissionToUser(userId, restaurantId, role);
         return LocalRedirect($"/admin/restaurant/{restaurantId}");
     }
 
     [HttpPost("{restaurantId}/staff/delete")]
-    public async Task<IActionResult> RemoveStaff(Guid restaurantId, [FromQuery] Guid userId, [FromQuery] RoleType role)
+    public async Task<IActionResult> RemoveStaff(Guid restaurantId, Guid userId, RoleType role)
     {
         await _permissionService.RevokePermissionFromUser(userId, restaurantId, role);
         return LocalRedirect($"/admin/restaurant/{restaurantId}");

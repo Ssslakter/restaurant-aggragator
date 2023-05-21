@@ -16,9 +16,7 @@ public static class RabbitMqRegistration
             var config = sp.GetRequiredService<IOptions<RabbitConfiguration>>().Value;
             var factory = new ConnectionFactory()
             {
-                HostName = config.Host,
-                UserName = config.Username,
-                Password = config.Password
+                HostName = config.Host
             };
             return factory.CreateConnection();
         });

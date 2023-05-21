@@ -13,6 +13,3 @@ services:
     ports:
       - 5672:5672
       - 15672:15672
-    environment:
-      - SEED_USERNAME=user
-      - SEED_PASSWORD=123123

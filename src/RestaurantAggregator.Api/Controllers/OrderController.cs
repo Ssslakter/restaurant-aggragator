@@ -105,7 +105,7 @@ public class OrderController : AuthControllerBase
     [RoleAuthorize(RoleType.Courier)]
     public async Task<IActionResult> ChangeOrderStatusDelivery(Guid orderId, OrderStatus status)
     {
-        await _permissionService.CanChangeOrderStatusUpValidate(UserId, orderId, UserRoles);
+        await _permissionService.CanChangeOrderStatusUpValidate(UserId, orderId, new[] { RoleType.Courier });
         if (status == OrderStatus.Delivery)
         {
             await _orderService.AssingCourierToOrderAsync(orderId, UserId);

@@ -16,7 +16,8 @@ internal static class DbRegistration
             options.UseNpgsql(configuration.GetConnectionString("Auth")));
 
         services.AddIdentity<User, Role>(o => o.Password.RequireNonAlphanumeric = false)
-            .AddEntityFrameworkStores<AuthDbContext>();
+            .AddEntityFrameworkStores<AuthDbContext>()
+            .AddSignInManager<SignInManager<User>>();
         services.AddScoped<RoleManager<Role>>();
         services.AddScoped<UserManager<User>>();
 

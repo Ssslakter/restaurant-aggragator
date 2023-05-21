@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 using RestaurantAggregator.Core.Data.DTO;
 using SignalRAuthenticationSample.Hubs;
 
-namespace SignalRAuthenticationSample.Controllers
+namespace RestaurantAggregator.Notifications.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

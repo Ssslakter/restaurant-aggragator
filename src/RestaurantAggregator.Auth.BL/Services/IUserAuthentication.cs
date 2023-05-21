@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using RestaurantAggregator.Auth.DAL.Data.Entities;
 using RestaurantAggregator.Core.Data.Auth;
 
@@ -11,4 +12,5 @@ public interface IUserAuthentication
     Task ChangePassword(Guid userId, string oldPassword, string newPassword);
     Task Logout(Guid userId);
     Task<TokenModel> GenerateTokenPairAsync(User user);
+    Task<List<Claim>> GetClaims(User user);
 }

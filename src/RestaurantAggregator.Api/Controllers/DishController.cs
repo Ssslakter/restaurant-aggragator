@@ -26,6 +26,13 @@ public class DishController : AuthControllerBase
         return Ok(dish);
     }
 
+    [HttpGet("{restaurantId}/dish")]
+    public async Task<ActionResult<IEnumerable<DishDTO>>> GetDishes(Guid restaurantId)
+    {
+        var dish = await _dishService.GetDishesAsync(restaurantId);
+        return Ok(dish);
+    }
+
     [HttpPost("{restaurantId}/dish/{dishId}/review")]
     [RoleAuthorize(RoleType.Client)]
     public async Task<IActionResult> AddDishReview(Guid dishId, ReviewDTO reviewModel)

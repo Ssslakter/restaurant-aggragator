@@ -5,7 +5,7 @@
 @{
     ViewData["Title"] = "Users Page";
     var allRoles = Enum.GetValues(typeof(RoleType));
-    var roles = allRoles.Cast<RoleType>().Where(x => x != RoleType.Client && x != RoleType.Admin);
+    var roles = allRoles.Cast<RoleType>().Where(x => x != RoleType.Admin);
 #nullable disable
     var isBanned =(bool) ViewData["IsBanned"];
 #nullable enable

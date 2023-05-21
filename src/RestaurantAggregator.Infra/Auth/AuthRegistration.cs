@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RestaurantAggregator.Infra.Config;
 
@@ -36,12 +37,9 @@ public static class AuthRegistration
         {
             var cookieConfig = services.BuildServiceProvider()
             .GetRequiredService<IOptions<CookieConfiguration>>().Value;
-
             options.ExpireTimeSpan = cookieConfig.Lifetime;
             options.ClaimsIssuer = cookieConfig.Issuer;
             options.AccessDeniedPath = cookieConfig.AccessDeniedPath;
-            options.LoginPath = cookieConfig.LoginPath;
-            options.LogoutPath = cookieConfig.LogoutPath;
         });
         return services;
     }

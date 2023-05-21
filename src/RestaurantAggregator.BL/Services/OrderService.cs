@@ -71,13 +71,12 @@ public class OrderService : IOrderService
     public async Task CreateOrderFromCartAsync(Guid clientId, string address)
     {
         var dishesInCart = await _context.DishesInCarts
-        .Include(d => d.Dish).ThenInclude(d => d.Menu)
-        .Where(d => d.ClientId == clientId && !d.InOrder).ToListAsync();
+        .Include(d => d.Dish).Where(d => d.ClientId == clientId && !d.InOrder).ToListAsync();
         if (dishesInCart.Count == 0)
         {
             throw new NotFoundInDbException("Cart for client is empty");
         }
-        if (dishesInCart.Select(d => d.Dish.Menu.RestaurantId).Distinct().Count() > 1)
+        if (dishesInCart.Select(d => d.Dish.RestaurantId).Distinct().Count() > 1)
         {
             throw new InvalidDataException("All dishes in cart must be from the same restaurant");
         }
@@ -91,7 +90,7 @@ public class OrderService : IOrderService
         }
         var order = new Order
         {
-            RestaurantId = dishesInCart[0].Dish.Menu.RestaurantId,
+            RestaurantId = dishesInCart[0].Dish.RestaurantId,
             Status = OrderStatus.Created,
             OrderTime = DateTime.Now.ToUniversalTime(),
             DeliveryTime = DateTime.Now.AddHours(1).ToUniversalTime(),

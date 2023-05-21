@@ -16,7 +16,6 @@ public static class DishInCartExtensions
             IsVegeterian = dishInCart.Dish.IsVegeterian,
             Photo = dishInCart.Dish.Photo,
             Category = dishInCart.Dish.Category,
-            MenuId = dishInCart.Dish.MenuId,
             RestaurantId = dishInCart.Dish.RestaurantId,
             Count = dishInCart.Count
         };
@@ -33,7 +32,6 @@ public static class DishInCartExtensions
             IsVegeterian = dishInCart.Dish.IsVegeterian,
             Photo = dishInCart.Dish.Photo,
             Category = dishInCart.Dish.Category,
-            MenuId = dishInCart.Dish.MenuId,
             RestaurantId = dishInCart.Dish.RestaurantId,
             Count = dishInCart.Count
         };

@@ -50,8 +50,8 @@ public class PermissionService : IPermissionService
 
         var flag = order.Status switch
         {
-            OrderStatus.Created => await RestaurantCook(userId, order.RestaurantId)
-             || await RestaurantOwner(userId, order.RestaurantId),
+            OrderStatus.Created => (await RestaurantCook(userId, order.RestaurantId) && roleTypes.Contains(RoleType.Cook))
+             || (await RestaurantOwner(userId, order.RestaurantId) && roleTypes.Contains(RoleType.Manager)),
             OrderStatus.Kitchen => order.CookId == userId
              && await OrderParticipant(userId, orderId, RoleType.Cook),
             OrderStatus.Packaging => roleTypes.Contains(RoleType.Courier),

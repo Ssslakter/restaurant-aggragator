@@ -33,6 +33,10 @@ namespace RestaurantAggregator.DAL
                 .HasOne(d => d.Order)
                 .WithMany(o => o.Dishes)
                 .IsRequired(false);
+
+            modelBuilder.Entity<Menu>()
+                .HasMany(m => m.Dishes)
+                .WithMany();
         }
     }
 }

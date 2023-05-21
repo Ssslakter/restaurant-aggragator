@@ -3,10 +3,11 @@ using RestaurantAggregator.Auth.BL.Services;
 using RestaurantAggregator.Core.Data.DTO;
 using RestaurantAggregator.Core.Data.Enums;
 using RestaurantAggregator.Core.Exceptions;
+using RestaurantAggregator.Infra.Auth;
 
 namespace RestaurantAggregator.MVC.Controllers;
 
-//[RoleAuthorize(RoleType.Admin)]
+[RoleAuthorize(RoleType.Admin)]
 [Route("admin/users")]
 public class UsersController : Controller
 {
@@ -71,7 +72,7 @@ public class UsersController : Controller
     [HttpPost("{userId}/delete-role")]
     public async Task<IActionResult> RemoveRole(Guid userId, RoleType role)
     {
-        if (role == RoleType.Admin || role == RoleType.Client)
+        if (role == RoleType.Admin)
             throw new BusinessException("Cannot operate with this role");
         await _rolesService.RemoveRoleFromUserAsync(userId, role);
         return LocalRedirect($"/admin/users/{userId}");
@@ -80,7 +81,7 @@ public class UsersController : Controller
     [HttpPost("{userId}")]
     public async Task<IActionResult> AddRole(Guid userId, RoleType role)
     {
-        if (role == RoleType.Admin || role == RoleType.Client)
+        if (role == RoleType.Admin)
             throw new BusinessException("Cannot operate with this role");
         await _rolesService.AddRoleToUserAsync(userId, role);
         return LocalRedirect($"/admin/users/{userId}");
