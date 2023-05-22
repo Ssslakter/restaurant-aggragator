@@ -36,7 +36,11 @@ public class NotificationReciever : BackgroundService
         consumer.Received += async (_, ea) =>
         {
             var body = ea.Body.ToArray();
-            var notification = JsonSerializer.Deserialize<OrderStatusNotification>(Encoding.UTF8.GetString(body));
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+            var notification = JsonSerializer.Deserialize<OrderStatusNotification>(Encoding.UTF8.GetString(body), options);
 #nullable disable
             _logger.LogInformation("Received message: {OrderNumber} {Status}",
              notification.OrderNumber, notification.Status);
