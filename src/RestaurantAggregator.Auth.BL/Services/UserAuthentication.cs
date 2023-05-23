@@ -109,7 +109,6 @@ public class UserAuthentication : IUserAuthentication
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Name, user.Name),
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
         };
         foreach (var role in await _userManager.GetRolesAsync(user))

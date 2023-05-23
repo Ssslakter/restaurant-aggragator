@@ -27,32 +27,32 @@ public class ProfileService : IProfileService
             Id = user.Id,
             Email = user.Email,
             Name = user.Name,
-            Surname = user.FullName.Split(' ')[0],
-            MiddleName = user.FullName.Split(' ')[2],
+            Surname = user.FullName?.Split(' ')[0],
+            MiddleName = user.FullName?.Split(' ')[2],
             Phone = user.Phone,
             Gender = user.Gender,
             BirthDate = user.BirthDate
         };
     }
 
-    public async Task UpdateProfileAsync(Guid userId, ProfileCreation profileDTO)
+    public async Task UpdateProfileAsync(Guid userId, ProfileCreation profileCreation)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
             throw new NotFoundInDbException("User not found");
-        if (profileDTO.Email != user.Email)
+        if (profileCreation.Email != user.Email)
         {
-            var emailUser = await _userManager.FindByEmailAsync(profileDTO.Email);
+            var emailUser = await _userManager.FindByEmailAsync(profileCreation.Email);
             if (emailUser != null)
                 throw new DbViolationException("User with this email already exists");
         }
 
-        user.Email = profileDTO.Email;
-        user.FullName = $"{profileDTO.Surname} {profileDTO.Name} {profileDTO.MiddleName}";
-        user.BirthDate = profileDTO.BirthDate;
-        user.Phone = profileDTO.Phone;
-        user.Name = profileDTO.Name;
-        user.Gender = profileDTO.Gender;
+        user.Email = profileCreation.Email;
+        user.FullName = $"{profileCreation.Surname} {profileCreation.Name} {profileCreation.MiddleName}";
+        user.BirthDate = profileCreation.BirthDate;
+        user.Phone = profileCreation.Phone;
+        user.Name = profileCreation.Name;
+        user.Gender = profileCreation.Gender;
         await _userManager.UpdateAsync(user);
     }
 
@@ -65,8 +65,8 @@ public class ProfileService : IProfileService
             Id = user.Id,
             Name = user.Name,
             Email = user.Email,
-            Surname = user.FullName.Split(' ')[0],
-            MiddleName = user.FullName.Split(' ')[2],
+            Surname = user.FullName?.Split(' ')[0],
+            MiddleName = user.FullName?.Split(' ')[2],
             Phone = user.Phone,
             Gender = user.Gender,
             BirthDate = user.BirthDate

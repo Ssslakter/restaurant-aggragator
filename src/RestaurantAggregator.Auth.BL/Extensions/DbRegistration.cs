@@ -5,10 +5,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using RestaurantAggregator.Auth.DAL.Data;
 using RestaurantAggregator.Core.Data.Enums;
+using RestaurantAggregator.Core.Data.Auth;
 
 namespace RestaurantAggregator.Auth.Extensions;
 
-internal static class DbRegistration
+public static class DbRegistration
 {
     internal static IServiceCollection RegisterDbContext(this IServiceCollection services, IConfiguration configuration)
     {
@@ -18,8 +19,6 @@ internal static class DbRegistration
         services.AddIdentity<User, Role>(o => o.Password.RequireNonAlphanumeric = false)
             .AddEntityFrameworkStores<AuthDbContext>()
             .AddSignInManager<SignInManager<User>>();
-        services.AddScoped<RoleManager<Role>>();
-        services.AddScoped<UserManager<User>>();
 
         services.MigrateDatabase();
         services.AddRoles();
@@ -47,6 +46,35 @@ internal static class DbRegistration
                 roleManager.CreateAsync(new Role { Name = role.ToString() }).Wait();
             }
         }
+        return services;
+    }
+
+    public static IServiceCollection AddAdmins(this IServiceCollection services, IConfiguration configuration)
+    {
+        //Add admin creds that in MVC configs and API configs, and add default admin user
+        var creds = configuration.GetSection("DefaultAdminAccounts").GetChildren().Select(x => x.Get<LoginModel>()).ToList();
+        using var scope = services.BuildServiceProvider().CreateScope();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
+        var role = roleManager.FindByNameAsync(nameof(RoleType.Admin)).Result;
+#nullable disable
+        foreach (var user in creds)
+        {
+            if (userManager.FindByEmailAsync(user.Email).Result == null)
+            {
+                var admin = new User
+                {
+                    Email = user.Email,
+                    UserName = user.Email
+                };
+                var result = userManager.CreateAsync(admin, user.Password).Result;
+                if (result.Succeeded)
+                {
+                    userManager.AddToRoleAsync(admin, role.Name).Wait();
+                }
+            }
+        }
+#nullable enable
         return services;
     }
 }

@@ -18,6 +18,7 @@ builder.Services.AddEndpointsApiExplorer();
 
 if (builder.Environment.IsDevelopment())
 {
+    builder.Services.AddAdmins(builder.Configuration);
     builder.Services.ConfigureSwagger(Assembly.GetExecutingAssembly());
 }
 
