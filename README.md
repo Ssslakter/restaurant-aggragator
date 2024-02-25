@@ -1,42 +1,40 @@
-# Restaurant aggregator
+# Restaurant Aggregator
 
-## Содержание
-* [Компоненты](#компоненты)
-* [Как запускать](#как-запускать)
-* [Конфигурация](#конфигурация)
-* ["Фичи"](#фичи)
-* [Альтернативные решения](#альтернативные-решения)
+## Contents
+* [Components](#components)
+* [How to Run](#how-to-run)
+* [Configuration](#configuration)
+* [Features](#features)
+* [Alternative Solutions](#alternative-solutions)
 
-## Компоненты
-* **MVC** - панель администратора, которая позволяет управлять ресторанами и пользователями/ролями
-* **API** - основной сервис для работы с ресторанами
-* **Auth** - сервис для аутентификации пользователей
-* **Notifications** - сервис для отправки уведомлений
+## Components
+* **MVC** - an admin panel that allows managing restaurants and users/roles
+* **API** - the main service for working with restaurants
+* **Auth** - service for user authentication
+* **Notifications** - service for sending notifications
 
-## Как запускать
-1. Поднять зависимости через файл `docker-compose.DB.yml`
-2. Важно чтобы при первом запуске окружение было `Development`, в нем запускается код,
-который автоматически добавит в базу аккаунты сервисов и админа
-3. Запустить один или несколько компонентов
+## How to Run
+1. Raise dependencies through the `docker-compose.DB.yml` file
+2. It's important that the environment is `Development` during the first run; in this environment, code runs that automatically adds service accounts and an admin to the database
+3. Run one or several components
 
-Креды для админа:
+Admin credentials
 ```sh
 123@admin.com
 String123
 ```
 
-## Конфигурация
-Все необходимые настройки, такие как конфиги Jwt, креды от бд и т.д. хранятся в файле `appsettings.json` в каждом компоненте, который запускается
-## "Фичи"
-1. При формировании заказа в API текущая цена блюда фиксируется, даже если она в дальнейшем изменится
-2. Для получения имени курьера и клиента сервис API испольузет Auth.Client для отправки запросов на сервис Auth используя креды сервисного аккаунта
-3. При изменении статуса заказа в API отправляется уведомление в очередь RabbitMQ, которая обрабатывается сервисом Notifications
-4. В MVC реализована Cookie авторизация
-5. В MVC реализована возможность добавления персонала в ресторан через select
-6. Кастомные ошибки и мидлвары для логирования
-7. Настройки конфигурации, атрибуты, сваггер вынесены в отдельный компонент Infra
+## Configuration
+All necessary settings, such as Jwt configs, database credentials, etc., are stored in the `appsettings.json` file in each component that is launched.
+## Features
+1. When forming an order in the API, the current price of the dish is fixed, even if it changes later
+2. To obtain the name of the courier and client, the API service uses Auth.Client to send requests to the Auth service using service account credentials
+3. When changing the order status in the API, a notification is sent to the RabbitMQ queue, which is processed by the Notifications service
+4. Cookie authorization implemented in MVC
+5. In MVC, it's possible to add staff to a restaurant via select
+6. Custom errors and middleware for logging
+7. Configuration settings, attributes, swagger moved to a separate Infra component
 
-## Альтернативные решения
-* MVC имеет доступ к базе API и Auth, что позволяет избежать лишних синхронных запросов, но при этом нарушает принципы микросервисной архитектуры,
-можно было бы создать пакет для клиента API и отпралять запросы через него и Auth.Client
-* Выпилить MVC...
+## Alternative Solutions
+* MVC has access to the API and Auth databases, which avoids extra synchronous requests, but this violates the principles of microservice architecture. It would be possible to create a package for the API client and send requests through it and Auth.Client
+* Removing MVC...
